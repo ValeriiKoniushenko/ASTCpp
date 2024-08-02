@@ -7,3 +7,6 @@
 [submodule "dependencies/benchmark"]
 	path = dependencies/benchmark
 	url = git@github.com:google/benchmark.git
+[submodule "dependencies/Utils"]
+	path = dependencies/Utils
+	url = git@github.com:ValeriiKoniushenko/Utils.git
