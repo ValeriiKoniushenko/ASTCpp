@@ -1,0 +1,7 @@
+.vs
+.vscode
+.idea
+cmake-build-*/
+build
+out
+dependencies
