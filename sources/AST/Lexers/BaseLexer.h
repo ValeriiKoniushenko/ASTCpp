@@ -23,7 +23,10 @@
 #include "../CommonTypes.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
-#include <filesystem>
+namespace std::filesystem
+{
+    class path;
+} // namespace std::filesystem
 
 namespace Ast
 {
@@ -98,12 +101,13 @@ namespace Ast
             Static
         };
 
-        [[nodiscard]] virtual bool TryToRecognize(const Ast::String& string) = 0;
 
         ~BaseLexer() override = default;
 
     protected:
-        BaseLexer() = default;
+        [[nodiscard]] virtual bool TryToRecognize(const Ast::String& string) = 0;
+
+        BaseLexer(const std::filesystem::path* filePath, Type type, TypeQualifier typeQualifier);
 
     protected:
         const Char* _tokenStart = nullptr;

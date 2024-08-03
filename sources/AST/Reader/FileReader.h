@@ -18,31 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "BaseLexer.h"
-#include "Core/Assert.h"
+#pragma once
+
+#include "../CommonTypes.h"
+
+#include "Utils/CopyableAndMoveableBehaviour.h"
 
 #include <filesystem>
 
 namespace Ast
 {
 
-    void LexerLogCollector::AddLog(const LogLine& logLine)
+    class FileReader final : public Utils::CopyableAndMoveable
     {
-        if (Verify(logLine.type != LogType::None, "Was passed LogType::None but expected NOT LogType::None") &&
-            Verify(!logLine.message.IsEmpty(), "Was passed an empty message to the log"))
-        {
-            _logs.emplace_back(logLine);
-        }
-    }
+    public:
+        FileReader() = default;
+        ~FileReader() override = default;
 
-    BaseLexer::BaseLexer(const std::filesystem::path* filePath, Type type, TypeQualifier typeQualifier)
-        : _filePath{ _filePath },
-          _type{ type },
-          _typeQualifier{ typeQualifier }
-    {
-        Assert(_filePath);
-        Assert(_type != Type::None);
-        Assert(_typeQualifier != TypeQualifier::None);
-    }
+        bool Read(const std::filesystem::path& path);
+
+    private:
+        String _content;
+        std::filesystem::path _path;
+    };
 
 } // namespace Ast

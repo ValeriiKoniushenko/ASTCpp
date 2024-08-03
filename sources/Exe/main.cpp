@@ -18,31 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "BaseLexer.h"
-#include "Core/Assert.h"
+#include "AST/Reader/FileReader.h"
 
-#include <filesystem>
+#include <iostream>
 
-namespace Ast
+int main()
 {
+    using namespace std;
 
-    void LexerLogCollector::AddLog(const LogLine& logLine)
+    Ast::FileReader fileReader;
+    if (fileReader.Read("D:\\Workspace\\test.cpp"))
     {
-        if (Verify(logLine.type != LogType::None, "Was passed LogType::None but expected NOT LogType::None") &&
-            Verify(!logLine.message.IsEmpty(), "Was passed an empty message to the log"))
-        {
-            _logs.emplace_back(logLine);
-        }
+
     }
 
-    BaseLexer::BaseLexer(const std::filesystem::path* filePath, Type type, TypeQualifier typeQualifier)
-        : _filePath{ _filePath },
-          _type{ type },
-          _typeQualifier{ typeQualifier }
-    {
-        Assert(_filePath);
-        Assert(_type != Type::None);
-        Assert(_typeQualifier != TypeQualifier::None);
-    }
-
-} // namespace Ast
+    return 0;
+}
