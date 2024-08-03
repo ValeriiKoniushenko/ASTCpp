@@ -10,3 +10,4 @@
 [submodule "dependencies/Utils"]
 	path = dependencies/Utils
 	url = git@github.com:ValeriiKoniushenko/Utils.git
+	ignore = dirty
