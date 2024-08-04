@@ -36,6 +36,7 @@ namespace Ast
         ~FileReader() override = default;
 
         bool Read(const std::filesystem::path& path);
+        const String& Data() const noexcept;
 
     private:
         String _content;

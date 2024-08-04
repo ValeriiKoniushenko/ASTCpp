@@ -18,26 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "FileReader.h"
+#pragma once
 
-#include "Utils/Functions.h"
+#include "BaseLexer.h"
 
 namespace Ast
 {
+    class FileReader;
 
-    bool FileReader::Read(const std::filesystem::path& path)
+    class NamespaceLexer final : public BaseLexer
     {
-        if ((_content = Utils::GetTextFileContentAs<String>(path)))
-        {
-            _content.ShrinkToFit();
-            _path = path;
-        }
-        return !_content.IsEmpty();
-    }
+    public:
+        explicit NamespaceLexer(const FileReader& filePath);
+        ~NamespaceLexer() override = default;
 
-    const String& FileReader::Data() const noexcept
-    {
-        return _content;
-    }
+        [[nodiscard]] bool TryToRecognize(const String& string, LexerLogCollector& logCollector) override;
+
+    private:
+
+    };
 
 } // namespace Ast

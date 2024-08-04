@@ -23,13 +23,9 @@
 #include "../CommonTypes.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
-namespace std::filesystem
-{
-    class path;
-} // namespace std::filesystem
-
 namespace Ast
 {
+    class FileReader;
 
     class LexerLogCollector : public Utils::CopyableAndMoveable
     {
@@ -87,7 +83,7 @@ namespace Ast
             EnumClass,
         };
 
-        enum class TypeQualifier
+        enum class TypeAttribute
         {
             None,
             Pointer,
@@ -105,17 +101,17 @@ namespace Ast
         ~BaseLexer() override = default;
 
     protected:
-        [[nodiscard]] virtual bool TryToRecognize(const Ast::String& string) = 0;
+        [[nodiscard]] virtual bool TryToRecognize(const String& string, LexerLogCollector& logCollector) = 0;
 
-        BaseLexer(const std::filesystem::path* filePath, Type type, TypeQualifier typeQualifier);
+        BaseLexer(const FileReader& reader, Type type, TypeAttribute typeQualifier);
 
     protected:
         const Char* _tokenStart = nullptr;
         const Char* _tokenEnd = nullptr;
-        const std::filesystem::path* _filePath = nullptr;
+        const FileReader* _reader = nullptr;
 
         Type _type = Type::None;
-        TypeQualifier _typeQualifier = TypeQualifier::None;
+        TypeAttribute _typeQualifier = TypeAttribute::None;
     };
 
 }// namespace Ast

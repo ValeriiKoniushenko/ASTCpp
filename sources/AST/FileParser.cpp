@@ -18,26 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "FileReader.h"
+#include "FileParser.h"
 
-#include "Utils/Functions.h"
+#include "Reader/NamespaceReader.h"
 
 namespace Ast
 {
 
-    bool FileReader::Read(const std::filesystem::path& path)
+    FileParser::FileParser(const FileReader& file)
     {
-        if ((_content = Utils::GetTextFileContentAs<String>(path)))
-        {
-            _content.ShrinkToFit();
-            _path = path;
-        }
-        return !_content.IsEmpty();
+        Parse(file);
     }
 
-    const String& FileReader::Data() const noexcept
+    bool FileParser::Parse(const FileReader& file)
     {
-        return _content;
+        for (auto&& token : NamespaceReader(file))
+        {
+            int i = 1;
+        }
+
+        return true;
     }
 
 } // namespace Ast

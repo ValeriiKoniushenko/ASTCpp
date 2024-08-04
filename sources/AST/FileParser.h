@@ -18,26 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "FileReader.h"
+#pragma once
 
-#include "Utils/Functions.h"
+#include "Lexers/NamespaceLexer.h"
+#include "Utils/CopyableAndMoveableBehaviour.h"
+
+#include <vector>
 
 namespace Ast
 {
+    class FileReader;
 
-    bool FileReader::Read(const std::filesystem::path& path)
+    class FileParser final : Utils::CopyableAndMoveable
     {
-        if ((_content = Utils::GetTextFileContentAs<String>(path)))
-        {
-            _content.ShrinkToFit();
-            _path = path;
-        }
-        return !_content.IsEmpty();
-    }
+    public:
+        FileParser() = default;
+        ~FileParser() override = default;
 
-    const String& FileReader::Data() const noexcept
-    {
-        return _content;
-    }
+        explicit FileParser(const FileReader& file);
+
+        bool Parse(const FileReader& file);
+
+    private:
+        std::vector<NamespaceLexer> _namespaceLexers;
+    };
 
 } // namespace Ast

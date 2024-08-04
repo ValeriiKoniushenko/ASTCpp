@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "AST/FileParser.h"
 #include "AST/Reader/FileReader.h"
 
 #include <iostream>
@@ -29,7 +30,8 @@ int main()
     Ast::FileReader fileReader;
     if (fileReader.Read("D:\\Workspace\\test.cpp"))
     {
-
+        Ast::FileParser fileParser(fileReader);
+        int i = 1;
     }
 
     return 0;

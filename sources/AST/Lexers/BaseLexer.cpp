@@ -19,9 +19,9 @@
 // SOFTWARE.
 
 #include "BaseLexer.h"
-#include "Core/Assert.h"
 
-#include <filesystem>
+#include "Core/Assert.h"
+#include "../Reader/FileReader.h"
 
 namespace Ast
 {
@@ -35,14 +35,13 @@ namespace Ast
         }
     }
 
-    BaseLexer::BaseLexer(const std::filesystem::path* filePath, Type type, TypeQualifier typeQualifier)
-        : _filePath{ _filePath },
+    BaseLexer::BaseLexer(const FileReader& reader, Type type, TypeAttribute typeQualifier)
+        : _reader{ &reader },
           _type{ type },
           _typeQualifier{ typeQualifier }
     {
-        Assert(_filePath);
+        Assert(_reader);
         Assert(_type != Type::None);
-        Assert(_typeQualifier != TypeQualifier::None);
     }
 
 } // namespace Ast
