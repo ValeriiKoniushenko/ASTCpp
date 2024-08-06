@@ -23,6 +23,8 @@
 #include "../Lexers/BaseLexer.h"
 #include "Core/AbstractIterators.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
+#include "Token.h"
+#include "BaseTokenReaderImpl.h"
 
 #include <type_traits>
 
@@ -33,82 +35,40 @@ namespace Ast
     template<class T>
     concept IsLexer = std::is_base_of_v<BaseLexer, T>;
 
-    template<IsLexer LexerType>
     class BaseTokenReader : public Utils::CopyableAndMoveable
     {
     public:
-        using LexerT = LexerType;
-
-    public:
-        explicit BaseTokenReader(const FileReader& fileReader)
+        explicit BaseTokenReader(const FileReader& fileReader, const BaseTokenReaderImpl* tokenReaderImpl)
             : _fileReader{ &fileReader }
         {
+            _tokenReaderImpl = tokenReaderImpl;
         }
 
         ~BaseTokenReader() override = default;
 
-        struct Token : Utils::CopyableAndMoveable
-        {
-            const String::CharT* beginData = nullptr;
-            const String::CharT* endData = nullptr;
-
-            [[nodiscard]] bool IsValid() const noexcept { return beginData != nullptr && endData != nullptr; }
-        };
-
-        class Iterator final : public Core::IForwardIterator<Token, Iterator, Utils::CopyableAndMoveable, true>
+        class Iterator final : public Core::IForwardIterator<TokenReader, Iterator, Utils::CopyableAndMoveable, true>
         {
         public:
             Iterator() = default;
             ~Iterator() override = default;
 
-            [[nodiscard]] bool operator==(const Iterator& other) const noexcept override
-            {
-                return _baseTokenReader == other._baseTokenReader && _token.beginData == other._token.beginData;
-            }
+            [[nodiscard]] bool operator==(const Iterator& other) const noexcept override;
 
             [[nodiscard]] bool operator!=(const Iterator& other) const noexcept override { return !(*this == other); }
 
-            [[nodiscard]] const Token operator*() const noexcept override { return _token; }
+            [[nodiscard]] const TokenReader operator*() const noexcept override { return _token; }
 
-            [[nodiscard]] const Token operator->() const override { return _token; }
+            [[nodiscard]] const TokenReader operator->() const override { return _token; }
 
-            void Swap(Iterator& other) override
-            {
-                auto temp = *this;
-                _token = other._token;
-                _baseTokenReader = other._baseTokenReader;
+            void Swap(Iterator& other) override;
 
-                other._token = temp._token;
-                other._baseTokenReader = temp._baseTokenReader;
-            }
+            [[nodiscard]] TokenReader operator*() noexcept override { return _token; }
 
-            [[nodiscard]] Token operator*() noexcept override { return _token; }
+            [[nodiscard]] TokenReader operator->() noexcept override { return _token; }
 
-            [[nodiscard]] Token operator->() noexcept override { return _token; }
+            Iterator& operator++() noexcept override;
 
-            Iterator& operator++() noexcept override
-            {
-                if (Verify(_baseTokenReader))
-                {
-                    if (auto token = _baseTokenReader->FindNextToken())
-                    {
-                        _token = *token;
-                    }
-                    else
-                    {
-                        *this = Iterator();
-                    }
-                }
-
-                return *this;
-            }
-
-            Iterator operator++(int) noexcept override
-            {
-                auto temp = *this;
-                ++temp;
-                return *this;
-            }
+            Iterator operator++(int) noexcept override;
 
         protected:
             explicit Iterator(BaseTokenReader& baseTokenReader)
@@ -117,7 +77,7 @@ namespace Ast
             }
 
         protected:
-            Token _token;
+            TokenReader _token;
 
         private:
             BaseTokenReader* _baseTokenReader = nullptr;
@@ -138,14 +98,22 @@ namespace Ast
             return Iterator{};
         }
 
+        [[nodiscard]] const FileReader* GetFileReader() const noexcept { return _fileReader; }
+        [[nodiscard]] const TokenReader& GetLastToken() const noexcept { return _lastToken; }
+        void SetLastToken(const TokenReader& lastToken) noexcept { _lastToken = lastToken; }
+
     protected:
-        [[nodiscard]] virtual std::optional<Token> FindNextToken() = 0;
+        [[nodiscard]] virtual std::optional<TokenReader> FindNextToken() const;
 
     protected:
         const FileReader* _fileReader = nullptr;
-        Token _token;
+        TokenReader _lastToken;
+        const BaseTokenReaderImpl* _tokenReaderImpl = nullptr;
 
         friend class Iterator;
     };
+
+    template<class T>
+    concept IsReader = std::is_base_of_v<BaseTokenReader, T>;
 
 } // namespace Ast

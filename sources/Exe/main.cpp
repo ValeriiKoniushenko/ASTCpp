@@ -31,7 +31,6 @@ int main()
     if (fileReader.Read("D:\\Workspace\\test.cpp"))
     {
         Ast::FileParser fileParser(fileReader);
-        int i = 1;
     }
 
     return 0;

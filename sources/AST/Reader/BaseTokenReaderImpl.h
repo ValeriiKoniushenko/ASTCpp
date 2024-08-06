@@ -20,20 +20,26 @@
 
 #pragma once
 
-#include "BaseLexer.h"
+#include "Token.h"
+#include "Utils/CopyableAndMoveableBehaviour.h"
 
 namespace Ast
 {
-    class FileReader;
+    class BaseTokenReader;
 
-    class NamespaceLexer final : public BaseLexer
+    class BaseTokenReaderImpl : public Utils::CopyableAndMoveable
     {
     public:
-        explicit NamespaceLexer(const FileReader& fileReader);
-        ~NamespaceLexer() override = default;
+        [[nodiscard]] virtual std::optional<TokenReader> FindNextToken() const = 0;
 
-    private:
+    protected:
+        explicit BaseTokenReaderImpl(BaseTokenReader* baseTokenReader);
 
+    protected:
+        BaseTokenReader* _baseTokenReader = nullptr;
     };
+
+    template<class T>
+    concept IsBaseTokenReaderImpl = std::is_same_v<BaseTokenReaderImpl, T>;
 
 } // namespace Ast

@@ -19,21 +19,25 @@
 // SOFTWARE.
 
 #pragma once
-
-#include "BaseLexer.h"
+#include "BaseTokenReaderImpl.h"
 
 namespace Ast
 {
     class FileReader;
 
-    class NamespaceLexer final : public BaseLexer
+    class RegexTokenReaderImpl : public BaseTokenReaderImpl
     {
     public:
-        explicit NamespaceLexer(const FileReader& fileReader);
-        ~NamespaceLexer() override = default;
+        RegexTokenReaderImpl(BaseTokenReader* baseTokenReader, const Core::StringAtom& regexExpr)
+            : BaseTokenReaderImpl(baseTokenReader),
+              _regexExpr{ regexExpr }
+        {
+        }
 
-    private:
+        [[nodiscard]] std::optional<TokenReader> FindNextToken() const override;
 
+    protected:
+        const Core::StringAtom _regexExpr;
     };
 
 } // namespace Ast

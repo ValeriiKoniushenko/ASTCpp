@@ -25,14 +25,9 @@
 namespace Ast
 {
 
-    NamespaceLexer::NamespaceLexer(const FileReader& filePath)
-        : BaseLexer(filePath, Type::Namespace, TypeAttribute::None)
+    NamespaceLexer::NamespaceLexer(const FileReader& fileReader)
+        : BaseLexer(fileReader, Type::Namespace)
     {
-    }
-
-    bool NamespaceLexer::TryToRecognize(const Ast::String& string, LexerLogCollector& logCollector)
-    {
-        return true;
     }
 
 } // namespace Ast

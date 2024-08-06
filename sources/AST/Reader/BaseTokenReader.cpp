@@ -18,34 +18,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "BaseLexer.h"
-
-#include "Core/Assert.h"
-#include "../Reader/FileReader.h"
+#include "BaseTokenReader.h"
 
 namespace Ast
 {
 
-    void LexerLogCollector::AddLog(const LogLine& logLine)
+    bool BaseTokenReader::Iterator::operator==(const Iterator& other) const noexcept
     {
-        if (Verify(logLine.type != LogType::None, "Was passed LogType::None but expected NOT LogType::None") &&
-            Verify(!logLine.message.IsEmpty(), "Was passed an empty message to the log"))
+        return _baseTokenReader == other._baseTokenReader && _token.beginData == other._token.beginData;
+    }
+
+    void BaseTokenReader::Iterator::Swap(Iterator& other)
+    {
+        auto temp = *this;
+        _token = other._token;
+        _baseTokenReader = other._baseTokenReader;
+
+        other._token = temp._token;
+        other._baseTokenReader = temp._baseTokenReader;
+    }
+
+    BaseTokenReader::Iterator& BaseTokenReader::Iterator::operator++() noexcept
+    {
+        if (Verify(_baseTokenReader))
         {
-            _logs.emplace_back(logLine);
+            if (auto token = _baseTokenReader->FindNextToken())
+            {
+                _token = *token;
+            }
+            else
+            {
+                *this = Iterator();
+            }
         }
+
+        return *this;
     }
 
-    void BaseLexer::SetToken(const TokenReader& token)
+    BaseTokenReader::Iterator BaseTokenReader::Iterator::operator++(int) noexcept
     {
-        _token = token;
+        auto temp = *this;
+        ++temp;
+        return *this;
     }
 
-    BaseLexer::BaseLexer(const FileReader& reader, Type type)
-        : _reader{ &reader },
-          _type{ type }
+    std::optional<TokenReader> BaseTokenReader::FindNextToken() const
     {
-        Assert(_reader);
-        Assert(_type != Type::None);
+        if (Verify(_tokenReaderImpl))
+        {
+            return _tokenReaderImpl->FindNextToken();
+        }
+
+        return std::nullopt;
     }
 
 } // namespace Ast

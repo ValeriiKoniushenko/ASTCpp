@@ -21,6 +21,7 @@
 #pragma once
 
 #include "../CommonTypes.h"
+#include "../Reader/Token.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
 namespace Ast
@@ -97,17 +98,15 @@ namespace Ast
             Static
         };
 
-
         ~BaseLexer() override = default;
 
-    protected:
-        [[nodiscard]] virtual bool TryToRecognize(const String& string, LexerLogCollector& logCollector) = 0;
-
-        BaseLexer(const FileReader& reader, Type type, TypeAttribute typeQualifier);
+        void SetToken(const TokenReader& token);
 
     protected:
-        const Char* _tokenStart = nullptr;
-        const Char* _tokenEnd = nullptr;
+        BaseLexer(const FileReader& reader, Type type);
+
+    protected:
+        TokenReader _token;
         const FileReader* _reader = nullptr;
 
         Type _type = Type::None;

@@ -20,20 +20,26 @@
 
 #pragma once
 
-#include "BaseLexer.h"
+#include "../Lexers/ClassLexer.h"
+#include "BaseTokenReader.h"
+#include "RegexTokenReaderImpl.h"
 
 namespace Ast
 {
     class FileReader;
 
-    class NamespaceLexer final : public BaseLexer
+    class ClassReader final : public BaseTokenReader
     {
     public:
-        explicit NamespaceLexer(const FileReader& fileReader);
-        ~NamespaceLexer() override = default;
+        inline static const auto regexNamespace = R"(^\s*namespace\s+((::\s*)?\w+)+)"_atom;
 
-    private:
+    public:
+        explicit ClassReader(const FileReader& fileReader)
+            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regexNamespace))
+        {
+        }
 
+        ~ClassReader() override = default;
     };
 
 } // namespace Ast

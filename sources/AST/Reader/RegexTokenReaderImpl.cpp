@@ -18,47 +18,55 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "NamespaceReader.h"
+#include "RegexTokenReaderImpl.h"
 
 #include "FileReader.h"
+#include "BaseTokenReader.h"
 
 namespace Ast
 {
 
-    /*std::optional<TokenReader> NamespaceReader::FindNextToken()
+    std::optional<TokenReader> RegexTokenReaderImpl::FindNextToken() const
     {
-        if (!Verify(_fileReader))
+        if (!Verify(_baseTokenReader))
         {
-            return {};
+            return std::nullopt;
         }
 
-        auto tempToken = _lastToken;
+        if (!Verify(_baseTokenReader->GetFileReader()))
+        {
+            return std::nullopt;
+        }
+
+        const auto& data = _baseTokenReader->GetFileReader()->Data();
+
+        auto tempToken = _baseTokenReader->GetLastToken();;
 
         if (!tempToken.IsValid())
         {
-            tempToken.beginData = _fileReader->Data().c_str();
-            tempToken.endData = _fileReader->Data().c_str() + _fileReader->Data().Size() - 1ull;
+            tempToken.beginData = data.c_str();
+            tempToken.endData = data.c_str() + data.Size() - 1ull;
         }
 
         if (!Verify(tempToken.IsValid()))
         {
-            return {};
+            return std::nullopt;
         }
 
         auto offset = 0;
-        if (tempToken.endData != _fileReader->Data().c_str() + _fileReader->Data().Size() - 1ull)
+        if (tempToken.endData != data.c_str() + data.Size() - 1ull)
         {
-            offset = static_cast<int>(tempToken.endData - _fileReader->Data().c_str());
+            offset = static_cast<int>(tempToken.endData - data.c_str());
         }
         bool wasFoundAtLeastOneToken = false;
 
-        _fileReader->Data().IterateRegex(regexNamespace, offset, [&](const Core::StringAtom::StdRegexMatchResults& match)
+        data.IterateRegex(_regexExpr.c_str(), offset, [&](const Core::StringAtom::StdRegexMatchResults& match)
         {
             wasFoundAtLeastOneToken = true;
             auto s = match[0];
 
-            tempToken.beginData = _fileReader->Data().c_str() + (match[0].first - _fileReader->Data().begin());
-            tempToken.endData = _fileReader->Data().c_str() + (match[0].second - _fileReader->Data().begin());
+            tempToken.beginData = data.c_str() + (match[0].first - data.begin());
+            tempToken.endData = data.c_str() + (match[0].second - data.begin());
             return false;
         });
 
@@ -67,7 +75,9 @@ namespace Ast
             return std::nullopt;
         }
 
-        return std::make_optional(_lastToken = tempToken);
-    }*/
+        _baseTokenReader->SetLastToken(tempToken);
+
+        return std::make_optional(tempToken);
+    }
 
 } // namespace Ast

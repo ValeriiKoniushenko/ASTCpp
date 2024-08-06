@@ -24,16 +24,16 @@
 
 namespace Ast
 {
-    class FileReader;
+  class FileReader;
 
-    class NamespaceLexer final : public BaseLexer
-    {
-    public:
-        explicit NamespaceLexer(const FileReader& fileReader);
-        ~NamespaceLexer() override = default;
+  class ClassLexer final : public BaseLexer
+  {
+  public:
+    explicit ClassLexer(const FileReader& fileReader);
+    ~ClassLexer() override = default;
 
-    private:
+  private:
 
-    };
+  };
 
 } // namespace Ast

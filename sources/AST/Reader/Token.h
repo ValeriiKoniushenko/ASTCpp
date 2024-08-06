@@ -20,20 +20,17 @@
 
 #pragma once
 
-#include "BaseLexer.h"
+#include "../CommonTypes.h"
 
 namespace Ast
 {
-    class FileReader;
 
-    class NamespaceLexer final : public BaseLexer
+    struct TokenReader : Utils::CopyableAndMoveable
     {
-    public:
-        explicit NamespaceLexer(const FileReader& fileReader);
-        ~NamespaceLexer() override = default;
+        const String::CharT* beginData = nullptr;
+        const String::CharT* endData = nullptr;
 
-    private:
-
+        [[nodiscard]] bool IsValid() const noexcept { return beginData != nullptr && endData != nullptr; }
     };
 
 } // namespace Ast

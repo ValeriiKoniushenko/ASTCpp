@@ -32,10 +32,8 @@ namespace Ast
 
     bool FileParser::Parse(const FileReader& file)
     {
-        for (auto&& token : NamespaceReader(file))
-        {
-            int i = 1;
-        }
+        Read<NamespaceLexer, NamespaceReader>(_namespaceLexers, file);
+        Read<ClassLexer, ClassReader>(_classLexers, file);
 
         return true;
     }

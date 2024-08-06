@@ -20,24 +20,25 @@
 
 #pragma once
 
-#include "BaseTokenReader.h"
 #include "../Lexers/NamespaceLexer.h"
+#include "BaseTokenReader.h"
+#include "RegexTokenReaderImpl.h"
 
 namespace Ast
 {
     class FileReader;
 
-    class NamespaceReader final : public BaseTokenReader<NamespaceLexer>
+    class NamespaceReader final : public BaseTokenReader
     {
     public:
-        static constexpr const char* regexNamespace{ R"(^\s*namespace\s+((::\s*)?\w+)+)" };
+        inline static const auto regexNamespace = R"(^\s*namespace\s+((::\s*)?\w+)+)"_atom;
 
     public:
-        explicit NamespaceReader(const FileReader& fileReader);
+        explicit NamespaceReader(const FileReader& fileReader)
+            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regexNamespace))
+        {
+        }
         ~NamespaceReader() override = default;
-
-    private:
-        [[nodiscard]] std::optional<Token> FindNextToken() override;
     };
 
 } // namespace Ast

@@ -18,14 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "NamespaceReader.h"
+#include "ClassReader.h"
 
 #include "FileReader.h"
+#include "RegexTokenReaderImpl.h"
 
 namespace Ast
 {
 
-    /*std::optional<TokenReader> NamespaceReader::FindNextToken()
+    /*std::optional<TokenReader> ClassReader::FindNextToken()
     {
         if (!Verify(_fileReader))
         {
@@ -55,10 +56,8 @@ namespace Ast
         _fileReader->Data().IterateRegex(regexNamespace, offset, [&](const Core::StringAtom::StdRegexMatchResults& match)
         {
             wasFoundAtLeastOneToken = true;
-            auto s = match[0];
-
-            tempToken.beginData = _fileReader->Data().c_str() + (match[0].first - _fileReader->Data().begin());
-            tempToken.endData = _fileReader->Data().c_str() + (match[0].second - _fileReader->Data().begin());
+            tempToken.beginData = _fileReader->Data().c_str() + match.position();
+            tempToken.endData = _fileReader->Data().c_str() + match.position() + match.length();
             return false;
         });
 
