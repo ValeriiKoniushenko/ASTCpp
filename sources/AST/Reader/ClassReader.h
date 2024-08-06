@@ -31,7 +31,7 @@ namespace Ast
     class ClassReader final : public BaseTokenReader
     {
     public:
-        inline static const auto regexNamespace = R"(^\s*namespace\s+((::\s*)?\w+)+)"_atom;
+        inline static const auto regexNamespace = R"(^\s*class\s+\w+(\s*:\s*)?([\w:<>\s,]+)\{)"_atom;
 
     public:
         explicit ClassReader(const FileReader& fileReader)
