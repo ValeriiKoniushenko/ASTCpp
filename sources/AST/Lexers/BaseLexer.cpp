@@ -40,12 +40,12 @@ namespace Ast
         _token = token;
     }
 
-    BaseLexer::BaseLexer(const FileReader& reader, Type type)
+    BaseLexer::BaseLexer(const FileReader& reader, const String& type)
         : _reader{ &reader },
           _type{ type }
     {
         Assert(_reader);
-        Assert(_type != Type::None);
+        Assert(!_type.IsEmpty());
     }
 
 } // namespace Ast

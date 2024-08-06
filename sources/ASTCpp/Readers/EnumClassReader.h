@@ -18,11 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "NamespaceReader.h"
+#pragma once
+
+#include "../Lexers/NamespaceLexer.h"
+#include "AST/Readers/BaseTokenReader.h"
+#include "AST/Readers/RegexTokenReaderImpl.h"
 
 namespace Ast::Cpp
 {
+    class EnumClassReader final : public BaseTokenReader
+    {
+    public:
+        inline static const auto regex = R"(^\s*enum\s+class\s+\w+(\s*:\s*[\w ]+)?)"_atom;
 
-
+    public:
+        explicit EnumClassReader(const Ast::FileReader& fileReader)
+            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regex))
+        {
+        }
+        ~EnumClassReader() override = default;
+    };
 
 } // namespace Ast::Cpp

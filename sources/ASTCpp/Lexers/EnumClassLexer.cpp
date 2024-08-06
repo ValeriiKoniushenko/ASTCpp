@@ -18,14 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "NamespaceLexer.h"
+#include "EnumClassLexer.h"
 
 #include "AST/Readers/FileReader.h"
 
 namespace Ast::Cpp
 {
 
-    NamespaceLexer::NamespaceLexer(const FileReader& fileReader)
+    EnumClassLexer::EnumClassLexer(const FileReader& fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }

@@ -71,46 +71,18 @@ namespace Ast
     class BaseLexer : public Utils::CopyableAndMoveable
     {
     public:
-        enum class Type
-        {
-            None,
-            Variable,
-            Property,
-            Value,
-            Class,
-            Struct,
-            Namespace,
-            Enum,
-            EnumClass,
-        };
-
-        enum class TypeAttribute
-        {
-            None,
-            Pointer,
-            Reference,
-            Const,
-            Constexpr,
-            Constinit,
-            Consteval,
-            Attribute,
-            Extern,
-            Static
-        };
-
         ~BaseLexer() override = default;
 
         void SetToken(const TokenReader& token);
 
     protected:
-        BaseLexer(const FileReader& reader, Type type);
+        BaseLexer(const FileReader& reader, const String& type);
 
     protected:
         TokenReader _token;
         const FileReader* _reader = nullptr;
 
-        Type _type = Type::None;
-        TypeAttribute _typeQualifier = TypeAttribute::None;
+        const String _type;
     };
 
 }// namespace Ast

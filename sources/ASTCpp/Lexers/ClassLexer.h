@@ -30,14 +30,15 @@ namespace Ast
 namespace Ast::Cpp
 {
 
-  class ClassLexer final : public BaseLexer
-  {
-  public:
-    explicit ClassLexer(const Ast::FileReader& fileReader);
-    ~ClassLexer() override = default;
+    class ClassLexer final : public BaseLexer
+    {
+    public:
+        inline static const auto typeName = "class"_atom;
 
-  private:
+        explicit ClassLexer(const Ast::FileReader& fileReader);
+        ~ClassLexer() override = default;
 
-  };
+    private:
+    };
 
 } // namespace Ast::Cpp

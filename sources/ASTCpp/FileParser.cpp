@@ -22,8 +22,7 @@
 
 #include "Readers/ClassReader.h"
 #include "Readers/NamespaceReader.h"
-
-#include "AST/Readers/FileReader.h"
+#include "Readers/EnumClassReader.h"
 
 namespace Ast::Cpp
 {
@@ -32,6 +31,7 @@ namespace Ast::Cpp
     {
         ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, file);
         ReadAs<ClassLexer, ClassReader>(_classLexers, file);
+        ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, file);
 
         return true;
     }

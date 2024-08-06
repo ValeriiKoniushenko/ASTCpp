@@ -18,11 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "ClassReader.h"
+#pragma once
+
+#include "AST/Lexers/BaseLexer.h"
+
+namespace Ast
+{
+    class FileReader;
+} // namespace Ast
 
 namespace Ast::Cpp
 {
+    class EnumClassLexer final : public BaseLexer
+    {
+    public:
+        inline static const auto typeName = "enum-class"_atom;
 
+        explicit EnumClassLexer(const Ast::FileReader& fileReader);
+        ~EnumClassLexer() override = default;
 
+    private:
+    };
 
 } // namespace Ast::Cpp

@@ -29,11 +29,11 @@ namespace Ast::Cpp
     class NamespaceReader final : public BaseTokenReader
     {
     public:
-        inline static const auto regexNamespace = R"(^\s*namespace\s+((::\s*)?\w+)+)"_atom;
+        inline static const auto regex = R"(^\s*namespace\s+((::\s*)?\w+)+)"_atom;
 
     public:
         explicit NamespaceReader(const Ast::FileReader& fileReader)
-            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regexNamespace))
+            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regex))
         {
         }
         ~NamespaceReader() override = default;

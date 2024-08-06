@@ -22,6 +22,7 @@
 
 #include "AST/FileParser.h"
 #include "Lexers/ClassLexer.h"
+#include "Lexers/EnumClassLexer.h"
 #include "Lexers/NamespaceLexer.h"
 
 #include <vector>
@@ -33,6 +34,7 @@ namespace Ast
 
 namespace Ast::Cpp
 {
+
     class FileParser final : public Ast::FileParser
     {
     public:
@@ -48,6 +50,7 @@ namespace Ast::Cpp
     private:
         Container<ClassLexer> _classLexers;
         Container<NamespaceLexer> _namespaceLexers;
+        Container<EnumClassLexer> _enumClassLexers;
     };
 
 } // namespace Ast::Cpp

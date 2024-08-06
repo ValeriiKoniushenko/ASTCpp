@@ -26,7 +26,7 @@ namespace Ast::Cpp
 {
 
     ClassLexer::ClassLexer(const FileReader& fileReader)
-        : BaseLexer(fileReader, Type::Class)
+        : BaseLexer(fileReader, typeName)
     {
     }
 

@@ -32,6 +32,8 @@ namespace Ast::Cpp
     class NamespaceLexer final : public BaseLexer
     {
     public:
+        inline static const auto typeName = "namespace"_atom;
+
         explicit NamespaceLexer(const Ast::FileReader& fileReader);
         ~NamespaceLexer() override = default;
 

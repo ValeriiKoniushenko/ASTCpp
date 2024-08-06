@@ -31,11 +31,11 @@ namespace Ast::Cpp
     class ClassReader final : public BaseTokenReader
     {
     public:
-        inline static const auto regexNamespace = R"(^\s*class\s+\w+(\s*:\s*)?([\w:<>\s,]+)\{)"_atom;
+        inline static const auto regex = R"(^\s*class\s+\w+(\s*:\s*)?([\w:<>\s,]+)\{)"_atom;
 
     public:
         explicit ClassReader(const Ast::FileReader& fileReader)
-            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regexNamespace))
+            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regex))
         {
         }
 
