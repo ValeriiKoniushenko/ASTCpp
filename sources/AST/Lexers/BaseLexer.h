@@ -21,7 +21,7 @@
 #pragma once
 
 #include "../CommonTypes.h"
-#include "../Reader/Token.h"
+#include "../Readers/Token.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
 namespace Ast

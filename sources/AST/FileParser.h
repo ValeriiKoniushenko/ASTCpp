@@ -20,16 +20,15 @@
 
 #pragma once
 
-#include "Lexers/NamespaceLexer.h"
-#include "Lexers/ClassLexer.h"
+#include "Lexers/BaseLexer.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
-#include "Reader/ClassReader.h"
+#include "Readers/BaseTokenReader.h"
 
 #include <vector>
 
 namespace Ast
 {
-    class FileParser final : Utils::CopyableAndMoveable
+    class FileParser : Utils::CopyableAndMoveable
     {
     public:
         template<class T>
@@ -39,13 +38,11 @@ namespace Ast
         FileParser() = default;
         ~FileParser() override = default;
 
-        explicit FileParser(const FileReader& file);
-
-        bool Parse(const FileReader& file);
+        virtual bool Parse(const FileReader& file) = 0;
 
     protected:
         template<IsLexer Lexer, IsReader Reader>
-        static void Read(Container<Lexer>& container, const FileReader& file)
+        static void ReadAs(Container<Lexer>& container, const FileReader& file)
         {
             for (auto&& token : Reader(file))
             {
@@ -54,10 +51,6 @@ namespace Ast
                 container.push_back(std::move(lexer));
             }
         }
-
-    private:
-        Container<NamespaceLexer> _namespaceLexers;
-        Container<ClassLexer> _classLexers;
     };
 
 } // namespace Ast

@@ -20,8 +20,8 @@
 
 #include "BaseLexer.h"
 
+#include "../Readers/FileReader.h"
 #include "Core/Assert.h"
-#include "../Reader/FileReader.h"
 
 namespace Ast
 {

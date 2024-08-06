@@ -18,9 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "FileParser.h"
+#include "ClassLexer.h"
 
-namespace Ast
+#include "AST/Readers/FileReader.h"
+
+namespace Ast::Cpp
 {
 
-} // namespace Ast
+    ClassLexer::ClassLexer(const FileReader& fileReader)
+        : BaseLexer(fileReader, Type::Class)
+    {
+    }
+
+} // namespace Ast::Cpp

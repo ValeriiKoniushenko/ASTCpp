@@ -18,29 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "ASTCpp/FileParser.h"
 
-#include "../CommonTypes.h"
+#include "Readers/ClassReader.h"
+#include "Readers/NamespaceReader.h"
 
-#include "Utils/CopyableAndMoveableBehaviour.h"
+#include "AST/Readers/FileReader.h"
 
-#include <filesystem>
-
-namespace Ast
+namespace Ast::Cpp
 {
 
-    class FileReader final : public Utils::CopyableAndMoveable
+    bool FileParser::Parse(const Ast::FileReader& file)
     {
-    public:
-        FileReader() = default;
-        ~FileReader() override = default;
+        ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, file);
+        ReadAs<ClassLexer, ClassReader>(_classLexers, file);
 
-        bool Read(const std::filesystem::path& path);
-        const String& Data() const noexcept;
+        return true;
+    }
 
-    private:
-        String _content;
-        std::filesystem::path _path;
-    };
-
-} // namespace Ast
+} // namespace Ast::Cpp

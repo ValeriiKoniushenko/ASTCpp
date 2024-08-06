@@ -18,9 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "FileParser.h"
+#pragma once
+
+#include "../CommonTypes.h"
+
+#include "Utils/CopyableAndMoveableBehaviour.h"
+
+#include <filesystem>
 
 namespace Ast
 {
+
+    class FileReader final : public Utils::CopyableAndMoveable
+    {
+    public:
+        FileReader() = default;
+        ~FileReader() override = default;
+
+        bool Read(const std::filesystem::path& path);
+        [[nodiscard]] const String& Data() const noexcept;
+
+    private:
+        String _content;
+        std::filesystem::path _path;
+    };
 
 } // namespace Ast

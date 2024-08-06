@@ -18,28 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "ClassReader.h"
 
-#include "../Lexers/ClassLexer.h"
-#include "BaseTokenReader.h"
-#include "RegexTokenReaderImpl.h"
-
-namespace Ast
+namespace Ast::Cpp
 {
-    class FileReader;
 
-    class ClassReader final : public BaseTokenReader
-    {
-    public:
-        inline static const auto regexNamespace = R"(^\s*class\s+\w+(\s*:\s*)?([\w:<>\s,]+)\{)"_atom;
 
-    public:
-        explicit ClassReader(const FileReader& fileReader)
-            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regexNamespace))
-        {
-        }
 
-        ~ClassReader() override = default;
-    };
-
-} // namespace Ast
+} // namespace Ast::Cpp

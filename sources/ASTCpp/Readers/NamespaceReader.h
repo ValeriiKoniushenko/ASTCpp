@@ -18,9 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "FileParser.h"
+#pragma once
 
-namespace Ast
+#include "../Lexers/NamespaceLexer.h"
+#include "AST/Readers/BaseTokenReader.h"
+#include "AST/Readers/RegexTokenReaderImpl.h"
+
+namespace Ast::Cpp
 {
+    class NamespaceReader final : public BaseTokenReader
+    {
+    public:
+        inline static const auto regexNamespace = R"(^\s*namespace\s+((::\s*)?\w+)+)"_atom;
 
-} // namespace Ast
+    public:
+        explicit NamespaceReader(const Ast::FileReader& fileReader)
+            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regexNamespace))
+        {
+        }
+        ~NamespaceReader() override = default;
+    };
+
+} // namespace Ast::Cpp

@@ -20,9 +20,9 @@
 
 #include "NamespaceLexer.h"
 
-#include "../Reader/FileReader.h"
+#include "AST/Readers/FileReader.h"
 
-namespace Ast
+namespace Ast::Cpp
 {
 
     NamespaceLexer::NamespaceLexer(const FileReader& fileReader)
@@ -30,4 +30,4 @@ namespace Ast
     {
     }
 
-} // namespace Ast
+} // namespace Ast::Cpp

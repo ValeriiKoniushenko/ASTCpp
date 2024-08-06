@@ -20,20 +20,24 @@
 
 #pragma once
 
-#include "BaseLexer.h"
+#include "AST/Lexers/BaseLexer.h"
 
 namespace Ast
 {
-  class FileReader;
+    class FileReader;
+} // namespace Ast
+
+namespace Ast::Cpp
+{
 
   class ClassLexer final : public BaseLexer
   {
   public:
-    explicit ClassLexer(const FileReader& fileReader);
+    explicit ClassLexer(const Ast::FileReader& fileReader);
     ~ClassLexer() override = default;
 
   private:
 
   };
 
-} // namespace Ast
+} // namespace Ast::Cpp
