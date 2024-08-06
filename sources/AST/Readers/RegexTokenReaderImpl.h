@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #pragma once
+
 #include "BaseTokenReaderImpl.h"
 
 namespace Ast
@@ -28,7 +29,7 @@ namespace Ast
     class RegexTokenReaderImpl : public BaseTokenReaderImpl
     {
     public:
-        RegexTokenReaderImpl(BaseTokenReader* baseTokenReader, const Core::StringAtom& regexExpr)
+        RegexTokenReaderImpl(BaseTokenReader* baseTokenReader, const String& regexExpr)
             : BaseTokenReaderImpl(baseTokenReader),
               _regexExpr{ regexExpr }
         {
@@ -37,7 +38,7 @@ namespace Ast
         [[nodiscard]] std::optional<TokenReader> FindNextToken() const override;
 
     protected:
-        const Core::StringAtom _regexExpr;
+        const String _regexExpr;
     };
 
 } // namespace Ast

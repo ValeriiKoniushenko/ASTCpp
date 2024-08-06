@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "../Lexers/ClassLexer.h"
 #include "AST/Readers/BaseTokenReader.h"
 #include "AST/Readers/RegexTokenReaderImpl.h"
 

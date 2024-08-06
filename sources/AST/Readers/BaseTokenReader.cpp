@@ -64,7 +64,7 @@ namespace Ast
 
     std::optional<TokenReader> BaseTokenReader::FindNextToken() const
     {
-        if (Verify(_tokenReaderImpl))
+        if (Verify(!!_tokenReaderImpl))
         {
             return _tokenReaderImpl->FindNextToken();
         }

@@ -22,12 +22,13 @@
 
 #include "Token.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
 namespace Ast
 {
     class BaseTokenReader;
 
-    class BaseTokenReaderImpl : public Utils::CopyableAndMoveable
+    class BaseTokenReaderImpl : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseTokenReaderImpl>
     {
     public:
         [[nodiscard]] virtual std::optional<TokenReader> FindNextToken() const = 0;

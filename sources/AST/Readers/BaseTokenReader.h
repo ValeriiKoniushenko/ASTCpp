@@ -25,6 +25,7 @@
 #include "Utils/CopyableAndMoveableBehaviour.h"
 #include "Token.h"
 #include "BaseTokenReaderImpl.h"
+#include "boost/smart_ptr/intrusive_ptr.hpp"
 
 #include <type_traits>
 
@@ -38,10 +39,10 @@ namespace Ast
     class BaseTokenReader : public Utils::CopyableAndMoveable
     {
     public:
-        explicit BaseTokenReader(const FileReader& fileReader, const BaseTokenReaderImpl* tokenReaderImpl)
-            : _fileReader{ &fileReader }
+        BaseTokenReader(const FileReader& fileReader, boost::intrusive_ptr<BaseTokenReaderImpl> tokenReaderImpl)
+            : _fileReader{ &fileReader },
+              _tokenReaderImpl{ std::move(tokenReaderImpl) }
         {
-            _tokenReaderImpl = tokenReaderImpl;
         }
 
         ~BaseTokenReader() override = default;
@@ -108,7 +109,7 @@ namespace Ast
     protected:
         const FileReader* _fileReader = nullptr;
         TokenReader _lastToken;
-        const BaseTokenReaderImpl* _tokenReaderImpl = nullptr;
+        boost::intrusive_ptr<BaseTokenReaderImpl> _tokenReaderImpl = nullptr;
 
         friend class Iterator;
     };
