@@ -20,43 +20,15 @@
 
 #pragma once
 
-#include "../CommonTypes.h"
+#include "AST/Readers/FileReader.h"
 
-#include "Utils/CopyableAndMoveableBehaviour.h"
-
-#include <filesystem>
-
-namespace Ast
+namespace Ast::Cpp
 {
 
-    struct FileDataFilter : public Utils::CopyableAndMoveable
-    {
-        virtual void MakeTransform(String& content) = 0;
-    protected:
-        FileDataFilter() = default;
-    };
-
-    template<class T>
-    concept IsFileDataFilter = std::is_base_of_v<FileDataFilter, T>;
-
-    class FileReader final : public Utils::CopyableAndMoveable
+    class CommentFilter : public Ast::FileDataFilter
     {
     public:
-        FileReader() = default;
-        ~FileReader() override = default;
-
-        bool Read(const std::filesystem::path& path);
-        [[nodiscard]] const String& Data() const noexcept;
-
-        template<IsFileDataFilter ...Filter>
-        void ApplyFilters()
-        {
-            (Filter{}.MakeTransform(_content), ...);
-        }
-
-    private:
-        String _content;
-        std::filesystem::path _path;
+        void MakeTransform(String& content) override;
     };
 
-} // namespace Ast
+} // namespace Ast::Cpp

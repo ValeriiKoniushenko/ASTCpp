@@ -24,6 +24,8 @@ file(
 	"ASTCpp/Lexers/*.cpp"
 	"ASTCpp/Readers/*.h"
 	"ASTCpp/Readers/*.cpp"
+	"ASTCpp/Readers/Filters/*.h"
+	"ASTCpp/Readers/Filters/*.cpp"
 )
 
 add_library(ASTCppCore STATIC ${ASTCppSources})

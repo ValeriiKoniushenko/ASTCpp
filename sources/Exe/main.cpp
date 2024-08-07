@@ -20,6 +20,7 @@
 
 #include "AST/Readers/FileReader.h"
 #include "ASTCpp/FileParser.h"
+#include "ASTCpp/Readers/Filters/CommentFilter.h"
 
 #include <iostream>
 
@@ -30,6 +31,7 @@ int main()
     Ast::FileReader fileReader;
     if (fileReader.Read("D:\\Workspace\\test.cpp"))
     {
+        fileReader.ApplyFilters<Ast::Cpp::CommentFilter>();
         Ast::Cpp::FileParser fileParser;
         fileParser.Parse(fileReader);
     }

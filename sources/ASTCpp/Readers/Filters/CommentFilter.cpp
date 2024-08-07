@@ -18,45 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "CommentFilter.h"
 
-#include "../CommonTypes.h"
-
-#include "Utils/CopyableAndMoveableBehaviour.h"
-
-#include <filesystem>
-
-namespace Ast
+namespace Ast::Cpp
 {
 
-    struct FileDataFilter : public Utils::CopyableAndMoveable
+    void CommentFilter::MakeTransform(String& content)
     {
-        virtual void MakeTransform(String& content) = 0;
-    protected:
-        FileDataFilter() = default;
-    };
+        static auto* const regexExpr = R"((?:\/\/(?:\\\n|[^\n])*\n)|(?:\/\*[\s\S]*?\*\/)|((?:@"[^"]*?")))";
 
-    template<class T>
-    concept IsFileDataFilter = std::is_base_of_v<FileDataFilter, T>;
+        content.RegexReplace(regexExpr, "\n");
+    }
 
-    class FileReader final : public Utils::CopyableAndMoveable
-    {
-    public:
-        FileReader() = default;
-        ~FileReader() override = default;
-
-        bool Read(const std::filesystem::path& path);
-        [[nodiscard]] const String& Data() const noexcept;
-
-        template<IsFileDataFilter ...Filter>
-        void ApplyFilters()
-        {
-            (Filter{}.MakeTransform(_content), ...);
-        }
-
-    private:
-        String _content;
-        std::filesystem::path _path;
-    };
-
-} // namespace Ast
+} // namespace Ast::Cpp
