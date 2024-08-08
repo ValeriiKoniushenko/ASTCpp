@@ -20,6 +20,7 @@
 
 #include "EnumClassLexer.h"
 
+#include "AST/LogCollector.h"
 #include "AST/Readers/FileReader.h"
 
 namespace Ast::Cpp
@@ -32,7 +33,33 @@ namespace Ast::Cpp
 
     void EnumClassLexer::Validate(LogCollector& logCollector)
     {
+        String string(_token.beginData, _token.endData - _token.beginData);
+        string.RegexReplace(R"(\n|\r|(enum class)|\{)", " ");
+        string.Trim(' ');
+        if (string.IsEmpty())
+        {
+            logCollector.AddLog({String::Format("Impossible to parse enum class token at {}", 999), LogCollector::LogType::Error });
+            return;
+        }
 
+        auto match = string.FindRegex("^\\w+");
+        if (Verify(!match.empty(), "Impossible to define a enum class name"))
+        {
+            _name = match.str();
+            _name.ShrinkToFit();
+        }
+        else
+        {
+            logCollector.AddLog({"Impossible to parse class token at {line}"});
+            return;
+        }
+
+        if (string.RegexReplace(R"(^\w+\s*:)", ""))
+        {
+            _type = string.Trim(' ');
+        }
+
+        logCollector.AddLog({String::Format("successfull paring of the enum class: '{}'", _name.CStr()), LogCollector::LogType::Success });
     }
 
 } // namespace Ast::Cpp

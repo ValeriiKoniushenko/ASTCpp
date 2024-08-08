@@ -38,6 +38,10 @@ namespace Ast::Cpp
         ~EnumClassLexer() override = default;
 
         void Validate(LogCollector& logCollector) override;
+
+    private:
+        String _name;
+        String _type = "int"_atom;
     };
 
 } // namespace Ast::Cpp
