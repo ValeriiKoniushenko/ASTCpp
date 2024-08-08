@@ -26,15 +26,6 @@
 namespace Ast
 {
 
-    void LexerLogCollector::AddLog(const LogLine& logLine)
-    {
-        if (Verify(logLine.type != LogType::None, "Was passed LogType::None but expected NOT LogType::None") &&
-            Verify(!logLine.message.IsEmpty(), "Was passed an empty message to the log"))
-        {
-            _logs.emplace_back(logLine);
-        }
-    }
-
     void BaseLexer::SetToken(const TokenReader& token)
     {
         _token = token;

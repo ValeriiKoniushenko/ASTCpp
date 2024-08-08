@@ -33,12 +33,30 @@ namespace Ast::Cpp
     class ClassLexer final : public BaseLexer
     {
     public:
+        enum class InheritanceType
+        {
+            Public,
+            Private,
+            Protected
+        };
+
+        struct Parent
+        {
+            InheritanceType type = InheritanceType::Private;
+            String name;
+        };
+
         inline static const auto typeName = "class"_atom;
 
         explicit ClassLexer(const Ast::FileReader& fileReader);
         ~ClassLexer() override = default;
 
+        void Validate(LogCollector& logCollector) override;
+
     private:
+        String _name;
+        bool _hasFinal;
+        std::vector<Parent> _parents;
     };
 
 } // namespace Ast::Cpp

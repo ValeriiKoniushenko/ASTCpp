@@ -30,4 +30,9 @@ namespace Ast::Cpp
     {
     }
 
+    void EnumClassLexer::Validate(LogCollector& logCollector)
+    {
+
+    }
+
 } // namespace Ast::Cpp

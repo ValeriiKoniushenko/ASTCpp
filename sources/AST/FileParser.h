@@ -23,6 +23,7 @@
 #include "Lexers/BaseLexer.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 #include "Readers/BaseTokenReader.h"
+#include "AST/LogCollector.h"
 
 #include <vector>
 
@@ -38,16 +39,17 @@ namespace Ast
         FileParser() = default;
         ~FileParser() override = default;
 
-        virtual bool Parse(const FileReader& file) = 0;
+        virtual bool Parse(const FileReader& file, LogCollector& logCollector) = 0;
 
     protected:
         template<IsLexer Lexer, IsReader Reader>
-        static void ReadAs(Container<Lexer>& container, const FileReader& file)
+        static void ReadAs(Container<Lexer>& container, const FileReader& file, LogCollector& logCollector)
         {
             for (auto&& token : Reader(file))
             {
                 Lexer lexer(file);
                 lexer.SetToken(token);
+                lexer.Validate(logCollector);
                 container.push_back(std::move(lexer));
             }
         }

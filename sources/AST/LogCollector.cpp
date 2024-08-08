@@ -18,31 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
-#include "AST/Lexers/BaseLexer.h"
+#include "LogCollector.h"
 
 namespace Ast
 {
-    class FileReader;
-} // namespace Ast
 
-namespace Ast::Cpp
-{
-    class NamespaceLexer final : public BaseLexer
+    void LogCollector::AddLog(const LogLine& logLine)
     {
-    public:
-        inline static const auto typeName = "namespace"_atom;
+        if (Verify(logLine.type != LogType::None, "Was passed LogType::None but expected NOT LogType::None") &&
+            Verify(!logLine.message.IsEmpty(), "Was passed an empty message to the log"))
+        {
+            _logs.emplace_back(logLine);
+            onValidationEvent.Trigger(logLine.message, logLine.type);
+        }
+    }
 
-        explicit NamespaceLexer(const Ast::FileReader& fileReader);
-        ~NamespaceLexer() override = default;
-
-        void Validate(LogCollector& logCollector) override;
-
-        [[nodiscard]] const String& GetName() const noexcept { return _name; }
-
-    private:
-        String _name;
-    };
-
-} // namespace Ast::Cpp
+} // namespace Ast

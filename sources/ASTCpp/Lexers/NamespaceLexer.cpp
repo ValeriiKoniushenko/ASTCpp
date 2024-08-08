@@ -20,6 +20,7 @@
 
 #include "NamespaceLexer.h"
 
+#include "AST/LogCollector.h"
 #include "AST/Readers/FileReader.h"
 
 namespace Ast::Cpp
@@ -28,6 +29,20 @@ namespace Ast::Cpp
     NamespaceLexer::NamespaceLexer(const FileReader& fileReader)
         : BaseLexer(fileReader, typeName)
     {
+    }
+
+    void NamespaceLexer::Validate(LogCollector& logCollector)
+    {
+        String string(_token.beginData, _token.endData - _token.beginData);
+        string.RegexReplace(R"(\n|\r|(namespace))", " ");
+        string.Trim(' ');
+        if (string.IsEmpty())
+        {
+            logCollector.AddLog({"Impossible to parse namespace token at {line}"});
+            return;
+        }
+
+        _name = std::move(string);
     }
 
 } // namespace Ast::Cpp

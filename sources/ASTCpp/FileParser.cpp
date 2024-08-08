@@ -21,19 +21,24 @@
 #include "ASTCpp/FileParser.h"
 
 #include "Readers/ClassReader.h"
-#include "Readers/NamespaceReader.h"
 #include "Readers/EnumClassReader.h"
+#include "Readers/NamespaceReader.h"
 
 namespace Ast::Cpp
 {
 
-    bool FileParser::Parse(const Ast::FileReader& file)
+    bool FileParser::Parse(const Ast::FileReader& file, LogCollector& logCollector)
     {
-        ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, file);
-        ReadAs<ClassLexer, ClassReader>(_classLexers, file);
-        ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, file);
+        RawParse(file, logCollector);
 
         return true;
+    }
+
+    void FileParser::RawParse(const Ast::FileReader& file, LogCollector& logCollector)
+    {
+        ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, file, logCollector);
+        ReadAs<ClassLexer, ClassReader>(_classLexers, file, logCollector);
+        ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, file, logCollector);
     }
 
 } // namespace Ast::Cpp

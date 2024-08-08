@@ -26,14 +26,28 @@
 
 int main()
 {
-    using namespace std;
 
     Ast::FileReader fileReader;
+    Ast::LogCollector logCollector;
+    logCollector.onValidationEvent.Subscribe([](const Ast::String& message, Ast::LogCollector::LogType logType)
+    {
+        using namespace std;
+        const char* typeStr = [logType](){
+            if (logType == Ast::LogCollector::LogType::Error) return "Error";
+            if (logType == Ast::LogCollector::LogType::Warning) return "Warning";
+            if (logType == Ast::LogCollector::LogType::Success) return "Success";
+            if (logType == Ast::LogCollector::LogType::Info) return "Info";
+            return "None";
+        }();
+
+        cout << "ASTCpp: [" << typeStr << "]: " << message.CStr() << endl;
+    });
+
     if (fileReader.Read("D:\\Workspace\\test.cpp"))
     {
         fileReader.ApplyFilters<Ast::Cpp::CommentFilter>();
         Ast::Cpp::FileParser fileParser;
-        fileParser.Parse(fileReader);
+        fileParser.Parse(fileReader, logCollector);
     }
 
     return 0;

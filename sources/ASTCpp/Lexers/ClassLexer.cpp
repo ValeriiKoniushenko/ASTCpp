@@ -20,6 +20,7 @@
 
 #include "ClassLexer.h"
 
+#include "AST/LogCollector.h"
 #include "AST/Readers/FileReader.h"
 
 namespace Ast::Cpp
@@ -28,6 +29,62 @@ namespace Ast::Cpp
     ClassLexer::ClassLexer(const FileReader& fileReader)
         : BaseLexer(fileReader, typeName)
     {
+    }
+
+    void ClassLexer::Validate(LogCollector& logCollector)
+    {
+        String string(_token.beginData, _token.endData - _token.beginData);
+        string.RegexReplace(R"(\n|\r|(class)|\{)", " ");
+        string.Trim(' ');
+        if (string.IsEmpty())
+        {
+            logCollector.AddLog({String::Format("Impossible to parse class token at {}", 999), LogCollector::LogType::Error });
+            return;
+        }
+
+        if (string.RegexReplace("\\sfinal", ""))
+        {
+            _hasFinal = true;
+        }
+
+        auto match = string.FindRegex("^\\w+");
+        if (Verify(!match.empty(), "Impossible to define a class name"))
+        {
+            _name = match.str();
+            _name.ShrinkToFit();
+        }
+        else
+        {
+            logCollector.AddLog({"Impossible to parse class token at {line}"});
+            return;
+        }
+
+        if (string.RegexReplace(R"(^\w+\s*:)", ""))
+        {
+            for (auto& parentStr : string.Split(","_atom))
+            {
+                InheritanceType type = InheritanceType::Private;
+                if (parentStr.RegexReplace(R"(\s*public\s*)", ""))
+                {
+                    type = InheritanceType::Public;
+                }
+                else if (parentStr.RegexReplace(R"(\s*protected\s*)", ""))
+                {
+                    type = InheritanceType::Protected;
+                }
+                else
+                {
+                    parentStr.RegexReplace(R"(\s*private\s*)", "");
+                    type = InheritanceType::Private;
+                }
+
+                parentStr.Trim(' ');
+                parentStr.ShrinkToFit();
+                _parents.emplace_back(type, std::move(parentStr));
+            }
+        }
+
+        logCollector.AddLog({String::Format("successfull paring of the class: '{}'", _name.CStr()), LogCollector::LogType::Success });
     }
 
 } // namespace Ast::Cpp

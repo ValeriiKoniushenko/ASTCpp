@@ -27,46 +27,7 @@
 namespace Ast
 {
     class FileReader;
-
-    class LexerLogCollector : public Utils::CopyableAndMoveable
-    {
-    public:
-        enum class LogType
-        {
-            None,
-            Info,
-            Warning,
-            Error
-        };
-
-        struct LogLine
-        {
-            String message;
-            LogType type = LogType::None;
-        };
-
-        using Container = std::vector<LogLine>;
-
-    public:
-        LexerLogCollector() = default;
-        ~LexerLogCollector() override = default;
-
-        void AddLog(const LogLine& logLine);
-        [[nodiscard]] const Container& GetLogs() const noexcept { return _logs; }
-        [[nodiscard]] bool IsEmpty() const { return _logs.empty(); }
-
-        template<LogType logType>
-        [[nodiscard]] bool HasAny() const
-        {
-            return std::find_if(_logs.cbegin(), _logs.cend(), [](const LogLine& logLine)
-            {
-                return logLine.type == logType;
-            }) != _logs.cend();
-        }
-
-    protected:
-        Container _logs;
-    };
+    class LogCollector;
 
     class BaseLexer : public Utils::CopyableAndMoveable
     {
@@ -74,6 +35,7 @@ namespace Ast
         ~BaseLexer() override = default;
 
         void SetToken(const TokenReader& token);
+        virtual void Validate(LogCollector& logCollector) = 0;
 
     protected:
         BaseLexer(const FileReader& reader, const String& type);

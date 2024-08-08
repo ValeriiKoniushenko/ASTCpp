@@ -32,12 +32,12 @@ namespace Ast::Cpp
     class EnumClassLexer final : public BaseLexer
     {
     public:
-        inline static const auto typeName = "enum-class"_atom;
+        inline static const auto typeName = "enum class"_atom;
 
         explicit EnumClassLexer(const Ast::FileReader& fileReader);
         ~EnumClassLexer() override = default;
 
-    private:
+        void Validate(LogCollector& logCollector) override;
     };
 
 } // namespace Ast::Cpp

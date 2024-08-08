@@ -45,7 +45,10 @@ namespace Ast::Cpp
         FileParser() = default;
         ~FileParser() override = default;
 
-        bool Parse(const Ast::FileReader& file) override;
+        bool Parse(const Ast::FileReader& file, LogCollector& logCollector) override;
+
+    private:
+        void RawParse(const Ast::FileReader& file, LogCollector& logCollector);
 
     private:
         Container<ClassLexer> _classLexers;
