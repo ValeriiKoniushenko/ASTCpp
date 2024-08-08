@@ -38,11 +38,13 @@ namespace Ast::Cpp
         string.Trim(' ');
         if (string.IsEmpty())
         {
-            logCollector.AddLog({"Impossible to parse namespace token at {line}"});
+            logCollector.AddLog({String::Format("Impossible to parse namespace token at {}", 999), LogCollector::LogType::Error});
             return;
         }
 
         _name = std::move(string);
+
+        logCollector.AddLog({String::Format("successfull paring of the namespace: '{}'", _name.CStr()), LogCollector::LogType::Success });
     }
 
 } // namespace Ast::Cpp
