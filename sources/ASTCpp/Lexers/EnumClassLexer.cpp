@@ -59,7 +59,7 @@ namespace Ast::Cpp
             _type = string.Trim(' ');
         }
 
-        logCollector.AddLog({String::Format("successfull paring of the enum class: '{}'", _name.CStr()), LogCollector::LogType::Success });
+        logCollector.AddLog({String::Format("successfull parsing of the enum class: '{}'", _name.CStr()), LogCollector::LogType::Success });
     }
 
 } // namespace Ast::Cpp

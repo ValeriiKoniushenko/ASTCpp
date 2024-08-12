@@ -84,7 +84,7 @@ namespace Ast::Cpp
             }
         }
 
-        logCollector.AddLog({String::Format("successfull paring of the class: '{}'", _name.CStr()), LogCollector::LogType::Success });
+        logCollector.AddLog({String::Format("successfull parsing of the class: '{}'", _name.CStr()), LogCollector::LogType::Success });
     }
 
 } // namespace Ast::Cpp

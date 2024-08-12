@@ -44,7 +44,7 @@ namespace Ast::Cpp
 
         _name = std::move(string);
 
-        logCollector.AddLog({String::Format("successfull paring of the namespace: '{}'", _name.CStr()), LogCollector::LogType::Success });
+        logCollector.AddLog({String::Format("successfull parsing of the namespace: '{}'", _name.CStr()), LogCollector::LogType::Success });
     }
 
 } // namespace Ast::Cpp

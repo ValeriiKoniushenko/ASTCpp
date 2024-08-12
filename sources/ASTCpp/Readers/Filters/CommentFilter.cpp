@@ -25,9 +25,44 @@ namespace Ast::Cpp
 
     void CommentFilter::MakeTransform(String& content)
     {
-        static auto* const regexExpr = R"((?:\/\/(?:\\\n|[^\n])*\n)|(?:\/\*[\s\S]*?\*\/)|((?:@"[^"]*?")))";
+        RemoveSingleLineComments(content);
+        RemoveMultiLineComments(content);
 
+        /*std::ofstream file("file.cpp");
+        file << content.c_str();
+        file.close();*/
+    }
+
+    void CommentFilter::RemoveSingleLineComments(String& content)
+    {
+        // removing '//' comments
+        static auto* const regexExpr = R"((?:\/\/(?:\\\n|[^\n])*\n))";
         content.RegexReplace(regexExpr, "\n");
+    }
+
+    void CommentFilter::RemoveMultiLineComments(String& content)
+    {
+        std::size_t offset = 0;
+
+        while (const auto* begin = content.Find("/*"))
+        {
+            const auto* end = content.Find("*/");
+
+            String endLines = "";
+            for (const auto* i = begin; *i && i != end; ++i)
+            {
+                if (*i == '\n')
+                {
+                    endLines += '\n';
+                }
+            }
+
+            static auto* const regexExpr = R"((?:\/\*[\s\S]*?\*\/))";
+            content.RegexReplace(regexExpr, endLines, std::regex_constants::match_flag_type::format_first_only);
+            offset = end - content.c_str();
+        }
+
+
     }
 
 } // namespace Ast::Cpp

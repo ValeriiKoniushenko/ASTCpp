@@ -29,6 +29,10 @@ namespace Ast::Cpp
     {
     public:
         void MakeTransform(String& content) override;
+
+    private:
+        void RemoveSingleLineComments(String& content);
+        void RemoveMultiLineComments(String& content);
     };
 
 } // namespace Ast::Cpp

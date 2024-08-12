@@ -38,6 +38,9 @@ namespace Ast
         [[nodiscard]] std::optional<TokenReader> FindNextToken() const override;
 
     protected:
+        std::size_t GetLinesCountInText(const String& source, const String::CharT* end) const;
+
+    protected:
         const String _regexExpr;
     };
 

@@ -40,7 +40,7 @@ namespace Ast
 
         const auto& data = _baseTokenReader->GetFileReader()->Data();
 
-        auto tempToken = _baseTokenReader->GetLastToken();;
+        auto tempToken = _baseTokenReader->GetLastToken();
 
         if (!tempToken.IsValid())
         {
@@ -60,15 +60,24 @@ namespace Ast
         }
         bool wasFoundAtLeastOneToken = false;
 
-        data.IterateRegex(_regexExpr, [&](const String::StdRegexMatchResults& match)
-        {
-            wasFoundAtLeastOneToken = true;
-            auto s = match[0];
+        data.IterateRegex(
+            _regexExpr,
+            [&](const String::StdRegexMatchResults& match)
+            {
+                wasFoundAtLeastOneToken = true;
+                auto s = match[0];
 
-            tempToken.beginData = data.c_str() + (match[0].first - data.begin());
-            tempToken.endData = data.c_str() + (match[0].second - data.begin());
-            return false;
-        }, offset);
+                tempToken.beginData = data.c_str() + (match[0].first - data.begin());
+                while (String::Toolset::IsSpace(*tempToken.beginData)) ++tempToken.beginData;
+
+                tempToken.endData = data.c_str() + (match[0].second - data.begin());
+
+                tempToken.startLine = GetLinesCountInText(data, tempToken.beginData);
+                tempToken.endLine = GetLinesCountInText(data, tempToken.endData) - 1; // 1 - to ignore the last '\n'
+
+                return false;
+            },
+            offset);
 
         if (!wasFoundAtLeastOneToken)
         {
@@ -78,6 +87,25 @@ namespace Ast
         _baseTokenReader->SetLastToken(tempToken);
 
         return std::make_optional(tempToken);
+    }
+
+    std::size_t RegexTokenReaderImpl::GetLinesCountInText(const String& source, const String::CharT* end) const
+    {
+        while (end[0] == '\n')
+        {
+            ++end;
+        }
+
+        std::size_t count = 0;
+        for (std::size_t i = 0; i < end - source.c_str(); ++i)
+        {
+            if (source[i] == '\n')
+            {
+                ++count;
+            }
+        }
+
+        return ++count;
     }
 
 } // namespace Ast

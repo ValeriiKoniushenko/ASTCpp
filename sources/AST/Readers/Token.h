@@ -30,6 +30,9 @@ namespace Ast
         const String::CharT* beginData = nullptr;
         const String::CharT* endData = nullptr;
 
+        std::size_t startLine = 0;
+        std::size_t endLine = 0;
+
         [[nodiscard]] bool IsValid() const noexcept { return beginData != nullptr && endData != nullptr; }
     };
 
