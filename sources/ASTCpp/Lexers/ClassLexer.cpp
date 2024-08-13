@@ -95,6 +95,47 @@ namespace Ast::Cpp
         return true;
     }
 
+    bool ClassLexer::DoValidateScope(LogCollector& logCollector)
+    {
+        if (!BaseLexer::DoValidateScope(logCollector))
+        {
+            return false;
+        }
+
+        const auto* openedBracket = _token.endData - 1; // -1 - to back to the '{' correspoinding to regex expr
+        if (!Verify(*openedBracket == '{', "Impossible to define an enum class scope."))
+        {
+            logCollector.AddLog({String::Format("Impossible to define an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error});
+            return false;
+        }
+
+        std::size_t curclyBracketCounter = 1;
+        const auto* closedBracket = openedBracket + 1;
+        for (; *closedBracket && curclyBracketCounter != 0; ++closedBracket)
+        {
+            if (*closedBracket == '{')
+            {
+                ++curclyBracketCounter;
+            }
+            else if (*closedBracket == '}')
+            {
+                --curclyBracketCounter;
+            }
+        }
+        --closedBracket;
+
+        if (!Verify(curclyBracketCounter == 0 && closedBracket && *closedBracket != 0, "Can't define enum class scope"))
+        {
+            logCollector.AddLog({String::Format("Impossible to define an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error});
+            return false;
+        }
+
+        _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data(), openedBracket) };
+        _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data(), closedBracket) };
+
+        return true;
+    }
+
     void ClassLexer::RecognizeFields(LogCollector& logCollector)
     {
     }
