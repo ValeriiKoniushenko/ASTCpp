@@ -18,45 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "BaseLexer.h"
+#pragma once
 
-#include "../Readers/FileReader.h"
-#include "AST/LogCollector.h"
-#include "Core/Assert.h"
+#include "../CommonTypes.h"
 
-namespace Ast
+namespace Ast::Utils
 {
 
-    void BaseLexer::SetToken(const TokenReader& token)
-    {
-        _token = token;
-    }
-
-    bool BaseLexer::Validate(LogCollector& logCollector)
-    {
-        if (!DoValidate(logCollector))
-        {
-            return false;
-        }
-        if (!DoValidateScope(logCollector))
-        {
-            return false;
-        }
-        if (!DoPostValidate(logCollector))
-        {
-            return false;
-        }
-
-        logCollector.AddLog({ String::Format("successfull parsing of the {}: '{}'", _type.CStr(), _name.CStr()), LogCollector::LogType::Success });
-        return true;
-    }
-
-    BaseLexer::BaseLexer(const FileReader& reader, const String& type)
-        : _reader{ &reader },
-          _type{ type }
-    {
-        Assert(_reader);
-        Assert(!_type.IsEmpty());
-    }
+    [[nodiscard]] const String::CharT* FindFirstBracket(const String::CharT* source, String::CharT bracket);
+    [[nodiscard]] const String::CharT* FindClosedBracket(const String::CharT* source, String::CharT closedBracket, String::CharT openedBracket);
 
 } // namespace Ast

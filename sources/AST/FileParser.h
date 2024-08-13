@@ -49,8 +49,10 @@ namespace Ast
             {
                 Lexer lexer(file);
                 lexer.SetToken(token);
-                lexer.Validate(logCollector);
-                container.push_back(std::move(lexer));
+                if (lexer.Validate(logCollector))
+                {
+                    container.push_back(std::move(lexer));
+                }
             }
         }
     };

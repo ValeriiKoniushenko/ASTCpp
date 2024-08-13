@@ -7,6 +7,8 @@ file(
 	"AST/Lexers/*.cpp"
 	"AST/Readers/*.h"
 	"AST/Readers/*.cpp"
+	"AST/Utils/*.h"
+	"AST/Utils/*.cpp"
 )
 
 add_library(ASTCore STATIC ${ASTSources})

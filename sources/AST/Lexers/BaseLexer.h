@@ -44,13 +44,14 @@ namespace Ast
         ~BaseLexer() override = default;
 
         void SetToken(const TokenReader& token);
-        virtual void Validate(LogCollector& logCollector);
+        virtual bool Validate(LogCollector& logCollector);
 
         [[nodiscard]] const String& GetName() const noexcept { return _name; }
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;
         virtual bool DoValidateScope(LogCollector& logCollector) { return true; }
+        virtual bool DoPostValidate(LogCollector& logCollector) { return true; }
 
         BaseLexer(const FileReader& reader, const String& type);
 

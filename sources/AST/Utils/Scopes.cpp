@@ -18,45 +18,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "BaseLexer.h"
+#include "Scopes.h"
 
-#include "../Readers/FileReader.h"
-#include "AST/LogCollector.h"
-#include "Core/Assert.h"
-
-namespace Ast
+namespace Ast::Utils
 {
 
-    void BaseLexer::SetToken(const TokenReader& token)
+    const String::CharT* FindFirstBracket(const String::CharT* source, String::CharT bracket)
     {
-        _token = token;
+        if (!Verify(source, "Impossible to find the first bracket because was passed the NULL string"))
+        {
+            return nullptr;
+        }
+
+        while (*source != 0 && *source != bracket)
+        {
+            ++source;
+        }
+        return --source;
     }
 
-    bool BaseLexer::Validate(LogCollector& logCollector)
+    const String::CharT* FindClosedBracket(const String::CharT* source, String::CharT closedBracket, String::CharT openedBracket)
     {
-        if (!DoValidate(logCollector))
+        if (!Verify(source, "Impossible to find the first bracket because was passed the NULL string"))
         {
-            return false;
-        }
-        if (!DoValidateScope(logCollector))
-        {
-            return false;
-        }
-        if (!DoPostValidate(logCollector))
-        {
-            return false;
+            return nullptr;
         }
 
-        logCollector.AddLog({ String::Format("successfull parsing of the {}: '{}'", _type.CStr(), _name.CStr()), LogCollector::LogType::Success });
-        return true;
-    }
+        // skipping of the opened bracket
+        if (*source == openedBracket)
+        {
+            ++source;
+        }
 
-    BaseLexer::BaseLexer(const FileReader& reader, const String& type)
-        : _reader{ &reader },
-          _type{ type }
-    {
-        Assert(_reader);
-        Assert(!_type.IsEmpty());
+        std::size_t curclyBracketCounter = 1;
+        for (; *source != 0 && curclyBracketCounter != 0; ++source)
+        {
+            if (*source == openedBracket)
+            {
+                ++curclyBracketCounter;
+            }
+            else if (*source == closedBracket)
+            {
+                --curclyBracketCounter;
+            }
+        }
+
+        return *source != 0 ? --source : nullptr;
     }
 
 } // namespace Ast

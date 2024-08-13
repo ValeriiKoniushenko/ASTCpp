@@ -56,6 +56,7 @@ namespace Ast::Cpp
     protected:
         bool DoValidate(LogCollector& logCollector) override;
         bool DoValidateScope(LogCollector& logCollector) override;
+        bool DoPostValidate(LogCollector& logCollector) override;
 
     private:
         void RecognizeFields(LogCollector& logCollector);

@@ -22,6 +22,7 @@
 
 #include "AST/LogCollector.h"
 #include "AST/Readers/FileReader.h"
+#include "AST/Utils/Scopes.h"
 
 namespace Ast::Cpp
 {
@@ -90,8 +91,6 @@ namespace Ast::Cpp
             }
         }
 
-        RecognizeFields(logCollector);
-
         return true;
     }
 
@@ -105,39 +104,33 @@ namespace Ast::Cpp
         const auto* openedBracket = _token.endData - 1; // -1 - to back to the '{' correspoinding to regex expr
         if (!Verify(*openedBracket == '{', "Impossible to define an enum class scope."))
         {
-            logCollector.AddLog({String::Format("Impossible to define an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error});
+            logCollector.AddLog({ String::Format("Impossible to define an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error });
             return false;
         }
 
-        std::size_t curclyBracketCounter = 1;
-        const auto* closedBracket = openedBracket + 1;
-        for (; *closedBracket && curclyBracketCounter != 0; ++closedBracket)
-        {
-            if (*closedBracket == '{')
-            {
-                ++curclyBracketCounter;
-            }
-            else if (*closedBracket == '}')
-            {
-                --curclyBracketCounter;
-            }
-        }
-        --closedBracket;
-
-        if (!Verify(curclyBracketCounter == 0 && closedBracket && *closedBracket != 0, "Can't define enum class scope"))
-        {
-            logCollector.AddLog({String::Format("Impossible to define an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error});
-            return false;
-        }
+        const auto* closedBracket = Utils::FindClosedBracket(openedBracket, '}', '{');
 
         _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data(), openedBracket) };
         _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data(), closedBracket) };
 
         return true;
     }
+    bool ClassLexer::DoPostValidate(LogCollector& logCollector)
+    {
+        if (!BaseLexer::DoPostValidate(logCollector))
+        {
+            return false;
+        }
+
+        RecognizeFields(logCollector);
+
+        return true;
+    }
 
     void ClassLexer::RecognizeFields(LogCollector& logCollector)
     {
+        String body(_openScope->string, _closeScope->string - _openScope->string);
+        body.Trim('{').Trim('}');
     }
 
 } // namespace Ast::Cpp
