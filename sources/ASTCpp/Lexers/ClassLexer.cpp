@@ -31,12 +31,12 @@ namespace Ast::Cpp
     {
     }
 
-    void ClassLexer::Validate(LogCollector& logCollector)
+    bool ClassLexer::DoValidate(LogCollector& logCollector)
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
-            logCollector.AddLog({"ClassLexer: Impossible to work with an invalid token", LogCollector::LogType::Error});
-            return;
+            logCollector.AddLog({ "ClassLexer: Impossible to work with an invalid token", LogCollector::LogType::Error });
+            return false;
         }
 
         String string(_token.beginData, _token.endData - _token.beginData);
@@ -44,8 +44,8 @@ namespace Ast::Cpp
         string.Trim(' ');
         if (string.IsEmpty())
         {
-            logCollector.AddLog({String::Format("Impossible to parse class token at {}", 999), LogCollector::LogType::Error });
-            return;
+            logCollector.AddLog({ String::Format("Impossible to parse the class token at {}", 999), LogCollector::LogType::Error });
+            return false;
         }
 
         if (string.RegexReplace("\\sfinal", ""))
@@ -61,8 +61,8 @@ namespace Ast::Cpp
         }
         else
         {
-            logCollector.AddLog({"Impossible to parse class token at {line}"});
-            return;
+            logCollector.AddLog({ "Impossible to parse class token at {line}" });
+            return false;
         }
 
         if (string.RegexReplace(R"(^\w+\s*:)", ""))
@@ -90,7 +90,13 @@ namespace Ast::Cpp
             }
         }
 
-        logCollector.AddLog({String::Format("successfull parsing of the class: '{}'", _name.CStr()), LogCollector::LogType::Success });
+        RecognizeFields(logCollector);
+
+        return true;
+    }
+
+    void ClassLexer::RecognizeFields(LogCollector& logCollector)
+    {
     }
 
 } // namespace Ast::Cpp

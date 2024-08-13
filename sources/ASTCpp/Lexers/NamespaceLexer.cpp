@@ -31,12 +31,12 @@ namespace Ast::Cpp
     {
     }
 
-    void NamespaceLexer::Validate(LogCollector& logCollector)
+    bool NamespaceLexer::DoValidate(LogCollector& logCollector)
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
             logCollector.AddLog({"NamespaceLexer: Impossible to work with an invalid token", LogCollector::LogType::Error});
-            return;
+            return false;
         }
 
         String string(_token.beginData, _token.endData - _token.beginData);
@@ -45,12 +45,12 @@ namespace Ast::Cpp
         if (string.IsEmpty())
         {
             logCollector.AddLog({String::Format("Impossible to parse namespace token at {}", 999), LogCollector::LogType::Error});
-            return;
+            return false;
         }
 
         _name = std::move(string);
 
-        logCollector.AddLog({String::Format("successfull parsing of the namespace: '{}'", _name.CStr()), LogCollector::LogType::Success });
+        return true;
     }
 
 } // namespace Ast::Cpp

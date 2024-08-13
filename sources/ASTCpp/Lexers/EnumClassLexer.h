@@ -44,14 +44,14 @@ namespace Ast::Cpp
         explicit EnumClassLexer(const Ast::FileReader& fileReader);
         ~EnumClassLexer() override = default;
 
-        void Validate(LogCollector& logCollector) override;
-        void ValidateScope(LogCollector& logCollector) override;
+    protected:
+        bool DoValidate(LogCollector& logCollector) override;
+        bool DoValidateScope(LogCollector& logCollector) override;
 
     private:
-        void RecognizeConstants(LogCollector& logCollector);
+        bool RecognizeConstants(LogCollector& logCollector);
 
     private:
-        String _name;
         String _type = "int"_atom;
         std::vector<Constant> _constants;
     };

@@ -44,10 +44,14 @@ namespace Ast
         ~BaseLexer() override = default;
 
         void SetToken(const TokenReader& token);
-        virtual void Validate(LogCollector& logCollector) = 0;
-        virtual void ValidateScope(LogCollector& logCollector){};
+        virtual void Validate(LogCollector& logCollector);
+
+        [[nodiscard]] const String& GetName() const noexcept { return _name; }
 
     protected:
+        virtual bool DoValidate(LogCollector& logCollector) = 0;
+        virtual bool DoValidateScope(LogCollector& logCollector) { return true; }
+
         BaseLexer(const FileReader& reader, const String& type);
 
     protected:
@@ -58,6 +62,7 @@ namespace Ast
         std::optional<LineToken> _closeScope;
 
         const String _type;
+        String _name;
     };
 
 }// namespace Ast

@@ -22,6 +22,8 @@
 
 #include "AST/Lexers/BaseLexer.h"
 
+#include <unordered_set>
+
 namespace Ast
 {
     class FileReader;
@@ -51,12 +53,20 @@ namespace Ast::Cpp
         explicit ClassLexer(const Ast::FileReader& fileReader);
         ~ClassLexer() override = default;
 
-        void Validate(LogCollector& logCollector) override;
+    protected:
+        bool DoValidate(LogCollector& logCollector) override;
 
     private:
-        String _name;
-        bool _hasFinal;
+        void RecognizeFields(LogCollector& logCollector);
+
+    private:
+        bool _hasFinal = false;
         std::vector<Parent> _parents;
+
+        std::unordered_set<String> _publicFieldNames;
+        std::unordered_set<String> _protectedFieldNames;
+        std::unordered_set<String> _privateFieldNames;
+
     };
 
 } // namespace Ast::Cpp

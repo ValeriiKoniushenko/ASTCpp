@@ -31,12 +31,12 @@ namespace Ast::Cpp
     {
     }
 
-    void EnumClassLexer::Validate(LogCollector& logCollector)
+    bool EnumClassLexer::DoValidate(LogCollector& logCollector)
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
             logCollector.AddLog({ "EnumClassLexer: Impossible to work with an invalid token", LogCollector::LogType::Error });
-            return;
+            return false;
         }
 
         String string(_token.beginData, _token.endData - _token.beginData);
@@ -45,7 +45,7 @@ namespace Ast::Cpp
         if (string.IsEmpty())
         {
             logCollector.AddLog({ String::Format("Impossible to parse enum class token at {}", 999), LogCollector::LogType::Error });
-            return;
+            return false;
         }
 
         auto match = string.FindRegex("^\\w+");
@@ -57,7 +57,7 @@ namespace Ast::Cpp
         else
         {
             logCollector.AddLog({ "Impossible to parse class token at {line}" });
-            return;
+            return false;
         }
 
         if (string.RegexReplace(R"(^\w+\s*:)", ""))
@@ -65,19 +65,22 @@ namespace Ast::Cpp
             _type = string.Trim(' ');
         }
 
-        logCollector.AddLog({ String::Format("successfull parsing of the enum class: '{}'", _name.CStr()), LogCollector::LogType::Success });
+        return true;
     }
 
-    void EnumClassLexer::ValidateScope(LogCollector& logCollector)
+    bool EnumClassLexer::DoValidateScope(LogCollector& logCollector)
     {
-        BaseLexer::ValidateScope(logCollector);
+        if (!BaseLexer::DoValidateScope(logCollector))
+        {
+            return false;
+        }
 
         const auto* openedBracket = _token.endData;
         while(String::Toolset::IsSpace(*openedBracket)) ++openedBracket;
         if (!Verify(*openedBracket == '{', "Impossible to define an enum class scope."))
         {
             logCollector.AddLog({String::Format("Impossible to define an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error});
-            return;
+            return false;
         }
 
         std::size_t curclyBracketCounter = 1;
@@ -98,21 +101,26 @@ namespace Ast::Cpp
         if (!Verify(curclyBracketCounter == 0 && closedBracket && *closedBracket != 0, "Can't define enum class scope"))
         {
             logCollector.AddLog({String::Format("Impossible to define an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error});
-            return;
+            return false;
         }
 
         _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data(), openedBracket) };
         _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data(), closedBracket) };
 
-        RecognizeConstants(logCollector);
+        if (!RecognizeConstants(logCollector))
+        {
+            return false;
+        }
+
+        return true;
     }
 
-    void EnumClassLexer::RecognizeConstants(LogCollector& logCollector)
+    bool EnumClassLexer::RecognizeConstants(LogCollector& logCollector)
     {
         if (!Verify(_openScope.has_value() && _openScope->IsValid() && _closeScope.has_value() && _closeScope->IsValid()))
         {
             logCollector.AddLog({String::Format("Impossible to get an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error});
-            return;
+            return false;
         }
 
         String buffer(_openScope->string, _closeScope->string - _openScope->string);
@@ -125,6 +133,8 @@ namespace Ast::Cpp
                 _constants.back().name.ShrinkToFit();
             }
         }
+
+        return true;
     }
 
 } // namespace Ast::Cpp

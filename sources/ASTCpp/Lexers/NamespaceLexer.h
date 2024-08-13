@@ -37,12 +37,8 @@ namespace Ast::Cpp
         explicit NamespaceLexer(const Ast::FileReader& fileReader);
         ~NamespaceLexer() override = default;
 
-        void Validate(LogCollector& logCollector) override;
-
-        [[nodiscard]] const String& GetName() const noexcept { return _name; }
-
-    private:
-        String _name;
+    protected:
+        bool DoValidate(LogCollector& logCollector) override;
     };
 
 } // namespace Ast::Cpp

@@ -31,6 +31,19 @@ namespace Ast
     {
         _token = token;
     }
+    void BaseLexer::Validate(LogCollector& logCollector)
+    {
+        if (!DoValidate(logCollector))
+        {
+            return;
+        }
+        if (!DoValidateScope(logCollector))
+        {
+            return;
+        }
+
+        logCollector.AddLog({ String::Format("successfull parsing of the {}: '{}'", _type.CStr(), _name.CStr()), LogCollector::LogType::Success });
+    }
 
     BaseLexer::BaseLexer(const FileReader& reader, const String& type)
         : _reader{ &reader },
