@@ -33,6 +33,12 @@ namespace Ast::Cpp
 
     void ClassLexer::Validate(LogCollector& logCollector)
     {
+        if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
+        {
+            logCollector.AddLog({"ClassLexer: Impossible to work with an invalid token", LogCollector::LogType::Error});
+            return;
+        }
+
         String string(_token.beginData, _token.endData - _token.beginData);
         string.RegexReplace(R"(\n|\r|(class)|\{)", " ");
         string.Trim(' ');

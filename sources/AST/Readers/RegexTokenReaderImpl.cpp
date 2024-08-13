@@ -72,8 +72,8 @@ namespace Ast
 
                 tempToken.endData = data.c_str() + (match[0].second - data.begin());
 
-                tempToken.startLine = GetLinesCountInText(data, tempToken.beginData);
-                tempToken.endLine = GetLinesCountInText(data, tempToken.endData) - 1; // 1 - to ignore the last '\n'
+                tempToken.startLine = String::GetLinesCountInText(data, tempToken.beginData);
+                tempToken.endLine = String::GetLinesCountInText(data, tempToken.endData) - 1; // 1 - to ignore the last '\n'
 
                 return false;
             },
@@ -87,25 +87,6 @@ namespace Ast
         _baseTokenReader->SetLastToken(tempToken);
 
         return std::make_optional(tempToken);
-    }
-
-    std::size_t RegexTokenReaderImpl::GetLinesCountInText(const String& source, const String::CharT* end) const
-    {
-        while (end[0] == '\n')
-        {
-            ++end;
-        }
-
-        std::size_t count = 0;
-        for (std::size_t i = 0; i < end - source.c_str(); ++i)
-        {
-            if (source[i] == '\n')
-            {
-                ++count;
-            }
-        }
-
-        return ++count;
     }
 
 } // namespace Ast

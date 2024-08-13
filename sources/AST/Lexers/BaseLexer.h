@@ -32,10 +32,20 @@ namespace Ast
     class BaseLexer : public Utils::CopyableAndMoveable
     {
     public:
+        struct LineToken final
+        {
+            const String::CharT* string = nullptr;
+            std::size_t line = 0;
+
+            [[nodiscard]] bool IsValid() const noexcept { return string && line != 0; }
+        };
+
+    public:
         ~BaseLexer() override = default;
 
         void SetToken(const TokenReader& token);
         virtual void Validate(LogCollector& logCollector) = 0;
+        virtual void ValidateScope(LogCollector& logCollector){};
 
     protected:
         BaseLexer(const FileReader& reader, const String& type);
@@ -43,6 +53,9 @@ namespace Ast
     protected:
         TokenReader _token;
         const FileReader* _reader = nullptr;
+
+        std::optional<LineToken> _openScope;
+        std::optional<LineToken> _closeScope;
 
         const String _type;
     };

@@ -21,6 +21,7 @@
 #include "BaseLexer.h"
 
 #include "../Readers/FileReader.h"
+#include "AST/LogCollector.h"
 #include "Core/Assert.h"
 
 namespace Ast

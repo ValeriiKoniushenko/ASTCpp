@@ -50,6 +50,7 @@ namespace Ast
                 Lexer lexer(file);
                 lexer.SetToken(token);
                 lexer.Validate(logCollector);
+                lexer.ValidateScope(logCollector);
                 container.push_back(std::move(lexer));
             }
         }

@@ -33,6 +33,12 @@ namespace Ast::Cpp
 
     void NamespaceLexer::Validate(LogCollector& logCollector)
     {
+        if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
+        {
+            logCollector.AddLog({"NamespaceLexer: Impossible to work with an invalid token", LogCollector::LogType::Error});
+            return;
+        }
+
         String string(_token.beginData, _token.endData - _token.beginData);
         string.RegexReplace(R"(\n|\r|(namespace))", " ");
         string.Trim(' ');

@@ -32,16 +32,28 @@ namespace Ast::Cpp
     class EnumClassLexer final : public BaseLexer
     {
     public:
+        struct Constant
+        {
+            String name;
+            std::optional<unsigned long long> value;
+        };
+
+    public:
         inline static const auto typeName = "enum class"_atom;
 
         explicit EnumClassLexer(const Ast::FileReader& fileReader);
         ~EnumClassLexer() override = default;
 
         void Validate(LogCollector& logCollector) override;
+        void ValidateScope(LogCollector& logCollector) override;
+
+    private:
+        void RecognizeConstants(LogCollector& logCollector);
 
     private:
         String _name;
         String _type = "int"_atom;
+        std::vector<Constant> _constants;
     };
 
 } // namespace Ast::Cpp
