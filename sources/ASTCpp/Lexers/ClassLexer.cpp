@@ -102,9 +102,9 @@ namespace Ast::Cpp
         }
 
         const auto* openedBracket = _token.endData - 1; // -1 - to back to the '{' correspoinding to regex expr
-        if (!Verify(*openedBracket == '{', "Impossible to define an enum class scope."))
+        if (!Verify(*openedBracket == '{', "Impossible to define an class scope."))
         {
-            logCollector.AddLog({ String::Format("Impossible to define an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error });
+            logCollector.AddLog({ String::Format("Impossible to define an class scope '{}'", _name.c_str()), LogCollector::LogType::Error });
             return false;
         }
 
@@ -122,6 +122,7 @@ namespace Ast::Cpp
             return false;
         }
 
+
         RecognizeFields(logCollector);
 
         return true;
@@ -131,6 +132,115 @@ namespace Ast::Cpp
     {
         String body(_openScope->string, _closeScope->string - _openScope->string);
         body.Trim('{').Trim('}');
+
+        RemoveNestedScopes(body);
+
+        const auto publics = body.FindRegex(R"(^\s*public\s*\:)");
+        const auto protecteds = body.FindRegex(R"(^\s*protected\s*\:)");
+        const auto privates = body.FindRegex(R"(^\s*private\s*\:)");
+
+        body.IterateRegex(R"(^\s*((static\s+)|(constexpr\s+)|(const\s+)|(constinit\s+))*[\w:]+(\<.*\>)?\s+\w+(((\s*=).*)|(;)))",[&](const String::StdRegexMatchResults& field)
+        {
+            auto str = String(field.str());
+            str.RegexReplace(R"([\s;]*$)", "");
+            str.RegexReplace(R"(^\s*)", "");
+
+            Field tempField;
+
+            if (auto match = str.FindRegex(R"(static\s+)"); !match.empty())
+            {
+                tempField.isStatic = true;
+                str.RegexReplace(R"(static\s+)", "", std::regex_constants::match_flag_type::format_first_only);
+            }
+            if (auto match = str.FindRegex(R"(const\s+)"); !match.empty())
+            {
+                tempField.isConst = true;
+                str.RegexReplace(R"(const\s+)", "", std::regex_constants::match_flag_type::format_first_only);
+            }
+            if (auto match = str.FindRegex(R"(constexpr\s+)"); !match.empty())
+            {
+                tempField.isConstexpr = true;
+                str.RegexReplace(R"(constexpr\s+)", "", std::regex_constants::match_flag_type::format_first_only);
+            }
+            if (auto match = str.FindRegex(R"(constinit\s+)"); !match.empty())
+            {
+                tempField.isConstinit = true;
+                str.RegexReplace(R"(constinit\s+)", "", std::regex_constants::match_flag_type::format_first_only);
+            }
+
+            if (auto matchType = str.FindRegex(R"(^[\w:]+(\<.*\>)?)"); Verify(!matchType.empty()))
+            {
+                tempField.type = matchType.str();
+                tempField.type.ShrinkToFit();
+                str.RegexReplace(R"(^[\w:]+(\<.*\>)?)", "");
+                str.TrimStart(' ');
+            }
+            else
+            {
+                logCollector.AddLog({ String::Format("Impossible to define a class's field type. Class: '{}'", _name.c_str()), LogCollector::LogType::Error });
+                return true;
+            }
+
+            if (auto matchName = str.FindRegex(R"(^\w+)"); Verify(!matchName.empty()))
+            {
+                tempField.name = matchName.str();
+                tempField.name.ShrinkToFit();
+                str.RegexReplace(R"(^\w+)", "");
+                str.TrimStart(' ');
+            }
+            else
+            {
+                logCollector.AddLog({ String::Format("Impossible to define a class's field name. Class: '{}'", _name.c_str()), LogCollector::LogType::Error });
+                return true;
+            }
+
+            long long minDistance = std::numeric_limits<long long>::max();
+            AccessSpecifier accessSpecifier = AccessSpecifier::Private;
+            for(auto&& token : publics)
+            {
+                const auto distance = std::distance(token.first, field.begin()->first);
+                if (distance >= 0 && distance < minDistance)
+                {
+                    minDistance = distance;
+                    accessSpecifier = AccessSpecifier::Public;
+                }
+            }
+            for(auto&& token : protecteds)
+            {
+                const auto distance = std::distance(token.first, field.begin()->first);
+                if (distance >= 0 && distance < minDistance)
+                {
+                    minDistance = distance;
+                    accessSpecifier = AccessSpecifier::Protected;
+                }
+            }
+            for(auto&& token : privates)
+            {
+                const auto distance = std::distance(token.first, field.begin()->first);
+                if (distance >= 0 && distance < minDistance)
+                {
+                    minDistance = distance;
+                    accessSpecifier = AccessSpecifier::Private;
+                }
+            }
+            tempField.accessSpecifier = accessSpecifier;
+
+            _fields.push_back(std::move(tempField));
+
+            return true;
+        });
+    }
+
+    void ClassLexer::RemoveNestedScopes(String& body)
+    {
+        const String::CharT* opened = nullptr;
+        while ((opened = Utils::FindFirstBracket(body.c_str(), '{')))
+        {
+            if (const auto* closed = Utils::FindClosedBracket(opened, '}', '{'))
+            {
+                body.Erase(opened - body.c_str(), closed - body.c_str());
+            }
+        }
     }
 
 } // namespace Ast::Cpp

@@ -48,6 +48,25 @@ namespace Ast::Cpp
             String name;
         };
 
+        enum class AccessSpecifier
+        {
+            Public,
+            Protected,
+            Private
+        };
+
+        struct Field
+        {
+            bool isConst = false;
+            bool isConstexpr = false;
+            bool isConstinit = false;
+            bool isStatic = false;
+            String name;
+            String type;
+            AccessSpecifier accessSpecifier = AccessSpecifier::Private;
+        };
+
+    public:
         inline static const auto typeName = "class"_atom;
 
         explicit ClassLexer(const Ast::FileReader& fileReader);
@@ -60,15 +79,12 @@ namespace Ast::Cpp
 
     private:
         void RecognizeFields(LogCollector& logCollector);
+        void RemoveNestedScopes(String& body);
 
     private:
         bool _hasFinal = false;
         std::vector<Parent> _parents;
-
-        std::unordered_set<String> _publicFieldNames;
-        std::unordered_set<String> _protectedFieldNames;
-        std::unordered_set<String> _privateFieldNames;
-
+        std::vector<Field> _fields;
     };
 
 } // namespace Ast::Cpp

@@ -34,7 +34,8 @@ namespace Ast::Utils
         {
             ++source;
         }
-        return --source;
+
+        return *source != 0 ? source : nullptr;
     }
 
     const String::CharT* FindClosedBracket(const String::CharT* source, String::CharT closedBracket, String::CharT openedBracket)
