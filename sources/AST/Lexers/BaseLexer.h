@@ -24,12 +24,15 @@
 #include "../Readers/Token.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
+
 namespace Ast
 {
     class FileReader;
     class LogCollector;
 
-    class BaseLexer : public Utils::CopyableAndMoveable
+    class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
     public:
         struct LineToken final
@@ -47,6 +50,10 @@ namespace Ast
         virtual bool Validate(LogCollector& logCollector);
 
         [[nodiscard]] const String& GetName() const noexcept { return _name; }
+        [[nodiscard]] const String& GetLexerType() const noexcept { return _lexerType; }
+
+        boost::intrusive_ptr<const BaseLexer> GetParentLexer() const { return _parentLexer; }
+        const std::vector<boost::intrusive_ptr<BaseLexer>>& GetChildLexers() const { return _childLexers; }
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;
@@ -64,6 +71,8 @@ namespace Ast
 
         const String _lexerType;
         String _name;
+        boost::intrusive_ptr<BaseLexer> _parentLexer;
+        std::vector<boost::intrusive_ptr<BaseLexer>> _childLexers;
     };
 
 }// namespace Ast
