@@ -52,7 +52,7 @@ namespace Ast::Cpp
 
         for (auto&& name : string.Split("::"_atom))
         {
-            _nestedNames.push_back(std::move(name));
+            _nameList.push_back(std::move(name));
         }
 
         return true;
