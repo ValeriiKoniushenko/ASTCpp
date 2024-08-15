@@ -44,7 +44,7 @@ namespace Ast::Cpp
         string.Trim(' ');
         if (string.IsEmpty())
         {
-            logCollector.AddLog({String::Format("Impossible to parse namespace token at {}", 999), LogCollector::LogType::Error});
+            logCollector.AddLog({String::Format("Impossible to parse namespace token at {}", _token.startLine), LogCollector::LogType::Error});
             return false;
         }
 
