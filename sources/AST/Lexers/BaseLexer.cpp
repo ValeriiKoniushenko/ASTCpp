@@ -27,6 +27,15 @@
 namespace Ast
 {
 
+    bool BaseLexer::operator==(const BaseLexer& other) const
+    {
+        return other._reader == _reader
+            && other._token.beginData == _token.beginData
+            && other._token.endData == _token.endData
+            && other._name == _name
+            && other._parentLexer == _parentLexer;
+    }
+
     void BaseLexer::SetToken(const TokenReader& token)
     {
         _token = token;
@@ -47,8 +56,54 @@ namespace Ast
             return false;
         }
 
-        logCollector.AddLog({ String::Format("successfull parsing of the {}: '{}'", _lexerType.CStr(), _name.CStr()), LogCollector::LogType::Success });
+        logCollector.AddLog(
+            { String::Format("successfull parsing of the {}: '{}'", _lexerType.CStr(), _name.CStr()), LogCollector::LogType::Success });
         return true;
+    }
+
+    bool BaseLexer::HasTheSameParent(boost::intrusive_ptr<BaseLexer> parent) const
+    {
+        if (Verify(!!parent))
+        {
+            if (_parentLexer)
+            {
+                return *parent == *_parentLexer;
+            }
+        }
+        return false;
+    }
+
+    void BaseLexer::TryToSetAsChild(boost::intrusive_ptr<BaseLexer> child)
+    {
+        if (Verify(!!child))
+        {
+            if (IsInsideScope(child.get()))
+            {
+                auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(), [&child](const auto& lexer)
+                {
+                    return child->GetName() == lexer->GetName();
+                });
+
+                if (Verify(it == _childLexers.cend(), "Such child already exists"))
+                {
+                    _childLexers.push_back(child);
+                    child->_parentLexer = this;
+                }
+            }
+        }
+    }
+
+    bool BaseLexer::IsInsideScope(const BaseLexer* other) const
+    {
+        if (Verify(other) && Verify(_closeScope.has_value()) && Verify(_openScope.has_value())
+            && Verify(other->_closeScope.has_value()) && Verify(other->_openScope.has_value()) )
+        {
+            if (_openScope->string < other->_openScope->string && _closeScope->string > other->_closeScope->string)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     BaseLexer::BaseLexer(const FileReader& reader, const String& type)

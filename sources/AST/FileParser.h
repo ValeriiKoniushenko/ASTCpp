@@ -40,21 +40,6 @@ namespace Ast
         ~FileParser() override = default;
 
         virtual bool Parse(const FileReader& file, LogCollector& logCollector) = 0;
-
-    protected:
-        template<IsLexer Lexer, IsReader Reader>
-        static void ReadAs(Container<Lexer>& container, const FileReader& file, LogCollector& logCollector)
-        {
-            for (auto&& token : Reader(file))
-            {
-                Lexer lexer(file);
-                lexer.SetToken(token);
-                if (lexer.Validate(logCollector))
-                {
-                    container.push_back(std::move(lexer));
-                }
-            }
-        }
     };
 
 } // namespace Ast

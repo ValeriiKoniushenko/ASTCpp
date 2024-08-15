@@ -40,10 +40,24 @@ namespace Ast::Cpp
         ReadAs<ClassLexer, ClassReader>(_classLexers, file, logCollector);
         ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, file, logCollector);
     }
-    
+
     void FileParser::BindScopes(LogCollector& logCollector)
     {
+        for (auto& globalLexer : _classLexers)
+        {
+            if (globalLexer && globalLexer->HasParent())
+            {
+                continue;
+            }
 
+            for (auto& internalLexer : _classLexers)
+            {
+                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
+                {
+                    globalLexer->TryToSetAsChild(internalLexer);
+                }
+            }
+        }
     }
 
 } // namespace Ast::Cpp

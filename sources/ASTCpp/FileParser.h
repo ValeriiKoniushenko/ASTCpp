@@ -39,13 +39,28 @@ namespace Ast::Cpp
     {
     public:
         template<class T>
-        using Container = std::vector<T>;
+        using Container = std::vector<boost::intrusive_ptr<T>>;
 
     public:
         FileParser() = default;
         ~FileParser() override = default;
 
         bool Parse(const Ast::FileReader& file, LogCollector& logCollector) override;
+
+    protected:
+        template<IsLexer Lexer, IsReader Reader>
+        static void ReadAs(Container<Lexer>& container, const FileReader& file, LogCollector& logCollector)
+        {
+            for (auto&& token : Reader(file))
+            {
+                boost::intrusive_ptr<Lexer> lexer(new Lexer(file));
+                lexer->SetToken(token);
+                if (lexer->Validate(logCollector))
+                {
+                    container.push_back(std::move(lexer));
+                }
+            }
+        }
 
     private:
         void RawParse(const Ast::FileReader& file, LogCollector& logCollector);

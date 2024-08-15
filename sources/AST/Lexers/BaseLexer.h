@@ -46,14 +46,21 @@ namespace Ast
     public:
         ~BaseLexer() override = default;
 
+        [[nodiscard]] bool operator==(const BaseLexer&) const;
+
         void SetToken(const TokenReader& token);
         virtual bool Validate(LogCollector& logCollector);
 
         [[nodiscard]] const String& GetName() const noexcept { return _name; }
         [[nodiscard]] const String& GetLexerType() const noexcept { return _lexerType; }
 
-        boost::intrusive_ptr<const BaseLexer> GetParentLexer() const { return _parentLexer; }
-        const std::vector<boost::intrusive_ptr<BaseLexer>>& GetChildLexers() const { return _childLexers; }
+        [[nodiscard]] bool HasTheSameParent(boost::intrusive_ptr<BaseLexer> parent) const;
+        [[nodiscard]] bool HasParent() const noexcept { return !!_parentLexer; }
+        [[nodiscard]] const boost::intrusive_ptr<BaseLexer> GetParentLexer() const { return _parentLexer; }
+        [[nodiscard]] const std::vector<boost::intrusive_ptr<BaseLexer>>& GetChildLexers() const { return _childLexers; }
+
+        void TryToSetAsChild(boost::intrusive_ptr<BaseLexer> child);
+        [[nodiscard]] bool IsInsideScope(const BaseLexer* other) const;
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;
