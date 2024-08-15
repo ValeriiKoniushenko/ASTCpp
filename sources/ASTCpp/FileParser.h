@@ -49,6 +49,7 @@ namespace Ast::Cpp
 
     private:
         void RawParse(const Ast::FileReader& file, LogCollector& logCollector);
+        void BindScopes(LogCollector& logCollector);
 
     private:
         Container<ClassLexer> _classLexers;

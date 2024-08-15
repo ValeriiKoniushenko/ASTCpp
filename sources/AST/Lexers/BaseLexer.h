@@ -62,7 +62,7 @@ namespace Ast
         std::optional<LineToken> _openScope;
         std::optional<LineToken> _closeScope;
 
-        const String _type;
+        const String _lexerType;
         String _name;
     };
 

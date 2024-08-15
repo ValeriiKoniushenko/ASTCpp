@@ -37,8 +37,13 @@ namespace Ast::Cpp
         explicit NamespaceLexer(const Ast::FileReader& fileReader);
         ~NamespaceLexer() override = default;
 
+        [[nodiscard]] const std::vector<String>& GetNestedNames() { return _nestedNames; }
+
     protected:
         bool DoValidate(LogCollector& logCollector) override;
+
+    private:
+        std::vector<String> _nestedNames;
     };
 
 } // namespace Ast::Cpp

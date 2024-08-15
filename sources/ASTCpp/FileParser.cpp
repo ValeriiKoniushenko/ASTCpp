@@ -30,7 +30,7 @@ namespace Ast::Cpp
     bool FileParser::Parse(const Ast::FileReader& file, LogCollector& logCollector)
     {
         RawParse(file, logCollector);
-
+        BindScopes(logCollector);
         return true;
     }
 
@@ -39,6 +39,11 @@ namespace Ast::Cpp
         ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, file, logCollector);
         ReadAs<ClassLexer, ClassReader>(_classLexers, file, logCollector);
         ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, file, logCollector);
+    }
+    
+    void FileParser::BindScopes(LogCollector& logCollector)
+    {
+
     }
 
 } // namespace Ast::Cpp

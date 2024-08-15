@@ -48,7 +48,12 @@ namespace Ast::Cpp
             return false;
         }
 
-        _name = std::move(string);
+        _name = string; // absolute name
+
+        for (auto&& name : string.Split("::"_atom))
+        {
+            _nestedNames.push_back(std::move(name));
+        }
 
         return true;
     }

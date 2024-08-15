@@ -44,6 +44,9 @@ namespace Ast::Cpp
         explicit EnumClassLexer(const Ast::FileReader& fileReader);
         ~EnumClassLexer() override = default;
 
+        [[nodiscard]] const String& GetType() const noexcept { return _type; }
+        [[nodiscard]] const std::vector<Constant>& GetConstants() const noexcept { return _constants; }
+
     protected:
         bool DoValidate(LogCollector& logCollector) override;
         bool DoValidateScope(LogCollector& logCollector) override;

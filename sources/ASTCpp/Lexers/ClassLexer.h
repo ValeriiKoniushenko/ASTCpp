@@ -72,6 +72,10 @@ namespace Ast::Cpp
         explicit ClassLexer(const Ast::FileReader& fileReader);
         ~ClassLexer() override = default;
 
+        [[nodiscard]] const std::vector<Parent>& GetClassParents() const noexcept { return _parents; }
+        [[nodiscard]] const std::vector<Field>& GetFields() const noexcept { return _fields; }
+        [[nodiscard]] bool IsFinal() const noexcept { return _hasFinal; }
+
     protected:
         bool DoValidate(LogCollector& logCollector) override;
         bool DoValidateScope(LogCollector& logCollector) override;

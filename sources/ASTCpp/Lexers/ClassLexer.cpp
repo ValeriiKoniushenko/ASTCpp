@@ -122,7 +122,6 @@ namespace Ast::Cpp
             return false;
         }
 
-
         RecognizeFields(logCollector);
 
         return true;

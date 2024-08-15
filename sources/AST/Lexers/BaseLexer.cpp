@@ -47,16 +47,16 @@ namespace Ast
             return false;
         }
 
-        logCollector.AddLog({ String::Format("successfull parsing of the {}: '{}'", _type.CStr(), _name.CStr()), LogCollector::LogType::Success });
+        logCollector.AddLog({ String::Format("successfull parsing of the {}: '{}'", _lexerType.CStr(), _name.CStr()), LogCollector::LogType::Success });
         return true;
     }
 
     BaseLexer::BaseLexer(const FileReader& reader, const String& type)
         : _reader{ &reader },
-          _type{ type }
+          _lexerType{ type }
     {
         Assert(_reader);
-        Assert(!_type.IsEmpty());
+        Assert(!_lexerType.IsEmpty());
     }
 
 } // namespace Ast
