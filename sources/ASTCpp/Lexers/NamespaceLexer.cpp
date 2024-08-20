@@ -22,6 +22,7 @@
 
 #include "AST/LogCollector.h"
 #include "AST/Readers/FileReader.h"
+#include "AST/Utils/Scopes.h"
 
 namespace Ast::Cpp
 {
@@ -35,7 +36,7 @@ namespace Ast::Cpp
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
-            logCollector.AddLog({"NamespaceLexer: Impossible to work with an invalid token", LogCollector::LogType::Error});
+            logCollector.AddLog({ "NamespaceLexer: Impossible to work with an invalid token", LogCollector::LogType::Error });
             return false;
         }
 
@@ -44,7 +45,7 @@ namespace Ast::Cpp
         string.Trim(' ');
         if (string.IsEmpty())
         {
-            logCollector.AddLog({String::Format("Impossible to parse namespace token at {}", _token.startLine), LogCollector::LogType::Error});
+            logCollector.AddLog({ String::Format("Impossible to parse namespace token at {}", _token.startLine), LogCollector::LogType::Error });
             return false;
         }
 
@@ -54,6 +55,29 @@ namespace Ast::Cpp
         {
             _nameList.push_back(std::move(name));
         }
+
+        return true;
+    }
+
+    bool NamespaceLexer::DoValidateScope(LogCollector& logCollector)
+    {
+        if (!BaseLexer::DoValidateScope(logCollector))
+        {
+            return false;
+        }
+
+        const auto* openedBracket = _token.endData;
+        while(String::Toolset::IsSpace(*openedBracket)) ++openedBracket;
+        if (!Verify(*openedBracket == '{', "Impossible to define a namespace scope."))
+        {
+            logCollector.AddLog({String::Format("Impossible to define a namespace scope '{}'", _name.c_str()), LogCollector::LogType::Error});
+            return false;
+        }
+
+        const auto* closedBracket = Utils::FindClosedBracket(openedBracket, '}', '{');
+
+        _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data(), openedBracket) };
+        _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data(), closedBracket) };
 
         return true;
     }

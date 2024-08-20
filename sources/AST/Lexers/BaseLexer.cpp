@@ -75,7 +75,7 @@ namespace Ast
 
     void BaseLexer::TryToSetAsChild(boost::intrusive_ptr<BaseLexer> child)
     {
-        if (Verify(!!child))
+        if (Verify(!!child) && !child->HasParent())
         {
             if (IsInsideScope(child.get()))
             {

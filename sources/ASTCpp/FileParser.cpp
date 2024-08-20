@@ -57,7 +57,48 @@ namespace Ast::Cpp
                     globalLexer->TryToSetAsChild(internalLexer);
                 }
             }
+
+            for (auto& internalLexer : _enumClassLexers)
+            {
+                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
+                {
+                    globalLexer->TryToSetAsChild(internalLexer);
+                }
+            }
         }
+
+        for (auto& globalLexer : _namespaceLexers)
+        {
+            if (globalLexer && globalLexer->HasParent())
+            {
+                continue;
+            }
+
+            for (auto& internalLexer : _namespaceLexers)
+            {
+                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
+                {
+                    globalLexer->TryToSetAsChild(internalLexer);
+                }
+            }
+
+            for (auto& internalLexer : _classLexers)
+            {
+                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
+                {
+                    globalLexer->TryToSetAsChild(internalLexer);
+                }
+            }
+
+            for (auto& internalLexer : _enumClassLexers)
+            {
+                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
+                {
+                    globalLexer->TryToSetAsChild(internalLexer);
+                }
+            }
+        }
+
     }
 
 } // namespace Ast::Cpp
