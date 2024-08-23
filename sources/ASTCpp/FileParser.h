@@ -65,7 +65,10 @@ namespace Ast::Cpp
     private:
         void RawParse(const Ast::FileReader& file, LogCollector& logCollector);
         void BindScopes(LogCollector& logCollector);
+        BaseLexer* BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector);
+        BaseLexer* FindNextLexer(const BaseLexer* prevLexer);
 
+        void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback);
     private:
         Container<ClassLexer> _classLexers;
         Container<NamespaceLexer> _namespaceLexers;

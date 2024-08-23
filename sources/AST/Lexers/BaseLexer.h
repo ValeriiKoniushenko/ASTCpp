@@ -41,6 +41,7 @@ namespace Ast
             std::size_t line = 0;
 
             [[nodiscard]] bool IsValid() const noexcept { return string && line != 0; }
+            [[nodiscard]] bool operator<(const LineToken& other) const noexcept { return Verify(other.IsValid() && IsValid()) ? string < other.string : false; }
         };
 
     public:
@@ -60,7 +61,10 @@ namespace Ast
         [[nodiscard]] const std::vector<boost::intrusive_ptr<BaseLexer>>& GetChildLexers() const { return _childLexers; }
 
         void TryToSetAsChild(boost::intrusive_ptr<BaseLexer> child);
-        [[nodiscard]] bool IsInsideScope(const BaseLexer* other) const;
+        [[nodiscard]] bool IsContainLexer(const BaseLexer* other) const;
+        [[nodiscard]] std::optional<LineToken> GetOpenScope() const noexcept { return _openScope; }
+        [[nodiscard]] std::optional<LineToken> GetCloseScope() const noexcept { return _closeScope; }
+        [[nodiscard]] long long GetDistanceToLexer(const BaseLexer* lexer) const noexcept { return Verify(lexer && lexer->GetOpenScope() && _closeScope) ? lexer->_openScope->string - _closeScope->string : 0; }
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;

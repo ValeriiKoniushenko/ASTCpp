@@ -77,7 +77,7 @@ namespace Ast
     {
         if (Verify(!!child) && !child->HasParent())
         {
-            if (IsInsideScope(child.get()))
+            if (IsContainLexer(child.get()))
             {
                 auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(), [&child](const auto& lexer)
                 {
@@ -93,7 +93,7 @@ namespace Ast
         }
     }
 
-    bool BaseLexer::IsInsideScope(const BaseLexer* other) const
+    bool BaseLexer::IsContainLexer(const BaseLexer* other) const
     {
         if (Verify(other) && Verify(_closeScope.has_value()) && Verify(_openScope.has_value())
             && Verify(other->_closeScope.has_value()) && Verify(other->_openScope.has_value()) )

@@ -43,62 +43,128 @@ namespace Ast::Cpp
 
     void FileParser::BindScopes(LogCollector& logCollector)
     {
-        for (auto& globalLexer : _classLexers)
+        BaseLexer* lexer = BindScopesForLexer(nullptr, logCollector);
+        while ((lexer = FindNextLexer(lexer)))
         {
-            if (globalLexer && globalLexer->HasParent())
-            {
-                continue;
-            }
+            lexer = BindScopesForLexer(lexer, logCollector);
+        }
+    }
 
-            for (auto& internalLexer : _classLexers)
+    BaseLexer* FileParser::BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector)
+    {
+        const auto startChildsCount = prevLexer ? prevLexer->GetChildLexers().size() : 0;
+        IterateOverLexers(
+            [&](BaseLexer* lexer)
             {
-                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
+                if (!lexer || lexer == prevLexer)
                 {
-                    globalLexer->TryToSetAsChild(internalLexer);
+                    return true;
                 }
-            }
 
-            for (auto& internalLexer : _enumClassLexers)
-            {
-                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
+                if (const auto scope = lexer->GetOpenScope(); scope && scope->IsValid())
                 {
-                    globalLexer->TryToSetAsChild(internalLexer);
+                    if (!prevLexer)
+                    {
+                        prevLexer = lexer;
+                    }
+                    else
+                    {
+                        if (prevLexer->IsContainLexer(lexer))
+                        {
+                            BindScopesForLexer(lexer, logCollector);
+                            if (!lexer->HasParent())
+                            {
+                                prevLexer->TryToSetAsChild(lexer);
+                            }
+                        }
+                    }
                 }
-            }
+
+                return true;
+            });
+
+        if (!prevLexer || prevLexer->GetChildLexers().size() == startChildsCount)
+        {
+            return nullptr;
         }
 
-        for (auto& globalLexer : _namespaceLexers)
+        return prevLexer;
+    }
+
+    BaseLexer* FileParser::FindNextLexer(const BaseLexer* prevLexer)
+    {
+        if (!prevLexer)
         {
-            if (globalLexer && globalLexer->HasParent())
-            {
-                continue;
-            }
-
-            for (auto& internalLexer : _namespaceLexers)
-            {
-                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
-                {
-                    globalLexer->TryToSetAsChild(internalLexer);
-                }
-            }
-
-            for (auto& internalLexer : _classLexers)
-            {
-                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
-                {
-                    globalLexer->TryToSetAsChild(internalLexer);
-                }
-            }
-
-            for (auto& internalLexer : _enumClassLexers)
-            {
-                if (internalLexer && !internalLexer->HasTheSameParent(globalLexer))
-                {
-                    globalLexer->TryToSetAsChild(internalLexer);
-                }
-            }
+            return nullptr;
         }
 
+        BaseLexer* nearestLexer = nullptr;
+
+        // find any first lexer after 'prevLexer'
+        IterateOverLexers(
+            [&](BaseLexer* lexer)
+            {
+                if (!Verify(lexer) || *lexer == *prevLexer)
+                {
+                    return true;
+                }
+
+                const auto distance = prevLexer->GetDistanceToLexer(lexer);
+                if (!prevLexer->IsContainLexer(lexer) && distance > 0)
+                {
+                    nearestLexer = lexer;
+                    return false;
+                }
+                return true;
+            });
+
+        if (!nearestLexer)
+        {
+            return nullptr;
+        }
+        
+        IterateOverLexers(
+            [&](BaseLexer* lexer)
+            {
+                if (!lexer)
+                {
+                    return true;
+                }
+
+                if (prevLexer->IsContainLexer(lexer) || *prevLexer == *lexer)
+                {
+                    return true;
+                }
+
+                const auto d1 = prevLexer->GetDistanceToLexer(lexer);
+                const auto d2 = prevLexer->GetDistanceToLexer(nearestLexer);
+                if (d1 < d2)
+                {
+                    nearestLexer = lexer;
+                }
+
+                return true;
+            });
+
+        return nearestLexer;
+    }
+
+    void FileParser::IterateOverLexers(std::function<bool(BaseLexer*)>&& callback)
+    {
+        if (!callback)
+        {
+            return;
+        }
+
+        for (auto&& lexer : _classLexers)
+            if (!callback(lexer.get()))
+                return;
+        for (auto&& lexer : _namespaceLexers)
+            if (!callback(lexer.get()))
+                return;
+        for (auto&& lexer : _enumClassLexers)
+            if (!callback(lexer.get()))
+                return;
     }
 
 } // namespace Ast::Cpp
