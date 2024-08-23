@@ -22,8 +22,6 @@
 
 #include "AST/Lexers/BaseLexer.h"
 
-#include <unordered_set>
-
 namespace Ast
 {
     class FileReader;

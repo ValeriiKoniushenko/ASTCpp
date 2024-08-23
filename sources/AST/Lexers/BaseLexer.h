@@ -31,6 +31,10 @@ namespace Ast
 {
     class FileReader;
     class LogCollector;
+    class BaseLexer;
+
+    template<class T>
+    concept IsLexer = std::derived_from<T, BaseLexer> && requires(T){ { T::typeName}; };
 
     class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
@@ -51,6 +55,13 @@ namespace Ast
 
         void SetToken(const TokenReader& token);
         virtual bool Validate(LogCollector& logCollector);
+
+        template<IsLexer Lexer>
+        [[nodiscard]] bool IsTypeOf() const noexcept
+        {
+            // TODO: check for static string
+            return _lexerType == Lexer::typeName;
+        }
 
         [[nodiscard]] const String& GetName() const noexcept { return _name; }
         [[nodiscard]] const String& GetLexerType() const noexcept { return _lexerType; }

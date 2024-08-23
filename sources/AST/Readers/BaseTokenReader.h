@@ -33,9 +33,6 @@ namespace Ast
 {
     class FileReader;
 
-    template<class T>
-    concept IsLexer = std::is_base_of_v<BaseLexer, T>;
-
     class BaseTokenReader : public Utils::CopyableAndMoveable
     {
     public:
