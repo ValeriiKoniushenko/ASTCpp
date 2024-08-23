@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "AST/Readers/FileReader.h"
+#include "AST/ASTFileTree.h"
 #include "ASTCpp/FileParser.h"
 #include "ASTCpp/Readers/Filters/CommentFilter.h"
 
@@ -27,7 +28,7 @@
 int main()
 {
 
-    Ast::FileReader fileReader;
+    Ast::FileReader::Ptr fileReader = new Ast::FileReader;
     Ast::LogCollector logCollector;
     logCollector.onValidationEvent.Subscribe([](const Ast::String& message, Ast::LogCollector::LogType logType)
     {
@@ -43,11 +44,12 @@ int main()
         cout << "ASTCpp: [" << typeStr << "]: " << message.CStr() << endl;
     });
 
-    if (fileReader.Read("D:\\Workspace\\test.cpp"))
+    if (fileReader->Read("D:\\Workspace\\test.cpp"))
     {
-        fileReader.ApplyFilters<Ast::Cpp::CommentFilter>();
-        Ast::Cpp::FileParser fileParser;
-        fileParser.Parse(fileReader, logCollector);
+        fileReader->ApplyFilters<Ast::Cpp::CommentFilter>();
+        Ast::ASTFileTree tree(fileReader);
+        tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
+        int i = 1;
     }
 
     return 0;

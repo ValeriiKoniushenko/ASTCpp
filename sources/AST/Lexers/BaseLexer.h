@@ -72,10 +72,13 @@ namespace Ast
         [[nodiscard]] const std::vector<boost::intrusive_ptr<BaseLexer>>& GetChildLexers() const { return _childLexers; }
 
         void TryToSetAsChild(boost::intrusive_ptr<BaseLexer> child);
+        void ForceSetAsChild(boost::intrusive_ptr<BaseLexer> child);
         [[nodiscard]] bool IsContainLexer(const BaseLexer* other) const;
         [[nodiscard]] std::optional<LineToken> GetOpenScope() const noexcept { return _openScope; }
         [[nodiscard]] std::optional<LineToken> GetCloseScope() const noexcept { return _closeScope; }
         [[nodiscard]] long long GetDistanceToLexer(const BaseLexer* lexer) const noexcept { return Verify(lexer && lexer->GetOpenScope() && _closeScope) ? lexer->_openScope->string - _closeScope->string : 0; }
+
+        void Clear();
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;

@@ -25,6 +25,8 @@
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
 #include <filesystem>
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
 namespace Ast
 {
@@ -39,9 +41,11 @@ namespace Ast
     template<class T>
     concept IsFileDataFilter = std::is_base_of_v<FileDataFilter, T>;
 
-    class FileReader final : public Utils::CopyableAndMoveable
+    class FileReader final : public Utils::CopyableAndMoveable,  public boost::intrusive_ref_counter<FileReader>
     {
     public:
+        using Ptr = boost::intrusive_ptr<FileReader>;
+
         FileReader() = default;
         ~FileReader() override = default;
 
@@ -53,6 +57,8 @@ namespace Ast
         {
             (Filter{}.MakeTransform(_content), ...);
         }
+
+        std::filesystem::path GetPathToFile() const noexcept { return _path; }
 
     private:
         String _content;

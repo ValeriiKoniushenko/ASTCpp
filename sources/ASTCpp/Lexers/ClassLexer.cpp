@@ -68,6 +68,7 @@ namespace Ast::Cpp
 
         if (string.RegexReplace(R"(^\w+\s*:)", ""))
         {
+            Verify(false, "Critical! Fix it!!!!!!!!!!!");
             for (auto& parentStr : string.Split(","_atom))
             {
                 InheritanceType type = InheritanceType::Private;

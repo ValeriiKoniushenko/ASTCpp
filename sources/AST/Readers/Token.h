@@ -33,6 +33,14 @@ namespace Ast
         std::size_t startLine = 0;
         std::size_t endLine = 0;
 
+        void Clear()
+        {
+            beginData = nullptr;
+            endData = nullptr;
+
+            startLine = 0;
+            endLine = 0;
+        }
         [[nodiscard]] bool IsValid() const noexcept { return beginData != nullptr && endData != nullptr; }
     };
 

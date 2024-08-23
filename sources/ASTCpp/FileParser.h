@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "AST/Readers/BaseTokenReader.h"
 #include "AST/FileParser.h"
 #include "Lexers/ClassLexer.h"
 #include "Lexers/EnumClassLexer.h"
@@ -46,6 +47,7 @@ namespace Ast::Cpp
         ~FileParser() override = default;
 
         bool Parse(const Ast::FileReader& file, LogCollector& logCollector) override;
+        void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) override;
 
     protected:
         template<IsLexer Lexer, IsReader Reader>
@@ -68,7 +70,6 @@ namespace Ast::Cpp
         BaseLexer* BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector);
         BaseLexer* FindNextLexer(const BaseLexer* prevLexer);
 
-        void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback);
     private:
         Container<ClassLexer> _classLexers;
         Container<NamespaceLexer> _namespaceLexers;

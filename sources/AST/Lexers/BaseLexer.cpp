@@ -79,10 +79,11 @@ namespace Ast
         {
             if (IsContainLexer(child.get()))
             {
-                auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(), [&child](const auto& lexer)
-                {
-                    return child->GetName() == lexer->GetName();
-                });
+                auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(),
+                   [&child](const auto& lexer)
+                   {
+                       return child->GetName() == lexer->GetName();
+                   });
 
                 if (Verify(it == _childLexers.cend(), "Such child already exists"))
                 {
@@ -92,11 +93,28 @@ namespace Ast
             }
         }
     }
+    void BaseLexer::ForceSetAsChild(boost::intrusive_ptr<BaseLexer> child)
+    {
+        if (Verify(!!child) && !child->HasParent())
+        {
+            auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(),
+               [&child](const auto& lexer)
+               {
+                   return child->GetName() == lexer->GetName();
+               });
+
+            if (Verify(it == _childLexers.cend(), "Such child already exists"))
+            {
+                _childLexers.push_back(child);
+                child->_parentLexer = this;
+            }
+        }
+    }
 
     bool BaseLexer::IsContainLexer(const BaseLexer* other) const
     {
-        if (Verify(other) && Verify(_closeScope.has_value()) && Verify(_openScope.has_value())
-            && Verify(other->_closeScope.has_value()) && Verify(other->_openScope.has_value()) )
+        if (Verify(other) && Verify(_closeScope.has_value()) && Verify(_openScope.has_value()) && Verify(other->_closeScope.has_value()) &&
+            Verify(other->_openScope.has_value()))
         {
             if (_openScope->string < other->_openScope->string && _closeScope->string > other->_closeScope->string)
             {
@@ -104,6 +122,16 @@ namespace Ast
             }
         }
         return false;
+    }
+
+    void BaseLexer::Clear()
+    {
+        _token.Clear();
+        _openScope.reset();
+        _closeScope.reset();
+        _name.Clear();
+        _parentLexer.reset();
+        _childLexers.clear();
     }
 
     BaseLexer::BaseLexer(const FileReader& reader, const String& type)

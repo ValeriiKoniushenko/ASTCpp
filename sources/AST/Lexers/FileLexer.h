@@ -20,22 +20,21 @@
 
 #pragma once
 
-#include "Lexers/BaseLexer.h"
-#include "AST/LogCollector.h"
-
+#include "AST/Lexers/BaseLexer.h"
 
 namespace Ast
 {
-    class FileParser : Utils::CopyableAndMoveable
+    class FileReader;
+
+    class FileLexer final : public BaseLexer
     {
     public:
-        FileParser() = default;
-        ~FileParser() override = default;
+        inline static const auto typeName = "file"_atom;
 
-        virtual bool Parse(const FileReader& file, LogCollector& logCollector) = 0;
-        virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
+        explicit FileLexer(const Ast::FileReader& fileReader);
+        ~FileLexer() override = default;
+
+        bool DoValidate(LogCollector& logCollector) override;
     };
 
-    template<class T>
-    concept IsFileParser = std::derived_from<T, FileParser>;
-} // namespace Ast
+} // namespace Ast::Cpp

@@ -18,24 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "FileLexer.h"
 
-#include "Lexers/BaseLexer.h"
-#include "AST/LogCollector.h"
-
+#include "AST/Readers/FileReader.h"
 
 namespace Ast
 {
-    class FileParser : Utils::CopyableAndMoveable
+
+    FileLexer::FileLexer(const Ast::FileReader& fileReader)
+        : BaseLexer(fileReader, typeName)
     {
-    public:
-        FileParser() = default;
-        ~FileParser() override = default;
+    }
 
-        virtual bool Parse(const FileReader& file, LogCollector& logCollector) = 0;
-        virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
-    };
+    bool FileLexer::DoValidate(LogCollector& logCollector)
+    {
+        _name = _reader->GetPathToFile().string();
+        return true;
+    }
 
-    template<class T>
-    concept IsFileParser = std::derived_from<T, FileParser>;
 } // namespace Ast
