@@ -51,20 +51,54 @@ namespace Ast::Utils
             ++source;
         }
 
-        std::size_t curclyBracketCounter = 1;
-        for (; *source != 0 && curclyBracketCounter != 0; ++source)
+        std::size_t bracketCounter = 1;
+        for (; *source != 0 && bracketCounter != 0; ++source)
         {
             if (*source == openedBracket)
             {
-                ++curclyBracketCounter;
+                ++bracketCounter;
             }
             else if (*source == closedBracket)
             {
-                --curclyBracketCounter;
+                --bracketCounter;
             }
         }
 
         return *source != 0 ? --source : nullptr;
+    }
+
+    bool HasUnclosedBracket(const String::CharT* from, const String::CharT* to, String::CharT closedBracket, String::CharT openedBracket)
+    {
+        if (!Verify(from && to, "Impossible to find the unclosed bracket because was passed the NULL string[s]"))
+        {
+            return false;
+        }
+
+        if (!Verify(from < to, "Was passed 'from' like an end of string & 'to' like a start of the string"))
+        {
+            return false;
+        }
+
+        if (*from == openedBracket)
+            ++from;
+
+        if (*to == openedBracket)
+            --to;
+
+        std::size_t bracketCounter = 0;
+        for (; from != to; ++from)
+        {
+            if (*from == openedBracket)
+            {
+                ++bracketCounter;
+            }
+            else if (*from == closedBracket)
+            {
+                --bracketCounter;
+            }
+        }
+
+        return bracketCounter != 0;
     }
 
 } // namespace Ast

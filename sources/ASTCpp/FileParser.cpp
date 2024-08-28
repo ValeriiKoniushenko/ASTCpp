@@ -69,7 +69,10 @@ namespace Ast::Cpp
                     }
                     else
                     {
-                        if (prevLexer->IsContainLexer(lexer))
+                        auto prevLexerName = prevLexer->GetName();
+                        auto lexerName = lexer->GetName();
+
+                        if (prevLexer->IsContainLexer(lexer, true))
                         {
                             BindScopesForLexer(lexer, logCollector);
                             if (!lexer->HasParent())

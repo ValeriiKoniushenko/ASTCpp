@@ -73,7 +73,7 @@ namespace Ast
 
         void TryToSetAsChild(boost::intrusive_ptr<BaseLexer> child);
         void ForceSetAsChild(boost::intrusive_ptr<BaseLexer> child);
-        [[nodiscard]] bool IsContainLexer(const BaseLexer* other) const;
+        [[nodiscard]] bool IsContainLexer(const BaseLexer* other, bool isInItsScope = false) const;
         [[nodiscard]] std::optional<LineToken> GetOpenScope() const noexcept { return _openScope; }
         [[nodiscard]] std::optional<LineToken> GetCloseScope() const noexcept { return _closeScope; }
         [[nodiscard]] long long GetDistanceToLexer(const BaseLexer* lexer) const noexcept { return Verify(lexer && lexer->GetOpenScope() && _closeScope) ? lexer->_openScope->string - _closeScope->string : 0; }

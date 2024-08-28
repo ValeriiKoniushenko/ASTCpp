@@ -22,6 +22,7 @@
 
 #include "../Readers/FileReader.h"
 #include "AST/LogCollector.h"
+#include "AST/Utils/Scopes.h"
 #include "Core/Assert.h"
 
 namespace Ast
@@ -111,13 +112,18 @@ namespace Ast
         }
     }
 
-    bool BaseLexer::IsContainLexer(const BaseLexer* other) const
+    bool BaseLexer::IsContainLexer(const BaseLexer* other, bool isInItsScope/* = false*/) const
     {
         if (Verify(other) && Verify(_closeScope.has_value()) && Verify(_openScope.has_value()) && Verify(other->_closeScope.has_value()) &&
             Verify(other->_openScope.has_value()))
         {
             if (_openScope->string < other->_openScope->string && _closeScope->string > other->_closeScope->string)
             {
+                if (isInItsScope)
+                {
+                    return !Utils::HasUnclosedBracket(_openScope->string, other->_openScope->string, '}', '{');
+                }
+
                 return true;
             }
         }
