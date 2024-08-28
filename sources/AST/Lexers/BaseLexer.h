@@ -79,6 +79,7 @@ namespace Ast
         [[nodiscard]] long long GetDistanceToLexer(const BaseLexer* lexer) const noexcept { return Verify(lexer && lexer->GetOpenScope() && _closeScope) ? lexer->_openScope->string - _closeScope->string : 0; }
 
         void Clear();
+        [[nodiscard]] const FileReader* GetFileReader() const { return _reader; }
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;

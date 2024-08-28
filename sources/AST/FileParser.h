@@ -23,6 +23,7 @@
 #include "Lexers/BaseLexer.h"
 #include "AST/LogCollector.h"
 
+#include <filesystem>
 
 namespace Ast
 {
@@ -34,6 +35,9 @@ namespace Ast
 
         virtual bool Parse(const FileReader& file, LogCollector& logCollector) = 0;
         virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
+
+        // TODO: add 'const'
+        [[nodiscard]] std::filesystem::path GetFilePath();
     };
 
     template<class T>

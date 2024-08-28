@@ -20,7 +20,28 @@
 
 #include "FileParser.h"
 
+#include "Readers/FileReader.h"
+
 namespace Ast
 {
 
+    std::filesystem::path FileParser::GetFilePath()
+    {
+        std::filesystem::path path;
+        IterateOverLexers([&](BaseLexer* lexer)
+        {
+            if (Verify(lexer))
+            {
+                const auto* reader = lexer->GetFileReader();
+                if (Verify(reader))
+                {
+                    path = reader->GetPathToFile();
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        return path;
+    }
 } // namespace Ast

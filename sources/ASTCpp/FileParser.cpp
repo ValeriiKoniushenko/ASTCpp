@@ -24,6 +24,8 @@
 #include "Readers/EnumClassReader.h"
 #include "Readers/NamespaceReader.h"
 
+#include <filesystem>
+
 namespace Ast::Cpp
 {
 
@@ -48,6 +50,8 @@ namespace Ast::Cpp
         {
             lexer = BindScopesForLexer(lexer, logCollector);
         }
+
+        logCollector.AddLog({String::Format("Successfully was build binding between lexers at file: '{}'", GetFilePath().string().c_str()), LogCollector::LogType::Success});
     }
 
     BaseLexer* FileParser::BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector)

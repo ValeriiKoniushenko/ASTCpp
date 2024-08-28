@@ -57,7 +57,7 @@ namespace Ast::Cpp
         }
         else
         {
-            logCollector.AddLog({ "Impossible to parse class token at {line}" });
+            logCollector.AddLog({ String::Format("Impossible to parse enum class token at {}", _token.startLine) , LogCollector::LogType::Error});
             return false;
         }
 
