@@ -68,8 +68,33 @@ namespace Ast::Cpp
 
         if (string.RegexReplace(R"(^\w+\s*:)", ""))
         {
-            Verify(false, "Critical! Fix it!!!!!!!!!!!");
-            for (auto& parentStr : string.Split(","_atom))
+            std::vector<String> parents;
+            int bracketsCount = 0;
+            String tmp;
+            for (int i = 0; i < string.Size(); ++i)
+            {
+                if (string[i] == '<')
+                {
+                    ++bracketsCount;
+                }
+                else if (string[i] == '>')
+                {
+                    --bracketsCount;
+                }
+                tmp.PushBack(string[i]);
+
+                if (bracketsCount == 0)
+                {
+                    if (string[i] == ',')
+                    {
+                        tmp.Trim(',').Trim(' ');
+                        parents.push_back(std::move(tmp));
+                    }
+                }
+            }
+            parents.push_back(std::move(tmp));
+
+            for (auto&& parentStr : parents)
             {
                 InheritanceType type = InheritanceType::Private;
                 if (parentStr.RegexReplace(R"(\s*public\s*)", ""))
