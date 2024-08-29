@@ -34,7 +34,7 @@ namespace Ast
     class BaseLexer;
 
     template<class T>
-    concept IsLexer = std::derived_from<T, BaseLexer> && requires(T){ { T::typeName}; };
+    concept IsLexer = (std::derived_from<T, BaseLexer> && requires(T){ { T::typeName}; }) || std::is_void_v<T>;
 
     class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
@@ -72,6 +72,7 @@ namespace Ast
         [[nodiscard]] bool HasParent() const noexcept { return !!_parentLexer; }
         [[nodiscard]] const BaseLexer::Ptr GetParentLexer() const { return _parentLexer; }
         [[nodiscard]] const std::vector<BaseLexer::Ptr>& GetChildLexers() const { return _childLexers; }
+        [[nodiscard]] bool HasChildLexers() const noexcept { return !_childLexers.empty(); }
 
         void TryToSetAsChild(BaseLexer::Ptr child);
         void ForceSetAsChild(BaseLexer::Ptr child);

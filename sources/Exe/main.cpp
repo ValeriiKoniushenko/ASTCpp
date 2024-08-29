@@ -22,6 +22,7 @@
 #include "AST/ASTFileTree.h"
 #include "ASTCpp/FileParser.h"
 #include "ASTCpp/Readers/Filters/CommentFilter.h"
+#include "AST/Utils/IO.h"
 
 #include <iostream>
 
@@ -49,7 +50,8 @@ int main()
         fileReader->ApplyFilters<Ast::Cpp::CommentFilter>();
         Ast::ASTFileTree tree(fileReader);
         tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
-        int i = 1;
+
+        std::cout << tree << std::endl;
     }
 
     return 0;
