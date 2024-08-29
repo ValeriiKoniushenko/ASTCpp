@@ -9,12 +9,14 @@ file(
 	"AST/Readers/*.cpp"
 	"AST/Utils/*.h"
 	"AST/Utils/*.cpp"
+	"AST/ConvertibleTrees/*.h"
+	"AST/ConvertibleTrees/*.cpp"
 )
 
 add_library(ASTCore STATIC ${ASTSources})
 set_target_properties(ASTCore PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(ASTCore PUBLIC ./)
-target_link_libraries(ASTCore PUBLIC Utils boost_smart_ptr)
+target_link_libraries(ASTCore PUBLIC Utils boost_smart_ptr tinyxml2)
 
 
 # ==================== ASTCpp ====================

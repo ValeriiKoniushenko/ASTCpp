@@ -18,8 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "AST/Readers/FileReader.h"
 #include "AST/ASTFileTree.h"
+#include "AST/ConvertibleTrees/XMLTree.h"
+#include "AST/Readers/FileReader.h"
 #include "ASTCpp/FileParser.h"
 #include "ASTCpp/Readers/Filters/CommentFilter.h"
 
@@ -49,7 +50,30 @@ int main()
         fileReader->ApplyFilters<Ast::Cpp::CommentFilter>();
         Ast::ASTFileTree tree(fileReader);
         tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
-        int i = 1;
+
+        tree.ForEach([&](Ast::BaseLexer* lexer, Ast::ASTFileTree::Params params)
+        {
+            std::cout << "> ";
+            for (int i = 0; i < params.nesting; ++i)
+            {
+                std::cout << "\t";
+            }
+            std::cout << lexer->GetName().c_str() << std::endl;
+
+            return true;
+        });
+
+        auto found = tree.FindIf([](Ast::BaseLexer* lexer)
+        {
+            return lexer->GetName() == "Vec2";
+        });
+
+        if (Verify(!!found))
+        {
+            int i = 1;
+        }
+
+        // auto xmlTree = tree.ConvertTo<Ast::XMLTree>(logCollector);
     }
 
     return 0;
