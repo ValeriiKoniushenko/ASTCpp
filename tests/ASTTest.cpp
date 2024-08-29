@@ -168,18 +168,26 @@ namespace Ast
     }
 }
 )";
+
+    Ast::ASTFileTree GetASTFileTree(Ast::LogCollector& logCollector)
+    {
+        Ast::Reader::Ptr reader = new Ast::Reader;
+        reader->Read(content);
+        reader->ApplyFilters<Ast::Cpp::CommentFilter>();
+
+        Ast::ASTFileTree tree(reader);
+        tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
+
+        return tree;
+    }
+
 } // namespace
+
 
 TEST(CoreTests, SimpleParse)
 {
     Ast::LogCollector logCollector;
-
-    Ast::Reader::Ptr reader = new Ast::Reader;
-    reader->Read(content);
-    reader->ApplyFilters<Ast::Cpp::CommentFilter>();
-
-    Ast::ASTFileTree tree(reader);
-    tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
+    auto tree = GetASTFileTree(logCollector);
 
     EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
 }
@@ -187,15 +195,7 @@ TEST(CoreTests, SimpleParse)
 TEST(CoreTests, SimpleGettingLexer)
 {
     Ast::LogCollector logCollector;
-
-    Ast::Reader::Ptr reader = new Ast::Reader;
-    reader->Read(content);
-    reader->ApplyFilters<Ast::Cpp::CommentFilter>();
-
-    Ast::ASTFileTree tree(reader);
-    tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
-
-    ASSERT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+    auto tree = GetASTFileTree(logCollector);
 
     auto found = tree.FindIf([](Ast::BaseLexer* lexer)
     {
@@ -205,4 +205,77 @@ TEST(CoreTests, SimpleGettingLexer)
     ASSERT_TRUE(found);
     EXPECT_EQ(found->GetName(), "Internal");
     ASSERT_TRUE(found->HasParent());
+}
+
+TEST(CoreTests, ParentsChecking)
+{
+    Ast::LogCollector logCollector;
+    auto tree = GetASTFileTree(logCollector);
+
+    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
+    {
+        return lexer->GetName() == "Internal";
+    });
+
+    ASSERT_TRUE(found);
+    EXPECT_EQ(found->GetName(), "Internal");
+
+    {
+        // parent checking
+        ASSERT_TRUE(found->HasParent());
+        auto parent = found->GetParentLexer();
+        ASSERT_TRUE(parent);
+        EXPECT_EQ(parent->GetName(), "GlobalClass");
+    }
+
+    {
+        // parent checking
+        ASSERT_TRUE(found->GetParentLexer()->HasParent());
+        auto parent = found->GetParentLexer()->GetParentLexer();
+        ASSERT_TRUE(parent);
+        EXPECT_EQ(parent->GetName(), "none"); // none == {some_file_name}
+    }
+}
+
+TEST(CoreTests, DetailedLexerChecking)
+{
+    Ast::LogCollector logCollector;
+    auto tree = GetASTFileTree(logCollector);
+
+    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
+    {
+        return lexer->GetName() == "Internal";
+    });
+
+    ASSERT_TRUE(found);
+    EXPECT_EQ(found->GetName(), "Internal");
+    EXPECT_FALSE(found->HasChildLexers());
+    EXPECT_TRUE(found->GetReader());
+    EXPECT_TRUE(found->GetOpenScope().has_value());
+    EXPECT_TRUE(found->GetCloseScope().has_value());
+    EXPECT_EQ(found->GetLexerType(), Ast::Cpp::ClassLexer::typeName);
+    EXPECT_TRUE(found->IsTypeOf<Ast::Cpp::ClassLexer>());
+
+    {
+        auto foundNamespace = found->CastTo<Ast::Cpp::NamespaceLexer>();
+        ASSERT_FALSE(foundNamespace);
+    }
+
+    {
+        auto foundClass = found->CastTo<Ast::Cpp::ClassLexer>();
+        ASSERT_TRUE(foundClass);
+        EXPECT_FALSE(foundClass->IsFinal());
+        EXPECT_FALSE(foundClass->HasClassParents());
+        ASSERT_TRUE(foundClass->HasFields());
+        EXPECT_EQ(1, foundClass->GetFields().size());
+
+        const auto field = foundClass->GetFields().front();
+        EXPECT_FALSE(field.isConst);
+        EXPECT_FALSE(field.isConstexpr);
+        EXPECT_FALSE(field.isConstinit);
+        EXPECT_FALSE(field.isStatic);
+        EXPECT_EQ("i", field.name);
+        EXPECT_EQ("int", field.type);
+        EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Private, field.accessSpecifier);
+    }
 }

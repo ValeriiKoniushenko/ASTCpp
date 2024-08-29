@@ -20,33 +20,6 @@
 
 #pragma once
 
-#include "AST/Lexers/BaseLexer.h"
-
-namespace Ast
-{
-    class Reader;
-} // namespace Ast
-
-namespace Ast::Cpp
-{
-    class NamespaceLexer final : public BaseLexer
-    {
-    public:
-        using Ptr = boost::intrusive_ptr<NamespaceLexer>;
-
-        inline static const auto typeName = "namespace"_atom;
-
-        explicit NamespaceLexer(const Ast::Reader& fileReader);
-        ~NamespaceLexer() override = default;
-
-        [[nodiscard]] const std::vector<String>& GetNameList() { return _nameList; }
-
-    protected:
-        bool DoValidate(LogCollector& logCollector) override;
-        bool DoValidateScope(LogCollector& logCollector) override;
-
-    private:
-        std::vector<String> _nameList; // e.g: namespace A::B -> { "A", "B" }
-    };
-
-} // namespace Ast::Cpp
+#define CLASS(...)
+#define ENUM_CLASS(...)
+#define NAMESPACE(...)

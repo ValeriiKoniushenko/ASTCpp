@@ -33,6 +33,8 @@ namespace Ast::Cpp
     class ClassLexer final : public BaseLexer
     {
     public:
+        using Ptr = boost::intrusive_ptr<ClassLexer>;
+
         enum class InheritanceType
         {
             Public,
@@ -71,7 +73,9 @@ namespace Ast::Cpp
         ~ClassLexer() override = default;
 
         [[nodiscard]] const std::vector<Parent>& GetClassParents() const noexcept { return _parents; }
+        [[nodiscard]] bool HasClassParents() const noexcept { return _parents.size(); }
         [[nodiscard]] const std::vector<Field>& GetFields() const noexcept { return _fields; }
+        [[nodiscard]] bool HasFields() const noexcept { return _fields.size(); }
         [[nodiscard]] bool IsFinal() const noexcept { return _hasFinal; }
 
     protected:

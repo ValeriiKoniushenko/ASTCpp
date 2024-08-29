@@ -34,7 +34,7 @@ namespace Ast
     class BaseLexer;
 
     template<class T>
-    concept IsLexer = (std::derived_from<T, BaseLexer> && requires(T){ { T::typeName}; }) || std::is_void_v<T>;
+    concept IsLexer = (std::derived_from<T, BaseLexer> && requires(T){ { T::typeName }; } && std::is_class_v<T::Ptr>) || std::is_void_v<T>;
 
     class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
@@ -61,8 +61,19 @@ namespace Ast
         template<IsLexer Lexer>
         [[nodiscard]] bool IsTypeOf() const noexcept
         {
-            // TODO: check for static string
             return _lexerType == Lexer::typeName;
+        }
+
+        template<IsLexer Lexer>
+        [[nodiscard]] auto CastTo() noexcept
+        {
+            return boost::intrusive_ptr<Lexer>(dynamic_cast<Lexer*>(this));
+        }
+
+        template<IsLexer Lexer>
+        [[nodiscard]] auto CastTo() const noexcept
+        {
+            return boost::intrusive_ptr<Lexer>(dynamic_cast<const Lexer*>(this));
         }
 
         [[nodiscard]] const String& GetName() const noexcept { return _name; }
@@ -70,7 +81,7 @@ namespace Ast
 
         [[nodiscard]] bool HasTheSameParent(BaseLexer::Ptr parent) const;
         [[nodiscard]] bool HasParent() const noexcept { return !!_parentLexer; }
-        [[nodiscard]] const BaseLexer::Ptr GetParentLexer() const { return _parentLexer; }
+        [[nodiscard]] const Ptr GetParentLexer() const { return _parentLexer; }
         [[nodiscard]] const std::vector<BaseLexer::Ptr>& GetChildLexers() const { return _childLexers; }
         [[nodiscard]] bool HasChildLexers() const noexcept { return !_childLexers.empty(); }
 
