@@ -11,4 +11,4 @@ file(
 )
 
 add_executable(ASTTests ${Sources})
-target_link_libraries(ASTTests PUBLIC gtest Utils)
+target_link_libraries(ASTTests PUBLIC gtest Utils ASTCppCore)

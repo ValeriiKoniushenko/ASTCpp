@@ -20,6 +20,12 @@
 
 #define CORE_DEBUG
 
+#include "AST/ASTFileTree.h"
+#include "AST/LogCollector.h"
+#include "AST/Readers/Reader.h"
+#include "ASTCpp/FileParser.h"
+#include "ASTCpp/Readers/Filters/CommentFilter.h"
+
 #include <gtest/gtest.h>
 
 namespace
@@ -164,7 +170,39 @@ namespace Ast
 )";
 } // namespace
 
-TEST(CoreTests, CreateConstexprRect)
+TEST(CoreTests, SimpleParse)
 {
+    Ast::LogCollector logCollector;
 
+    Ast::Reader::Ptr reader = new Ast::Reader;
+    reader->Read(content);
+    reader->ApplyFilters<Ast::Cpp::CommentFilter>();
+
+    Ast::ASTFileTree tree(reader);
+    tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
+
+    EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+}
+
+TEST(CoreTests, SimpleGettingLexer)
+{
+    Ast::LogCollector logCollector;
+
+    Ast::Reader::Ptr reader = new Ast::Reader;
+    reader->Read(content);
+    reader->ApplyFilters<Ast::Cpp::CommentFilter>();
+
+    Ast::ASTFileTree tree(reader);
+    tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
+
+    ASSERT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+
+    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
+    {
+        return lexer->GetName() == "Internal";
+    });
+
+    ASSERT_TRUE(found);
+    EXPECT_EQ(found->GetName(), "Internal");
+    ASSERT_TRUE(found->HasParent());
 }

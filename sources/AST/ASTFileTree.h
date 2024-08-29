@@ -85,7 +85,7 @@ namespace Ast
         void ForEach(ForEachFunctionT<IsConst>&& callback)
         {
             Params params;
-            BaseForEach<Lexer, IsConst>(std::forward<ForEachFunctionT>(callback), &_fileLexer, params);
+            BaseForEach<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), &_fileLexer, params);
         }
 
         template<IsLexer Lexer = void>
@@ -106,7 +106,7 @@ namespace Ast
             BaseLexer::Ptr ret;
             ForEach<Lexer>([&callback, &ret](BaseLexer* lexer, auto)
             {
-                if (!callback(lexer))
+                if (callback(lexer))
                 {
                     ret = lexer;
                     return false;
