@@ -20,28 +20,14 @@
 
 #pragma once
 
-#include "../CommonTypes.h"
-
-#include "Utils/CopyableAndMoveableBehaviour.h"
+#include "Reader.h"
 
 #include <filesystem>
-#include <boost/smart_ptr/intrusive_ptr.hpp>
-#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
 namespace Ast
 {
 
-    struct FileDataFilter : public Utils::CopyableAndMoveable
-    {
-        virtual void MakeTransform(String& content) = 0;
-    protected:
-        FileDataFilter() = default;
-    };
-
-    template<class T>
-    concept IsFileDataFilter = std::is_base_of_v<FileDataFilter, T>;
-
-    class FileReader final : public Utils::CopyableAndMoveable,  public boost::intrusive_ref_counter<FileReader>
+    class FileReader final : public Reader
     {
     public:
         using Ptr = boost::intrusive_ptr<FileReader>;
@@ -49,19 +35,11 @@ namespace Ast
         FileReader() = default;
         ~FileReader() override = default;
 
-        bool Read(const std::filesystem::path& path);
-        [[nodiscard]] const String& Data() const noexcept;
-
-        template<IsFileDataFilter ...Filter>
-        void ApplyFilters()
-        {
-            (Filter{}.MakeTransform(_content), ...);
-        }
+        bool ReadFromFile(const std::filesystem::path& path);
 
         std::filesystem::path GetPathToFile() const noexcept { return _path; }
 
-    private:
-        String _content;
+    protected:
         std::filesystem::path _path;
     };
 

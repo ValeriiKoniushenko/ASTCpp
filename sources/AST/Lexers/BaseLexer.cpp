@@ -20,7 +20,7 @@
 
 #include "BaseLexer.h"
 
-#include "../Readers/FileReader.h"
+#include "../Readers/Reader.h"
 #include "AST/LogCollector.h"
 #include "AST/Utils/Scopes.h"
 #include "Core/Assert.h"
@@ -140,7 +140,7 @@ namespace Ast
         _childLexers.clear();
     }
 
-    BaseLexer::BaseLexer(const FileReader& reader, const String& type)
+    BaseLexer::BaseLexer(const Reader& reader, const String& type)
         : _reader{ &reader },
           _lexerType{ type }
     {

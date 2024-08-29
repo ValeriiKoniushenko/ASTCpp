@@ -18,11 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "AST/Readers/FileReader.h"
 #include "AST/ASTFileTree.h"
+#include "AST/Readers/FileReader.h"
+#include "AST/Utils/IO.h"
 #include "ASTCpp/FileParser.h"
 #include "ASTCpp/Readers/Filters/CommentFilter.h"
-#include "AST/Utils/IO.h"
 
 #include <iostream>
 
@@ -45,7 +45,7 @@ int main()
         cout << "ASTCpp: [" << typeStr << "]: " << message.CStr() << endl;
     });
 
-    if (fileReader->Read("D:\\Workspace\\test.cpp"))
+    if (fileReader->ReadFromFile("D:\\Workspace\\test.cpp"))
     {
         fileReader->ApplyFilters<Ast::Cpp::CommentFilter>();
         Ast::ASTFileTree tree(fileReader);

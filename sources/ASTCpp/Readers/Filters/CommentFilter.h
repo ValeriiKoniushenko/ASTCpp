@@ -20,12 +20,12 @@
 
 #pragma once
 
-#include "AST/Readers/FileReader.h"
+#include "AST/Readers/Reader.h"
 
 namespace Ast::Cpp
 {
 
-    class CommentFilter : public Ast::FileDataFilter
+    class CommentFilter : public Ast::ContentFilter
     {
     public:
         void MakeTransform(String& content) override;

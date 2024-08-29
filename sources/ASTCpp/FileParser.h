@@ -30,7 +30,7 @@
 
 namespace Ast
 {
-    class FileReader;
+    class Reader;
 } // namespace Ast
 
 namespace Ast::Cpp
@@ -46,16 +46,16 @@ namespace Ast::Cpp
         FileParser() = default;
         ~FileParser() override = default;
 
-        bool Parse(const Ast::FileReader& file, LogCollector& logCollector) override;
+        bool Parse(const Ast::Reader& file, LogCollector& logCollector) override;
         void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) override;
 
     protected:
-        template<IsLexer Lexer, IsReader Reader>
-        static void ReadAs(Container<Lexer>& container, const FileReader& file, LogCollector& logCollector)
+        template<IsLexer Lexer, IsReader ReaderT>
+        static void ReadAs(Container<Lexer>& container, const Reader& reader, LogCollector& logCollector)
         {
-            for (auto&& token : Reader(file))
+            for (auto&& token : ReaderT(reader))
             {
-                boost::intrusive_ptr<Lexer> lexer(new Lexer(file));
+                boost::intrusive_ptr<Lexer> lexer(new Lexer(reader));
                 lexer->SetToken(token);
                 if (lexer->Validate(logCollector))
                 {
@@ -65,7 +65,7 @@ namespace Ast::Cpp
         }
 
     private:
-        void RawParse(const Ast::FileReader& file, LogCollector& logCollector);
+        void RawParse(const Ast::Reader& file, LogCollector& logCollector);
         void BindScopes(LogCollector& logCollector);
         BaseLexer* BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector);
         BaseLexer* FindNextLexer(const BaseLexer* prevLexer);

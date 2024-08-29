@@ -33,11 +33,11 @@ namespace Ast
         FileParser() = default;
         ~FileParser() override = default;
 
-        virtual bool Parse(const FileReader& file, LogCollector& logCollector) = 0;
+        virtual bool Parse(const Reader& file, LogCollector& logCollector) = 0;
         virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
 
         // TODO: add 'const'
-        [[nodiscard]] std::filesystem::path GetFilePath();
+        [[nodiscard]] std::optional<std::filesystem::path> GetFilePath();
     };
 
     template<class T>

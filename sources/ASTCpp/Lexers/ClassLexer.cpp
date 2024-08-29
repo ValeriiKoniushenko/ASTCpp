@@ -21,13 +21,13 @@
 #include "ClassLexer.h"
 
 #include "AST/LogCollector.h"
-#include "AST/Readers/FileReader.h"
+#include "AST/Readers/Reader.h"
 #include "AST/Utils/Scopes.h"
 
 namespace Ast::Cpp
 {
 
-    ClassLexer::ClassLexer(const FileReader& fileReader)
+    ClassLexer::ClassLexer(const Reader& fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }

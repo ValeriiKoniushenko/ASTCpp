@@ -15,3 +15,4 @@ add_subdirectory(${DEPENDENCIES_DIR}/Utils)
 add_subdirectory(${DEPENDENCIES_DIR}/boost)
 
 add_subdirectory(sources)
+add_subdirectory(tests)

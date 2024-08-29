@@ -25,7 +25,7 @@
 namespace Ast
 {
 
-    bool FileReader::Read(const std::filesystem::path& path)
+    bool FileReader::ReadFromFile(const std::filesystem::path& path)
     {
         if ((_content = Utils::GetTextFileContentAs<String>(path)))
         {
@@ -33,11 +33,6 @@ namespace Ast
             _path = path;
         }
         return !_content.IsEmpty();
-    }
-
-    const String& FileReader::Data() const noexcept
-    {
-        return _content;
     }
 
 } // namespace Ast

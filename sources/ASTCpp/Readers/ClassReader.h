@@ -25,7 +25,7 @@
 
 namespace Ast::Cpp
 {
-    class FileReader;
+    class Reader;
 
     class ClassReader final : public BaseTokenReader
     {
@@ -33,7 +33,7 @@ namespace Ast::Cpp
         inline static const auto regex = R"(^\s*class\s+\w+(\s*:\s*)?([\w:<>\s,]+)\{)"_atom;
 
     public:
-        explicit ClassReader(const Ast::FileReader& fileReader)
+        explicit ClassReader(const Ast::Reader& fileReader)
             : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regex))
         {
         }

@@ -24,7 +24,7 @@
 
 namespace Ast
 {
-    class FileReader;
+    class Reader;
 
     class RegexTokenReaderImpl : public BaseTokenReaderImpl
     {

@@ -18,45 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "Reader.h"
 
-#include "AST/Lexers/BaseLexer.h"
+#include "Utils/Functions.h"
 
 namespace Ast
 {
-    class Reader;
-} // namespace Ast
 
-namespace Ast::Cpp
-{
-    class EnumClassLexer final : public BaseLexer
+    bool Reader::Read(const String::CharT* content)
     {
-    public:
-        struct Constant
-        {
-            String name;
-            std::optional<unsigned long long> value;
-        };
+        _content = String(content);
+        return !_content.IsEmpty();
+    }
 
-    public:
-        inline static const auto typeName = "enum class"_atom;
+    const String& Reader::Data() const noexcept
+    {
+        return _content;
+    }
 
-        explicit EnumClassLexer(const Ast::Reader& fileReader);
-        ~EnumClassLexer() override = default;
-
-        [[nodiscard]] const String& GetType() const noexcept { return _type; }
-        [[nodiscard]] const std::vector<Constant>& GetConstants() const noexcept { return _constants; }
-
-    protected:
-        bool DoValidate(LogCollector& logCollector) override;
-        bool DoValidateScope(LogCollector& logCollector) override;
-
-    private:
-        bool RecognizeConstants(LogCollector& logCollector);
-
-    private:
-        String _type = "int"_atom;
-        std::vector<Constant> _constants;
-    };
-
-} // namespace Ast::Cpp
+} // namespace Ast

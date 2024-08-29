@@ -20,7 +20,7 @@
 
 #include "RegexTokenReaderImpl.h"
 
-#include "FileReader.h"
+#include "Reader.h"
 #include "BaseTokenReader.h"
 
 namespace Ast
@@ -33,12 +33,12 @@ namespace Ast
             return std::nullopt;
         }
 
-        if (!Verify(_baseTokenReader->GetFileReader()))
+        if (!Verify(_baseTokenReader->GetReader()))
         {
             return std::nullopt;
         }
 
-        const auto& data = _baseTokenReader->GetFileReader()->Data();
+        const auto& data = _baseTokenReader->GetReader()->Data();
 
         auto tempToken = _baseTokenReader->GetLastToken();
 

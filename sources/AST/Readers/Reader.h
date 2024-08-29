@@ -20,43 +20,45 @@
 
 #pragma once
 
-#include "AST/Lexers/BaseLexer.h"
+#include "../CommonTypes.h"
+
+#include "Utils/CopyableAndMoveableBehaviour.h"
+
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
 namespace Ast
 {
-    class Reader;
-} // namespace Ast
 
-namespace Ast::Cpp
-{
-    class EnumClassLexer final : public BaseLexer
+    struct ContentFilter : public Utils::CopyableAndMoveable
     {
-    public:
-        struct Constant
-        {
-            String name;
-            std::optional<unsigned long long> value;
-        };
-
-    public:
-        inline static const auto typeName = "enum class"_atom;
-
-        explicit EnumClassLexer(const Ast::Reader& fileReader);
-        ~EnumClassLexer() override = default;
-
-        [[nodiscard]] const String& GetType() const noexcept { return _type; }
-        [[nodiscard]] const std::vector<Constant>& GetConstants() const noexcept { return _constants; }
-
+        virtual void MakeTransform(String& content) = 0;
     protected:
-        bool DoValidate(LogCollector& logCollector) override;
-        bool DoValidateScope(LogCollector& logCollector) override;
-
-    private:
-        bool RecognizeConstants(LogCollector& logCollector);
-
-    private:
-        String _type = "int"_atom;
-        std::vector<Constant> _constants;
+        ContentFilter() = default;
     };
 
-} // namespace Ast::Cpp
+    template<class T>
+    concept IsContentFilter = std::is_base_of_v<ContentFilter, T>;
+
+    class Reader : public Utils::CopyableAndMoveable,  public boost::intrusive_ref_counter<Reader>
+    {
+    public:
+        using Ptr = boost::intrusive_ptr<Reader>;
+
+        Reader() = default;
+        ~Reader() override = default;
+
+        bool Read(const String::CharT* content);
+        [[nodiscard]] const String& Data() const noexcept;
+
+        template<IsContentFilter ...Filter>
+        void ApplyFilters()
+        {
+            (Filter{}.MakeTransform(_content), ...);
+        }
+
+    protected:
+        String _content;
+    };
+
+} // namespace Ast

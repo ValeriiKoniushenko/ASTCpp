@@ -25,14 +25,18 @@
 namespace Ast
 {
 
-    FileLexer::FileLexer(const Ast::FileReader& fileReader)
+    FileLexer::FileLexer(const Ast::Reader& fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }
 
     bool FileLexer::DoValidate(LogCollector& logCollector)
     {
-        _name = _reader->GetPathToFile().string();
+        if (const auto* reader = dynamic_cast<const FileReader*>(_reader))
+        {
+            _name = reader->GetPathToFile().string();
+        }
+
         return true;
     }
 

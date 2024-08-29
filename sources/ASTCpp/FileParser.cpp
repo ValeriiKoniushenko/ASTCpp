@@ -29,18 +29,18 @@
 namespace Ast::Cpp
 {
 
-    bool FileParser::Parse(const Ast::FileReader& file, LogCollector& logCollector)
+    bool FileParser::Parse(const Ast::Reader& file, LogCollector& logCollector)
     {
         RawParse(file, logCollector);
         BindScopes(logCollector);
         return true;
     }
 
-    void FileParser::RawParse(const Ast::FileReader& file, LogCollector& logCollector)
+    void FileParser::RawParse(const Ast::Reader& reader, LogCollector& logCollector)
     {
-        ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, file, logCollector);
-        ReadAs<ClassLexer, ClassReader>(_classLexers, file, logCollector);
-        ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, file, logCollector);
+        ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, reader, logCollector);
+        ReadAs<ClassLexer, ClassReader>(_classLexers, reader, logCollector);
+        ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, reader, logCollector);
     }
 
     void FileParser::BindScopes(LogCollector& logCollector)
@@ -51,7 +51,17 @@ namespace Ast::Cpp
             lexer = BindScopesForLexer(lexer, logCollector);
         }
 
-        logCollector.AddLog({String::Format("Successfully was build binding between lexers at file: '{}'", GetFilePath().string().c_str()), LogCollector::LogType::Success});
+        String path;
+        if (const auto filePath = GetFilePath())
+        {
+            path = filePath->string();
+        }
+        else
+        {
+            path = String("none");
+        }
+
+        logCollector.AddLog({String::Format("Successfully was build binding between lexers at file: '{}'", path.c_str()), LogCollector::LogType::Success});
     }
 
     BaseLexer* FileParser::BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector)

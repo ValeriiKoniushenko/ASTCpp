@@ -21,13 +21,13 @@
 #include "NamespaceLexer.h"
 
 #include "AST/LogCollector.h"
-#include "AST/Readers/FileReader.h"
+#include "AST/Readers/Reader.h"
 #include "AST/Utils/Scopes.h"
 
 namespace Ast::Cpp
 {
 
-    NamespaceLexer::NamespaceLexer(const FileReader& fileReader)
+    NamespaceLexer::NamespaceLexer(const Reader& fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }

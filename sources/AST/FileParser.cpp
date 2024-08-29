@@ -21,22 +21,26 @@
 #include "FileParser.h"
 
 #include "Readers/FileReader.h"
+#include "Readers/Reader.h"
 
 namespace Ast
 {
 
-    std::filesystem::path FileParser::GetFilePath()
+    std::optional<std::filesystem::path> FileParser::GetFilePath()
     {
-        std::filesystem::path path;
+        std::optional<std::filesystem::path> path;
         IterateOverLexers([&](BaseLexer* lexer)
         {
             if (Verify(lexer))
             {
-                const auto* reader = lexer->GetFileReader();
+                const auto* reader = lexer->GetReader();
                 if (Verify(reader))
                 {
-                    path = reader->GetPathToFile();
-                    return false;
+                    if (const auto* r = dynamic_cast<const FileReader*>(reader))
+                    {
+                        path = r->GetPathToFile().string();
+                        return false;
+                    }
                 }
             }
             return true;

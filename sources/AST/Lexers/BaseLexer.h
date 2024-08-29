@@ -29,7 +29,7 @@
 
 namespace Ast
 {
-    class FileReader;
+    class Reader;
     class LogCollector;
     class BaseLexer;
 
@@ -82,24 +82,24 @@ namespace Ast
         [[nodiscard]] long long GetDistanceToLexer(const BaseLexer* lexer) const noexcept { return Verify(lexer && lexer->GetOpenScope() && _closeScope) ? lexer->_openScope->string - _closeScope->string : 0; }
 
         void Clear();
-        [[nodiscard]] const FileReader* GetFileReader() const { return _reader; }
+        [[nodiscard]] const Reader* GetReader() const { return _reader; }
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;
         virtual bool DoValidateScope(LogCollector& logCollector) { return true; }
         virtual bool DoPostValidate(LogCollector& logCollector) { return true; }
 
-        BaseLexer(const FileReader& reader, const String& type);
+        BaseLexer(const Reader& reader, const String& type);
 
     protected:
         TokenReader _token;
-        const FileReader* _reader = nullptr;
+        const Reader* _reader = nullptr;
 
         std::optional<LineToken> _openScope;
         std::optional<LineToken> _closeScope;
 
         const String _lexerType;
-        String _name;
+        String _name = "none"_atom;
         BaseLexer::Ptr _parentLexer;
         std::vector<BaseLexer::Ptr> _childLexers;
     };

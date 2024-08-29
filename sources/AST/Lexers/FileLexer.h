@@ -24,14 +24,14 @@
 
 namespace Ast
 {
-    class FileReader;
+    class Reader;
 
     class FileLexer final : public BaseLexer
     {
     public:
         inline static const auto typeName = "file"_atom;
 
-        explicit FileLexer(const Ast::FileReader& fileReader);
+        explicit FileLexer(const Ast::Reader& fileReader);
         ~FileLexer() override = default;
 
         bool DoValidate(LogCollector& logCollector) override;
