@@ -39,6 +39,8 @@ namespace Ast
     class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
     public:
+        using Ptr = boost::intrusive_ptr<BaseLexer>;
+
         struct LineToken final
         {
             const String::CharT* string = nullptr;
@@ -66,13 +68,13 @@ namespace Ast
         [[nodiscard]] const String& GetName() const noexcept { return _name; }
         [[nodiscard]] const String& GetLexerType() const noexcept { return _lexerType; }
 
-        [[nodiscard]] bool HasTheSameParent(boost::intrusive_ptr<BaseLexer> parent) const;
+        [[nodiscard]] bool HasTheSameParent(BaseLexer::Ptr parent) const;
         [[nodiscard]] bool HasParent() const noexcept { return !!_parentLexer; }
-        [[nodiscard]] const boost::intrusive_ptr<BaseLexer> GetParentLexer() const { return _parentLexer; }
-        [[nodiscard]] const std::vector<boost::intrusive_ptr<BaseLexer>>& GetChildLexers() const { return _childLexers; }
+        [[nodiscard]] const BaseLexer::Ptr GetParentLexer() const { return _parentLexer; }
+        [[nodiscard]] const std::vector<BaseLexer::Ptr>& GetChildLexers() const { return _childLexers; }
 
-        void TryToSetAsChild(boost::intrusive_ptr<BaseLexer> child);
-        void ForceSetAsChild(boost::intrusive_ptr<BaseLexer> child);
+        void TryToSetAsChild(BaseLexer::Ptr child);
+        void ForceSetAsChild(BaseLexer::Ptr child);
         [[nodiscard]] bool IsContainLexer(const BaseLexer* other, bool isInItsScope = false) const;
         [[nodiscard]] std::optional<LineToken> GetOpenScope() const noexcept { return _openScope; }
         [[nodiscard]] std::optional<LineToken> GetCloseScope() const noexcept { return _closeScope; }
@@ -97,8 +99,8 @@ namespace Ast
 
         const String _lexerType;
         String _name;
-        boost::intrusive_ptr<BaseLexer> _parentLexer;
-        std::vector<boost::intrusive_ptr<BaseLexer>> _childLexers;
+        BaseLexer::Ptr _parentLexer;
+        std::vector<BaseLexer::Ptr> _childLexers;
     };
 
 }// namespace Ast

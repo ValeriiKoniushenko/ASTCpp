@@ -22,6 +22,8 @@
 
 #include "Token.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
+
+#include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
 namespace Ast
@@ -30,6 +32,9 @@ namespace Ast
 
     class BaseTokenReaderImpl : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseTokenReaderImpl>
     {
+    public:
+        using Ptr = boost::intrusive_ptr<BaseTokenReaderImpl>;
+
     public:
         [[nodiscard]] virtual std::optional<TokenReader> FindNextToken() const = 0;
 

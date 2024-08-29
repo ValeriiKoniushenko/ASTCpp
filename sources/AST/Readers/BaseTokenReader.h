@@ -36,7 +36,7 @@ namespace Ast
     class BaseTokenReader : public Utils::CopyableAndMoveable
     {
     public:
-        BaseTokenReader(const FileReader& fileReader, boost::intrusive_ptr<BaseTokenReaderImpl> tokenReaderImpl)
+        BaseTokenReader(const FileReader& fileReader, BaseTokenReaderImpl::Ptr tokenReaderImpl)
             : _fileReader{ &fileReader },
               _tokenReaderImpl{ std::move(tokenReaderImpl) }
         {
@@ -106,7 +106,7 @@ namespace Ast
     protected:
         const FileReader* _fileReader = nullptr;
         TokenReader _lastToken;
-        boost::intrusive_ptr<BaseTokenReaderImpl> _tokenReaderImpl = nullptr;
+        BaseTokenReaderImpl::Ptr _tokenReaderImpl = nullptr;
 
         friend class Iterator;
     };

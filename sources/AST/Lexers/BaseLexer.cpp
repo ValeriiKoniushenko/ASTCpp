@@ -62,7 +62,7 @@ namespace Ast
         return true;
     }
 
-    bool BaseLexer::HasTheSameParent(boost::intrusive_ptr<BaseLexer> parent) const
+    bool BaseLexer::HasTheSameParent(BaseLexer::Ptr parent) const
     {
         if (Verify(!!parent))
         {
@@ -74,7 +74,7 @@ namespace Ast
         return false;
     }
 
-    void BaseLexer::TryToSetAsChild(boost::intrusive_ptr<BaseLexer> child)
+    void BaseLexer::TryToSetAsChild(BaseLexer::Ptr child)
     {
         if (Verify(!!child) && !child->HasParent())
         {
@@ -94,7 +94,7 @@ namespace Ast
             }
         }
     }
-    void BaseLexer::ForceSetAsChild(boost::intrusive_ptr<BaseLexer> child)
+    void BaseLexer::ForceSetAsChild(BaseLexer::Ptr child)
     {
         if (Verify(!!child) && !child->HasParent())
         {
