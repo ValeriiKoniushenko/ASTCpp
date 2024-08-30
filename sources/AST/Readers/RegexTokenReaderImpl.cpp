@@ -33,7 +33,7 @@ namespace Ast
             return std::nullopt;
         }
 
-        if (!Verify(_baseTokenReader->GetReader()))
+        if (!Verify(!!_baseTokenReader->GetReader()))
         {
             return std::nullopt;
         }

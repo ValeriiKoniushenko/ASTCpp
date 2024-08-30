@@ -36,8 +36,8 @@ namespace Ast
     class BaseTokenReader : public Utils::CopyableAndMoveable
     {
     public:
-        BaseTokenReader(const Reader& fileReader, BaseTokenReaderImpl::Ptr tokenReaderImpl)
-            : _reader{ &fileReader },
+        BaseTokenReader(const Reader::Ptr& fileReader, BaseTokenReaderImpl::Ptr tokenReaderImpl)
+            : _reader{ fileReader },
               _tokenReaderImpl{ std::move(tokenReaderImpl) }
         {
         }
@@ -96,7 +96,7 @@ namespace Ast
             return Iterator{};
         }
 
-        [[nodiscard]] const Reader* GetReader() const noexcept { return _reader; }
+        [[nodiscard]] const Reader::Ptr GetReader() const noexcept { return _reader; }
         [[nodiscard]] const TokenReader& GetLastToken() const noexcept { return _lastToken; }
         void SetLastToken(const TokenReader& lastToken) noexcept { _lastToken = lastToken; }
 
@@ -104,7 +104,7 @@ namespace Ast
         [[nodiscard]] virtual std::optional<TokenReader> FindNextToken() const;
 
     protected:
-        const Reader* _reader = nullptr;
+        const Reader::Ptr _reader = nullptr;
         TokenReader _lastToken;
         BaseTokenReaderImpl::Ptr _tokenReaderImpl = nullptr;
 

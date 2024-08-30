@@ -31,7 +31,7 @@ namespace Ast::Cpp
         inline static const auto regex = R"(^\s*enum\s+class\s+\w+(\s*:\s*[\w ]+)?)"_atom;
 
     public:
-        explicit EnumClassReader(const Ast::Reader& fileReader)
+        explicit EnumClassReader(const Reader::Ptr& fileReader)
             : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regex))
         {
         }

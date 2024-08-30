@@ -21,6 +21,7 @@
 #pragma once
 
 #include "../CommonTypes.h"
+#include "../Readers/Reader.h"
 #include "../Readers/Token.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
@@ -29,17 +30,25 @@
 
 namespace Ast
 {
-    class Reader;
     class LogCollector;
     class BaseLexer;
 
     template<class T>
-    concept IsLexer = (std::derived_from<T, BaseLexer> && requires(T){ { T::typeName }; } && std::is_class_v<T::Ptr>) || std::is_void_v<T>;
+    concept IsLexer = (std::derived_from<T, BaseLexer> && requires(T) {
+                          {
+                              T::typeName
+                          };
+                      } && std::is_class_v<typename T::Ptr>) || std::is_void_v<T>;
+
 
     class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
     public:
+        template<bool IsConst = false>
+        using AdaptivePtr = boost::intrusive_ptr<std::conditional_t<IsConst, const BaseLexer, BaseLexer>>;
+
         using Ptr = boost::intrusive_ptr<BaseLexer>;
+        using CPtr = boost::intrusive_ptr<const BaseLexer>;
 
         struct LineToken final
         {
@@ -47,7 +56,10 @@ namespace Ast
             std::size_t line = 0;
 
             [[nodiscard]] bool IsValid() const noexcept { return string && line != 0; }
-            [[nodiscard]] bool operator<(const LineToken& other) const noexcept { return Verify(other.IsValid() && IsValid()) ? string < other.string : false; }
+            [[nodiscard]] bool operator<(const LineToken& other) const noexcept
+            {
+                return Verify(other.IsValid() && IsValid()) ? string < other.string : false;
+            }
         };
 
     public:
@@ -56,7 +68,7 @@ namespace Ast
         [[nodiscard]] bool operator==(const BaseLexer&) const;
 
         void SetToken(const TokenReader& token);
-        virtual bool Validate(LogCollector& logCollector);
+        bool Validate(LogCollector& logCollector);
 
         template<IsLexer Lexer>
         [[nodiscard]] bool IsTypeOf() const noexcept
@@ -65,54 +77,136 @@ namespace Ast
         }
 
         template<IsLexer Lexer>
-        [[nodiscard]] auto CastTo() noexcept
+        [[nodiscard]] Lexer::Ptr CastTo() noexcept
         {
-            return boost::intrusive_ptr<Lexer>(dynamic_cast<Lexer*>(this));
+            if (auto* newType = dynamic_cast<Lexer*>(this))
+            {
+                return boost::intrusive_ptr<Lexer>(newType);
+            }
+            return {};
         }
 
         template<IsLexer Lexer>
-        [[nodiscard]] auto CastTo() const noexcept
+        [[nodiscard]] Lexer::Ptr CastTo() const noexcept
         {
-            return boost::intrusive_ptr<Lexer>(dynamic_cast<const Lexer*>(this));
+            if (auto* newType = dynamic_cast<const Lexer*>(this))
+            {
+                return boost::intrusive_ptr<Lexer>(newType);
+            }
+            return {};
         }
 
-        [[nodiscard]] const String& GetName() const noexcept { return _name; }
-        [[nodiscard]] const String& GetLexerType() const noexcept { return _lexerType; }
+        [[nodiscard]] String GetName() const noexcept { return _name; }
+        [[nodiscard]] String GetLexerType() const noexcept { return _lexerType; }
 
-        [[nodiscard]] bool HasTheSameParent(BaseLexer::Ptr parent) const;
+        [[nodiscard]] Ptr GetRootLexer()
+        {
+            auto* i = this;
+            while (i->HasParent())
+            {
+                i = i->GetParentLexer().get();
+            }
+            return { i };
+        }
+
+        [[nodiscard]] CPtr GetRootLexer() const
+        {
+            return GetRootLexerImpl<true>(this);
+        }
+
+        [[nodiscard]] bool HasTheSameParent(Ptr parent) const;
         [[nodiscard]] bool HasParent() const noexcept { return !!_parentLexer; }
-        [[nodiscard]] const Ptr GetParentLexer() const { return _parentLexer; }
-        [[nodiscard]] const std::vector<BaseLexer::Ptr>& GetChildLexers() const { return _childLexers; }
+        [[nodiscard]] CPtr GetParentLexer() const { return _parentLexer; }
+        [[nodiscard]] Ptr GetParentLexer() { return _parentLexer; }
+
+        template<IsLexer Lexer>
+        [[nodiscard]] bool HasTheSameParentType() const
+        {
+            if (HasParent())
+            {
+                return _parentLexer->IsTypeOf<Lexer>();
+            }
+            return false;
+        }
+
+        [[nodiscard]] std::vector<Ptr>& GetChildLexers() { return _childLexers; }
+        [[nodiscard]] const std::vector<Ptr>& GetChildLexers() const { return _childLexers; }
         [[nodiscard]] bool HasChildLexers() const noexcept { return !_childLexers.empty(); }
 
-        void TryToSetAsChild(BaseLexer::Ptr child);
-        void ForceSetAsChild(BaseLexer::Ptr child);
+        template<IsLexer Lexer>
+        [[nodiscard]] std::vector<Ptr> GetChildLexers()
+        {
+            return GetChildLexersImpl<Lexer>(*this);
+        }
+
+        template<IsLexer Lexer>
+        [[nodiscard]] std::vector<CPtr> GetChildLexers() const
+        {
+            return GetChildLexersImpl<Lexer, true>(*this);
+        }
+
+        void TryToSetAsChild(const Ptr& child);
+        void ForceSetAsChild(const Ptr& child);
         [[nodiscard]] bool IsContainLexer(const BaseLexer* other, bool isInItsScope = false) const;
+        [[nodiscard]] bool IsContainLexer(const Ptr& other, bool isInItsScope = false) const
+        {
+            return IsContainLexer(other.get(), isInItsScope);
+        }
         [[nodiscard]] std::optional<LineToken> GetOpenScope() const noexcept { return _openScope; }
         [[nodiscard]] std::optional<LineToken> GetCloseScope() const noexcept { return _closeScope; }
-        [[nodiscard]] long long GetDistanceToLexer(const BaseLexer* lexer) const noexcept { return Verify(lexer && lexer->GetOpenScope() && _closeScope) ? lexer->_openScope->string - _closeScope->string : 0; }
+        [[nodiscard]] long long GetDistanceToLexer(const BaseLexer* lexer) const noexcept
+        {
+            return Verify(lexer && lexer->GetOpenScope() && _closeScope) ? lexer->_openScope->string - _closeScope->string : 0;
+        }
+        [[nodiscard]] long long GetDistanceToLexer(const Ptr& lexer) const noexcept
+        {
+            return GetDistanceToLexer(lexer.get());
+        }
 
         void Clear();
-        [[nodiscard]] const Reader* GetReader() const { return _reader; }
+
+        [[nodiscard]] Reader::Ptr GetReader() { return _reader; }
+        [[nodiscard]] Reader::CPtr GetReader() const { return _reader; }
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;
         virtual bool DoValidateScope(LogCollector& logCollector) { return true; }
         virtual bool DoPostValidate(LogCollector& logCollector) { return true; }
 
-        BaseLexer(const Reader& reader, const String& type);
+        BaseLexer(const Reader::Ptr& reader, const String& type);
 
     protected:
         TokenReader _token;
-        const Reader* _reader = nullptr;
+        Reader::Ptr _reader;
 
         std::optional<LineToken> _openScope;
         std::optional<LineToken> _closeScope;
 
         const String _lexerType;
         String _name = "none"_atom;
-        BaseLexer::Ptr _parentLexer;
-        std::vector<BaseLexer::Ptr> _childLexers;
+        Ptr _parentLexer;
+        std::vector<Ptr> _childLexers;
+
+    private:
+        template<IsLexer Lexer, bool IsConst = false>
+        [[nodiscard]] static std::vector<AdaptivePtr<IsConst>> GetChildLexersImpl(const BaseLexer& lexer)
+        {
+            std::vector<AdaptivePtr<IsConst>> childs;
+
+            return childs;
+        }
+
+        template<bool IsConst = false>
+        [[nodiscard]] static AdaptivePtr<IsConst> GetRootLexerImpl(const BaseLexer* lexer)
+        {
+            auto* i = const_cast<BaseLexer*>(lexer);
+            while (i->HasParent())
+            {
+                i = i->GetParentLexer().get();
+            }
+            return { i };
+        }
+
     };
 
-}// namespace Ast
+} // namespace Ast

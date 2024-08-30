@@ -29,14 +29,14 @@
 namespace Ast::Cpp
 {
 
-    bool FileParser::Parse(const Ast::Reader& file, LogCollector& logCollector)
+    bool FileParser::Parse(const Reader::Ptr& file, LogCollector& logCollector)
     {
         RawParse(file, logCollector);
         BindScopes(logCollector);
         return true;
     }
 
-    void FileParser::RawParse(const Ast::Reader& reader, LogCollector& logCollector)
+    void FileParser::RawParse(const Reader::Ptr& reader, LogCollector& logCollector)
     {
         ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, reader, logCollector);
         ReadAs<ClassLexer, ClassReader>(_classLexers, reader, logCollector);

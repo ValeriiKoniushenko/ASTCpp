@@ -27,7 +27,7 @@
 namespace Ast::Cpp
 {
 
-    EnumClassLexer::EnumClassLexer(const Reader& fileReader)
+    EnumClassLexer::EnumClassLexer(const Reader::Ptr&fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }

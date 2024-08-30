@@ -27,7 +27,7 @@
 namespace Ast::Cpp
 {
 
-    NamespaceLexer::NamespaceLexer(const Reader& fileReader)
+    NamespaceLexer::NamespaceLexer(const Reader::Ptr&fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }

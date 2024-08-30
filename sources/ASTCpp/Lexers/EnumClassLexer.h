@@ -41,7 +41,7 @@ namespace Ast::Cpp
     public:
         inline static const auto typeName = "enum class"_atom;
 
-        explicit EnumClassLexer(const Ast::Reader& fileReader);
+        explicit EnumClassLexer(const Reader::Ptr&fileReader);
         ~EnumClassLexer() override = default;
 
         [[nodiscard]] const String& GetType() const noexcept { return _type; }

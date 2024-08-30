@@ -33,10 +33,10 @@ namespace Ast
         {
             if (Verify(lexer))
             {
-                const auto* reader = lexer->GetReader();
-                if (Verify(reader))
+                const auto reader = lexer->GetReader();
+                if (Verify(!!reader))
                 {
-                    if (const auto* r = dynamic_cast<const FileReader*>(reader))
+                    if (const auto r = boost::dynamic_pointer_cast<const FileReader>(reader))
                     {
                         path = r->GetPathToFile().string();
                         return false;

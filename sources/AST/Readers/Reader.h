@@ -44,6 +44,7 @@ namespace Ast
     {
     public:
         using Ptr = boost::intrusive_ptr<Reader>;
+        using CPtr = boost::intrusive_ptr<const Reader>;
 
         Reader() = default;
         ~Reader() override = default;

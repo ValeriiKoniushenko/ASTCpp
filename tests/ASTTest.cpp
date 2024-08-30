@@ -38,8 +38,8 @@ namespace
 #include <filesystem>
 
 class GlobalClass : public std::base_string<char, std::char_traits<char>, std::allocator<char>>,
-    public SomeInterface<char>,
-    public ElseOne, public SomeInterface222<char>
+    private SomeInterface<char>,
+    public ElseOne, protected SomeInterface222<char>
 {
 public:
 
@@ -54,13 +54,13 @@ public:
     void PublicFuncImpl(){}
 
 protected:
-    int protectedA = 123;
+    constexpr int protectedA = 123;
     std::string protectedStr;
     void ProtectedFunc();
     void ProtectedFuncImpl(){}
 
 private:
-    int privateA = 123;
+    const int privateA = 123;
     std::string privateStr;
     void PrivateFunc();
     void PrivateFuncImpl(){}
@@ -184,7 +184,7 @@ namespace Ast
 } // namespace
 
 
-TEST(CoreTests, SimpleParse)
+TEST(ASTTests, SimpleParse)
 {
     Ast::LogCollector logCollector;
     auto tree = GetASTFileTree(logCollector);
@@ -192,7 +192,7 @@ TEST(CoreTests, SimpleParse)
     EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
 }
 
-TEST(CoreTests, SimpleGettingLexer)
+TEST(ASTTests, SimpleGettingLexer)
 {
     Ast::LogCollector logCollector;
     auto tree = GetASTFileTree(logCollector);
@@ -207,7 +207,7 @@ TEST(CoreTests, SimpleGettingLexer)
     ASSERT_TRUE(found->HasParent());
 }
 
-TEST(CoreTests, ParentsChecking)
+TEST(ASTTests, ParentsChecking)
 {
     Ast::LogCollector logCollector;
     auto tree = GetASTFileTree(logCollector);
@@ -237,7 +237,7 @@ TEST(CoreTests, ParentsChecking)
     }
 }
 
-TEST(CoreTests, DetailedLexerChecking)
+TEST(ASTTests, DetailedLexerClassChecking)
 {
     Ast::LogCollector logCollector;
     auto tree = GetASTFileTree(logCollector);
@@ -278,4 +278,181 @@ TEST(CoreTests, DetailedLexerChecking)
         EXPECT_EQ("int", field.type);
         EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Private, field.accessSpecifier);
     }
+}
+
+TEST(ASTTests, DetailedBiggerLexerClassChecking)
+{
+    Ast::LogCollector logCollector;
+    auto tree = GetASTFileTree(logCollector);
+
+    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
+    {
+        return lexer->GetName() == "GlobalClass";
+    });
+
+    ASSERT_TRUE(found);
+    ASSERT_EQ(found->GetName(), "GlobalClass");
+    ASSERT_TRUE(found->HasChildLexers());
+
+    {
+        auto lexer = found->CastTo<Ast::Cpp::ClassLexer>();
+        ASSERT_TRUE(lexer);
+        EXPECT_FALSE(lexer->IsFinal());
+        EXPECT_TRUE(lexer->HasClassParents());
+        ASSERT_TRUE(lexer->HasFields());
+        EXPECT_EQ(6, lexer->GetFields().size());
+
+        // field #1
+        {
+            const auto field = lexer->GetFields()[0];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("publicA", field.name);
+            EXPECT_EQ("int", field.type);
+            EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Public, field.accessSpecifier);
+        }
+
+        // field #2
+        {
+            const auto field = lexer->GetFields()[1];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("publicStr", field.name);
+            EXPECT_EQ("std::string", field.type);
+            EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Public, field.accessSpecifier);
+        }
+
+        // field #3
+        {
+            const auto field = lexer->GetFields()[2];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_TRUE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("protectedA", field.name);
+            EXPECT_EQ("int", field.type);
+            EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Protected, field.accessSpecifier);
+        }
+
+        // field #4
+        {
+            const auto field = lexer->GetFields()[3];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("protectedStr", field.name);
+            EXPECT_EQ("std::string", field.type);
+            EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Protected, field.accessSpecifier);
+        }
+
+        // field #5
+        {
+            const auto field = lexer->GetFields()[4];
+            EXPECT_TRUE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("privateA", field.name);
+            EXPECT_EQ("int", field.type);
+            EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Private, field.accessSpecifier);
+        }
+
+        // field #6
+        {
+            const auto field = lexer->GetFields()[5];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("privateStr", field.name);
+            EXPECT_EQ("std::string", field.type);
+            EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Private, field.accessSpecifier);
+        }
+
+        auto parents = lexer->GetClassParents();
+        ASSERT_EQ(4, parents.size());
+        // parent #1
+        {
+            auto parent = parents[0];
+            EXPECT_EQ(Ast::Cpp::ClassLexer::InheritanceType::Public, parent.type);
+            EXPECT_EQ("std::base_string<char, std::char_traits<char>, std::allocator<char>>", parent.name);
+        }
+
+        // parent #2
+        {
+            auto parent = parents[1];
+            EXPECT_EQ(Ast::Cpp::ClassLexer::InheritanceType::Private, parent.type);
+            EXPECT_EQ("SomeInterface<char>", parent.name);
+        }
+
+        // parent #3
+        {
+            auto parent = parents[2];
+            EXPECT_EQ(Ast::Cpp::ClassLexer::InheritanceType::Public, parent.type);
+            EXPECT_EQ("ElseOne", parent.name);
+        }
+
+        // parent #4
+        {
+            auto parent = parents[3];
+            EXPECT_EQ(Ast::Cpp::ClassLexer::InheritanceType::Protected, parent.type);
+            EXPECT_EQ("SomeInterface222<char>", parent.name);
+        }
+    }
+}
+
+TEST(ASTTests, ScopeChecking)
+{
+    Ast::Cpp::ClassLexer::Ptr lexer;
+
+    {
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
+
+        auto found = tree.FindIf([](Ast::BaseLexer* lexer)
+        {
+            return lexer->GetName() == "Internal";
+        });
+
+        lexer = found->CastTo<Ast::Cpp::ClassLexer>();
+        ASSERT_TRUE(lexer);
+    }
+
+    ASSERT_TRUE(lexer);
+    EXPECT_EQ(lexer->GetName(), "Internal");
+    ASSERT_TRUE(lexer->HasParent());
+}
+
+TEST(ASTTests, GetRootLexer)
+{
+    Ast::LogCollector logCollector;
+    auto tree = GetASTFileTree(logCollector);
+
+    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
+    {
+        return lexer->GetName() == "Internal";
+    });
+
+    ASSERT_TRUE(found);
+    const auto root = found->GetRootLexer();
+    ASSERT_TRUE(root);
+    EXPECT_EQ("none", root->GetName());
+}
+
+TEST(ASTTests, LexerConstAndNonConstMiscTests)
+{
+    Ast::LogCollector logCollector;
+    auto tree = GetASTFileTree(logCollector);
+
+    const auto found = tree.FindIf([](Ast::BaseLexer* lexer)
+    {
+        return lexer->GetName() == "Internal";
+    });
+
+    ASSERT_TRUE(found);
 }

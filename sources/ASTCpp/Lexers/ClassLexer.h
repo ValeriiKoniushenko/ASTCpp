@@ -69,7 +69,7 @@ namespace Ast::Cpp
     public:
         inline static const auto typeName = "class"_atom;
 
-        explicit ClassLexer(const Ast::Reader& fileReader);
+        explicit ClassLexer(const Reader::Ptr&fileReader);
         ~ClassLexer() override = default;
 
         [[nodiscard]] const std::vector<Parent>& GetClassParents() const noexcept { return _parents; }

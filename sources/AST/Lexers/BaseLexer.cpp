@@ -74,7 +74,7 @@ namespace Ast
         return false;
     }
 
-    void BaseLexer::TryToSetAsChild(BaseLexer::Ptr child)
+    void BaseLexer::TryToSetAsChild(const Ptr& child)
     {
         if (Verify(!!child) && !child->HasParent())
         {
@@ -94,7 +94,7 @@ namespace Ast
             }
         }
     }
-    void BaseLexer::ForceSetAsChild(BaseLexer::Ptr child)
+    void BaseLexer::ForceSetAsChild(const Ptr& child)
     {
         if (Verify(!!child) && !child->HasParent())
         {
@@ -140,11 +140,11 @@ namespace Ast
         _childLexers.clear();
     }
 
-    BaseLexer::BaseLexer(const Reader& reader, const String& type)
-        : _reader{ &reader },
+    BaseLexer::BaseLexer(const Reader::Ptr& reader, const String& type)
+        : _reader{ reader },
           _lexerType{ type }
     {
-        Assert(_reader);
+        Assert(!!_reader);
         Assert(!_lexerType.IsEmpty());
     }
 

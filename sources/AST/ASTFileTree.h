@@ -58,7 +58,7 @@ namespace Ast
             }
 
             Parser parser;
-            parser.Parse(*_fileReader.get(), logCollector);
+            parser.Parse(_fileReader, logCollector);
 
             parser.IterateOverLexers([&](BaseLexer* lexer)
             {
@@ -70,13 +70,13 @@ namespace Ast
 
                 if (!lexer->HasParent())
                 {
-                    _fileLexer.ForceSetAsChild(lexer);
+                    _fileLexer->ForceSetAsChild(lexer);
                 }
 
                 return true;
             });
 
-            _fileLexer.DoValidate(logCollector);
+            _fileLexer->DoValidate(logCollector);
         }
 
         [[nodiscard]] Reader::Ptr GetReader() const { return _fileReader; }
@@ -85,14 +85,14 @@ namespace Ast
         void ForEach(ForEachFunctionT<IsConst>&& callback)
         {
             Params params;
-            BaseForEach<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), &_fileLexer, params);
+            BaseForEach<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), _fileLexer.get(), params);
         }
 
         template<IsLexer Lexer = void>
         void ForEach(ForEachFunctionT<true>&& callback) const
         {
             Params params;
-            BaseForEach<Lexer, true>(std::forward<ForEachFunctionT<true>>(callback), &_fileLexer, params);
+            BaseForEach<Lexer, true>(std::forward<ForEachFunctionT<true>>(callback), _fileLexer.get(), params);
         }
 
         template<IsLexer Lexer = void, bool IsConst = false>
@@ -170,7 +170,7 @@ namespace Ast
         }
 
     private:
-        FileLexer _fileLexer;
+        FileLexer::Ptr _fileLexer;
         Reader::Ptr _fileReader;
     };
 
