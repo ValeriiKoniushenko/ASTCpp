@@ -83,8 +83,8 @@ namespace Ast::Cpp
                     }
                     else
                     {
-                        auto prevLexerName = prevLexer->GetName();
-                        auto lexerName = lexer->GetName();
+                        auto prevLexerName = prevLexer->GetLexerName();
+                        auto lexerName = lexer->GetLexerName();
 
                         if (prevLexer->IsContainLexer(lexer, true))
                         {

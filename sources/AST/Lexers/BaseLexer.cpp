@@ -33,7 +33,7 @@ namespace Ast
         return other._reader == _reader
             && other._token.beginData == _token.beginData
             && other._token.endData == _token.endData
-            && other._name == _name
+            && other._lexerName == _lexerName
             && other._parentLexer == _parentLexer;
     }
 
@@ -58,11 +58,19 @@ namespace Ast
         }
 
         logCollector.AddLog(
-            { String::Format("successfull parsing of the {}: '{}'", _lexerType.CStr(), _name.CStr()), LogCollector::LogType::Success });
-        return true;
+            { String::Format("successfull parsing of the {}: '{}'", _lexerType.CStr(), _lexerName.CStr()), LogCollector::LogType::Success });
+
+        return IsValid();
     }
 
-    bool BaseLexer::HasTheSameParent(BaseLexer::Ptr parent) const
+    bool BaseLexer::IsValid() const
+    {
+        return !_lexerType.IsEmpty()
+            && !_lexerName.IsEmpty()
+            && _reader;
+    }
+
+    bool BaseLexer::HasTheSameParentAs(BaseLexer::Ptr parent) const
     {
         if (Verify(!!parent))
         {
@@ -83,7 +91,7 @@ namespace Ast
                 auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(),
                    [&child](const auto& lexer)
                    {
-                       return child->GetName() == lexer->GetName();
+                       return child->GetLexerName() == lexer->GetLexerName();
                    });
 
                 if (Verify(it == _childLexers.cend(), "Such child already exists"))
@@ -101,7 +109,7 @@ namespace Ast
             auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(),
                [&child](const auto& lexer)
                {
-                   return child->GetName() == lexer->GetName();
+                   return child->GetLexerName() == lexer->GetLexerName();
                });
 
             if (Verify(it == _childLexers.cend(), "Such child already exists"))
@@ -135,7 +143,7 @@ namespace Ast
         _token.Clear();
         _openScope.reset();
         _closeScope.reset();
-        _name.Clear();
+        _lexerName.Clear();
         _parentLexer.reset();
         _childLexers.clear();
     }

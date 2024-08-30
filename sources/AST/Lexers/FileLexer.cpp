@@ -34,7 +34,7 @@ namespace Ast
     {
         if (const auto reader = boost::dynamic_pointer_cast<const FileReader>(_reader))
         {
-            _name = reader->GetPathToFile().string();
+            _lexerName = reader->GetPathToFile().string();
         }
 
         return true;

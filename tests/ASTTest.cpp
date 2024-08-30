@@ -199,11 +199,11 @@ TEST(ASTTests, SimpleGettingLexer)
 
     auto found = tree.FindIf([](Ast::BaseLexer* lexer)
     {
-        return lexer->GetName() == "Internal";
+        return lexer->GetLexerName() == "Internal";
     });
 
     ASSERT_TRUE(found);
-    EXPECT_EQ(found->GetName(), "Internal");
+    EXPECT_EQ(found->GetLexerName(), "Internal");
     ASSERT_TRUE(found->HasParent());
 }
 
@@ -214,18 +214,18 @@ TEST(ASTTests, ParentsChecking)
 
     auto found = tree.FindIf([](Ast::BaseLexer* lexer)
     {
-        return lexer->GetName() == "Internal";
+        return lexer->GetLexerName() == "Internal";
     });
 
     ASSERT_TRUE(found);
-    EXPECT_EQ(found->GetName(), "Internal");
+    EXPECT_EQ(found->GetLexerName(), "Internal");
 
     {
         // parent checking
         ASSERT_TRUE(found->HasParent());
         auto parent = found->GetParentLexer();
         ASSERT_TRUE(parent);
-        EXPECT_EQ(parent->GetName(), "GlobalClass");
+        EXPECT_EQ(parent->GetLexerName(), "GlobalClass");
     }
 
     {
@@ -233,7 +233,7 @@ TEST(ASTTests, ParentsChecking)
         ASSERT_TRUE(found->GetParentLexer()->HasParent());
         auto parent = found->GetParentLexer()->GetParentLexer();
         ASSERT_TRUE(parent);
-        EXPECT_EQ(parent->GetName(), "none"); // none == {some_file_name}
+        EXPECT_EQ(parent->GetLexerName(), "none"); // none == {some_file_name}
     }
 }
 
@@ -244,11 +244,11 @@ TEST(ASTTests, DetailedLexerClassChecking)
 
     auto found = tree.FindIf([](Ast::BaseLexer* lexer)
     {
-        return lexer->GetName() == "Internal";
+        return lexer->GetLexerName() == "Internal";
     });
 
     ASSERT_TRUE(found);
-    EXPECT_EQ(found->GetName(), "Internal");
+    EXPECT_EQ(found->GetLexerName(), "Internal");
     EXPECT_FALSE(found->HasChildLexers());
     EXPECT_TRUE(found->GetReader());
     EXPECT_TRUE(found->GetOpenScope().has_value());
@@ -287,11 +287,11 @@ TEST(ASTTests, DetailedBiggerLexerClassChecking)
 
     auto found = tree.FindIf([](Ast::BaseLexer* lexer)
     {
-        return lexer->GetName() == "GlobalClass";
+        return lexer->GetLexerName() == "GlobalClass";
     });
 
     ASSERT_TRUE(found);
-    ASSERT_EQ(found->GetName(), "GlobalClass");
+    ASSERT_EQ(found->GetLexerName(), "GlobalClass");
     ASSERT_TRUE(found->HasChildLexers());
 
     {
@@ -416,7 +416,7 @@ TEST(ASTTests, ScopeChecking)
 
         auto found = tree.FindIf([](Ast::BaseLexer* lexer)
         {
-            return lexer->GetName() == "Internal";
+            return lexer->GetLexerName() == "Internal";
         });
 
         lexer = found->CastTo<Ast::Cpp::ClassLexer>();
@@ -424,7 +424,7 @@ TEST(ASTTests, ScopeChecking)
     }
 
     ASSERT_TRUE(lexer);
-    EXPECT_EQ(lexer->GetName(), "Internal");
+    EXPECT_EQ(lexer->GetLexerName(), "Internal");
     ASSERT_TRUE(lexer->HasParent());
 }
 
@@ -435,13 +435,13 @@ TEST(ASTTests, GetRootLexer)
 
     auto found = tree.FindIf([](Ast::BaseLexer* lexer)
     {
-        return lexer->GetName() == "Internal";
+        return lexer->GetLexerName() == "Internal";
     });
 
     ASSERT_TRUE(found);
     const auto root = found->GetRootLexer();
     ASSERT_TRUE(root);
-    EXPECT_EQ("none", root->GetName());
+    EXPECT_EQ("none", root->GetLexerName());
 }
 
 TEST(ASTTests, LexerConstAndNonConstMiscTests)
@@ -480,7 +480,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
         const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
         {
-            return lexer->GetName() == "Internal";
+            return lexer->GetLexerName() == "Internal";
         });
 
         ASSERT_TRUE(found);
@@ -492,7 +492,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
         const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
         {
-            return lexer->GetName() == "Internal";
+            return lexer->GetLexerName() == "Internal";
         });
 
         ASSERT_TRUE(found);
@@ -504,7 +504,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
         const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
         {
-            return lexer->GetName() == "GlobalClass";
+            return lexer->GetLexerName() == "GlobalClass";
         });
 
         ASSERT_TRUE(found);
@@ -519,7 +519,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
         const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
         {
-            return lexer->GetName() == "GlobalClass";
+            return lexer->GetLexerName() == "GlobalClass";
         });
 
         ASSERT_TRUE(found);
@@ -534,7 +534,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
         const auto found = tree.FindIfAs<Ast::Cpp::ClassLexer>([](const Ast::BaseLexer* lexer)
         {
-            return lexer->GetName() == "GlobalClass";
+            return lexer->GetLexerName() == "GlobalClass";
         });
 
         ASSERT_TRUE(found);

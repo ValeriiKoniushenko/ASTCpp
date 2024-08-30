@@ -32,7 +32,7 @@ namespace Ast
             {
                 stream << "\t";
             }
-            stream << lexer->GetName().c_str() << std::endl;
+            stream << lexer->GetLexerName().c_str() << std::endl;
 
             return true;
         });

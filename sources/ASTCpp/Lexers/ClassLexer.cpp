@@ -57,8 +57,8 @@ namespace Ast::Cpp
         auto match = string.FindRegex("^\\w+");
         if (Verify(!match.empty(), "Impossible to define a class name"))
         {
-            _name = match.str();
-            _name.ShrinkToFit();
+            _lexerName = match.str();
+            _lexerName.ShrinkToFit();
         }
         else
         {
@@ -130,7 +130,7 @@ namespace Ast::Cpp
         const auto* openedBracket = _token.endData - 1; // -1 - to back to the '{' correspoinding to regex expr
         if (!Verify(*openedBracket == '{', "Impossible to define an class scope."))
         {
-            logCollector.AddLog({ String::Format("Impossible to define an class scope '{}'", _name.c_str()), LogCollector::LogType::Error });
+            logCollector.AddLog({ String::Format("Impossible to define an class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
             return false;
         }
 
@@ -202,7 +202,7 @@ namespace Ast::Cpp
             }
             else
             {
-                logCollector.AddLog({ String::Format("Impossible to define a class's field type. Class: '{}'", _name.c_str()), LogCollector::LogType::Error });
+                logCollector.AddLog({ String::Format("Impossible to define a class's field type. Class: '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
                 return true;
             }
 
@@ -215,7 +215,7 @@ namespace Ast::Cpp
             }
             else
             {
-                logCollector.AddLog({ String::Format("Impossible to define a class's field name. Class: '{}'", _name.c_str()), LogCollector::LogType::Error });
+                logCollector.AddLog({ String::Format("Impossible to define a class's field name. Class: '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
                 return true;
             }
 

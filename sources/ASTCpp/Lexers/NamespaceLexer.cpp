@@ -49,7 +49,7 @@ namespace Ast::Cpp
             return false;
         }
 
-        _name = string; // absolute name
+        _lexerName = string; // absolute name
 
         for (auto&& name : string.Split("::"_atom))
         {
@@ -70,7 +70,7 @@ namespace Ast::Cpp
         while(String::Toolset::IsSpace(*openedBracket)) ++openedBracket;
         if (!Verify(*openedBracket == '{', "Impossible to define a namespace scope."))
         {
-            logCollector.AddLog({String::Format("Impossible to define a namespace scope '{}'", _name.c_str()), LogCollector::LogType::Error});
+            logCollector.AddLog({String::Format("Impossible to define a namespace scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error});
             return false;
         }
 

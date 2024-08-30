@@ -64,6 +64,7 @@ namespace Ast
 
         void SetToken(const TokenReader& token);
         bool Validate(LogCollector& logCollector);
+        [[nodiscard]] bool IsValid() const;
 
         template<IsLexer Lexer>
         [[nodiscard]] bool IsTypeOf() const noexcept
@@ -72,7 +73,7 @@ namespace Ast
         }
 
         template<IsLexer Lexer>
-        [[nodiscard]] Lexer::Ptr CastTo() noexcept
+        [[nodiscard]] typename Lexer::Ptr CastTo() noexcept
         {
             if (auto* newType = dynamic_cast<Lexer*>(this))
             {
@@ -82,7 +83,7 @@ namespace Ast
         }
 
         template<IsLexer Lexer>
-        [[nodiscard]] Lexer::CPtr CastTo() const noexcept
+        [[nodiscard]] typename Lexer::CPtr CastTo() const noexcept
         {
             if (auto* newType = dynamic_cast<const Lexer*>(this))
             {
@@ -91,18 +92,17 @@ namespace Ast
             return {};
         }
 
-        [[nodiscard]] String GetName() const noexcept { return _name; }
+        [[nodiscard]] String GetLexerName() const noexcept { return _lexerName; }
         [[nodiscard]] String GetLexerType() const noexcept { return _lexerType; }
 
         // ===========================================================
         // ================== WORKING WITH LEXERS ====================
         // ===========================================================
 
-
         [[nodiscard]] Ptr GetRootLexer() { return GetRootLexerImpl(this); }
         [[nodiscard]] CPtr GetRootLexer() const { return GetRootLexerImpl<true>(this); }
 
-        [[nodiscard]] bool HasTheSameParent(Ptr parent) const;
+        [[nodiscard]] bool HasTheSameParentAs(Ptr parent) const;
         [[nodiscard]] bool HasParent() const noexcept { return !!_parentLexer; }
         [[nodiscard]] CPtr GetParentLexer() const { return _parentLexer; }
         [[nodiscard]] Ptr GetParentLexer() { return _parentLexer; }
@@ -165,7 +165,7 @@ namespace Ast
         std::optional<LineToken> _closeScope;
 
         const String _lexerType;
-        String _name = "none"_atom;
+        String _lexerName = "none"_atom;
         Ptr _parentLexer;
         std::vector<Ptr> _childLexers;
 

@@ -52,8 +52,8 @@ namespace Ast::Cpp
         auto match = string.FindRegex("^\\w+");
         if (Verify(!match.empty(), "Impossible to define an enum class name"))
         {
-            _name = match.str();
-            _name.ShrinkToFit();
+            _lexerName = match.str();
+            _lexerName.ShrinkToFit();
         }
         else
         {
@@ -80,7 +80,7 @@ namespace Ast::Cpp
         while(String::Toolset::IsSpace(*openedBracket)) ++openedBracket;
         if (!Verify(*openedBracket == '{', "Impossible to define an enum class scope."))
         {
-            logCollector.AddLog({String::Format("Impossible to define an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error});
+            logCollector.AddLog({String::Format("Impossible to define an enum class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error});
             return false;
         }
 
@@ -101,7 +101,7 @@ namespace Ast::Cpp
     {
         if (!Verify(_openScope.has_value() && _openScope->IsValid() && _closeScope.has_value() && _closeScope->IsValid()))
         {
-            logCollector.AddLog({String::Format("Impossible to get an enum class scope '{}'", _name.c_str()), LogCollector::LogType::Error});
+            logCollector.AddLog({String::Format("Impossible to get an enum class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error});
             return false;
         }
 
