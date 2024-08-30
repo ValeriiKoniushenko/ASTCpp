@@ -43,8 +43,7 @@ namespace Ast
     class Reader : public Utils::CopyableAndMoveable,  public boost::intrusive_ref_counter<Reader>
     {
     public:
-        using Ptr = boost::intrusive_ptr<Reader>;
-        using CPtr = boost::intrusive_ptr<const Reader>;
+        AST_CLASS(Reader)
 
         Reader() = default;
         ~Reader() override = default;

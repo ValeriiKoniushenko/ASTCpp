@@ -24,6 +24,14 @@
 
 #include <cstddef>
 
+#define AST_CLASS(className) \
+    template<bool IsConst = false> \
+    using AdaptiveRawPtr = std::conditional_t<IsConst, const className, className>*; \
+    template<bool IsConst = false> \
+    using AdaptivePtr = boost::intrusive_ptr<std::conditional_t<IsConst, const className, className>>; \
+    using Ptr = boost::intrusive_ptr<className>; \
+    using CPtr = boost::intrusive_ptr<const className>;
+
 namespace Ast
 {
 

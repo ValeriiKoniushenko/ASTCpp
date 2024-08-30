@@ -497,4 +497,50 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
         ASSERT_TRUE(found);
     }
+
+    {
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
+
+        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
+        {
+            return lexer->GetName() == "GlobalClass";
+        });
+
+        ASSERT_TRUE(found);
+        EXPECT_GT(found->GetChildLexers().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Ast::Cpp::NamespaceLexer>().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Ast::Cpp::EnumClassLexer>().size(), 0);
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        const auto tree = GetASTFileTree(logCollector);
+
+        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
+        {
+            return lexer->GetName() == "GlobalClass";
+        });
+
+        ASSERT_TRUE(found);
+        EXPECT_GT(found->GetChildLexers().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Ast::Cpp::NamespaceLexer>().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Ast::Cpp::EnumClassLexer>().size(), 0);
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        const auto tree = GetASTFileTree(logCollector);
+
+        const auto found = tree.FindIfAs<Ast::Cpp::ClassLexer>([](const Ast::BaseLexer* lexer)
+        {
+            return lexer->GetName() == "GlobalClass";
+        });
+
+        ASSERT_TRUE(found);
+        EXPECT_EQ(Ast::Cpp::ClassLexer::typeName, found->GetLexerType());
+        EXPECT_GT(found->GetChildLexers().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Ast::Cpp::NamespaceLexer>().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Ast::Cpp::EnumClassLexer>().size(), 0);
+    }
 }

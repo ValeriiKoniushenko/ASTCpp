@@ -43,11 +43,7 @@ namespace Ast
     class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
     public:
-        template<bool IsConst = false>
-        using AdaptivePtr = boost::intrusive_ptr<std::conditional_t<IsConst, const BaseLexer, BaseLexer>>;
-
-        using Ptr = boost::intrusive_ptr<BaseLexer>;
-        using CPtr = boost::intrusive_ptr<const BaseLexer>;
+        AST_CLASS(BaseLexer)
 
         struct LineToken final
         {
@@ -86,17 +82,22 @@ namespace Ast
         }
 
         template<IsLexer Lexer>
-        [[nodiscard]] Lexer::Ptr CastTo() const noexcept
+        [[nodiscard]] Lexer::CPtr CastTo() const noexcept
         {
             if (auto* newType = dynamic_cast<const Lexer*>(this))
             {
-                return boost::intrusive_ptr<Lexer>(newType);
+                return boost::intrusive_ptr<const Lexer>(newType);
             }
             return {};
         }
 
         [[nodiscard]] String GetName() const noexcept { return _name; }
         [[nodiscard]] String GetLexerType() const noexcept { return _lexerType; }
+
+        // ===========================================================
+        // ================== WORKING WITH LEXERS ====================
+        // ===========================================================
+
 
         [[nodiscard]] Ptr GetRootLexer() { return GetRootLexerImpl(this); }
         [[nodiscard]] CPtr GetRootLexer() const { return GetRootLexerImpl<true>(this); }
@@ -123,13 +124,13 @@ namespace Ast
         template<IsLexer Lexer>
         [[nodiscard]] std::vector<Ptr> GetChildLexers()
         {
-            return GetChildLexersImpl<Lexer>(*this);
+            return GetChildLexersImpl<Lexer>(this);
         }
 
         template<IsLexer Lexer>
         [[nodiscard]] std::vector<CPtr> GetChildLexers() const
         {
-            return GetChildLexersImpl<Lexer, true>(*this);
+            return GetChildLexersImpl<Lexer, true>(this);
         }
 
         void TryToSetAsChild(const Ptr& child);
@@ -170,15 +171,23 @@ namespace Ast
 
     private:
         template<IsLexer Lexer, bool IsConst = false>
-        [[nodiscard]] static std::vector<AdaptivePtr<IsConst>> GetChildLexersImpl(const BaseLexer& lexer)
+        [[nodiscard]] static std::vector<AdaptivePtr<IsConst>> GetChildLexersImpl(AdaptiveRawPtr<IsConst> lexer)
         {
             std::vector<AdaptivePtr<IsConst>> childs;
+
+            for (auto&& child : lexer->_childLexers)
+            {
+                if (child->template IsTypeOf<Lexer>())
+                {
+                    childs.push_back(child);
+                }
+            }
 
             return childs;
         }
 
         template<bool IsConst = false>
-        [[nodiscard]] static AdaptivePtr<IsConst> GetRootLexerImpl(const BaseLexer* lexer)
+        [[nodiscard]] static AdaptivePtr<IsConst> GetRootLexerImpl(AdaptiveRawPtr<IsConst> lexer)
         {
             auto* i = const_cast<BaseLexer*>(lexer);
             while (i->HasParent())

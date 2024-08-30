@@ -33,7 +33,7 @@ namespace Ast::Cpp
     class ClassLexer final : public BaseLexer
     {
     public:
-        using Ptr = boost::intrusive_ptr<ClassLexer>;
+        AST_CLASS(ClassLexer)
 
         enum class InheritanceType
         {

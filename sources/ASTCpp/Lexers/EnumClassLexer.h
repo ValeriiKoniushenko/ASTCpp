@@ -32,6 +32,8 @@ namespace Ast::Cpp
     class EnumClassLexer final : public BaseLexer
     {
     public:
+        AST_CLASS(EnumClassLexer)
+
         struct Constant
         {
             String name;

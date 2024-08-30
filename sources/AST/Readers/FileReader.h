@@ -30,7 +30,7 @@ namespace Ast
     class FileReader final : public Reader
     {
     public:
-        using Ptr = boost::intrusive_ptr<FileReader>;
+        AST_CLASS(FileReader)
 
         FileReader() = default;
         ~FileReader() override = default;

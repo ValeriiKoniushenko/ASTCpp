@@ -31,12 +31,12 @@ namespace Ast
     class ASTFileTree : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<ASTFileTree>
     {
     public:
+        AST_CLASS(ASTFileTree)
+
         struct Params
         {
             int nesting = 0;
         };
-
-        using Ptr = boost::intrusive_ptr<ASTFileTree>;
 
         template<bool IsConst = false>
         using ForEachFunctionT = std::function<bool(std::conditional_t<IsConst, const BaseLexer*, BaseLexer*>, Params)>;
@@ -53,33 +53,38 @@ namespace Ast
         {
             if (!Verify(!!_fileReader, "File reader was nullptr"))
             {
-                logCollector.AddLog({"File reader was nullptr", LogCollector::LogType::Error});
+                logCollector.AddLog({ "File reader was nullptr", LogCollector::LogType::Error });
                 return;
             }
 
             Parser parser;
             parser.Parse(_fileReader, logCollector);
 
-            parser.IterateOverLexers([&](BaseLexer* lexer)
-            {
-                if (!Verify(lexer, "Some lexer was nullptr but expected a valid object."))
+            parser.IterateOverLexers(
+                [&](BaseLexer* lexer)
                 {
-                    logCollector.AddLog({"Some lexer was nullptr but expected a valid object.", LogCollector::LogType::Error});
+                    if (!Verify(lexer, "Some lexer was nullptr but expected a valid object."))
+                    {
+                        logCollector.AddLog({ "Some lexer was nullptr but expected a valid object.", LogCollector::LogType::Error });
+                        return true;
+                    }
+
+                    if (!lexer->HasParent())
+                    {
+                        _fileLexer->ForceSetAsChild(lexer);
+                    }
+
                     return true;
-                }
-
-                if (!lexer->HasParent())
-                {
-                    _fileLexer->ForceSetAsChild(lexer);
-                }
-
-                return true;
-            });
+                });
 
             _fileLexer->DoValidate(logCollector);
         }
 
         [[nodiscard]] Reader::Ptr GetReader() const { return _fileReader; }
+
+        // ===========================================================
+        // ================== WORKING WITH LEXERS ====================
+        // ===========================================================
 
         template<IsLexer Lexer = void, bool IsConst = false>
         void ForEach(ForEachFunctionT<IsConst>&& callback)
@@ -107,9 +112,21 @@ namespace Ast
             return FindIfImpl<Lexer, true>(this, std::forward<FindFunctionT<true>>(callback));
         }
 
+        template<IsLexer Lexer>
+        [[nodiscard]] BaseLexer::Ptr FindIfAs(FindFunctionT<false>&& callback)
+        {
+            return boost::dynamic_pointer_cast<Lexer>(FindIfImpl<Lexer>(this, std::forward<FindFunctionT<false>>(callback)));
+        }
+
+        template<IsLexer Lexer>
+        [[nodiscard]] BaseLexer::CPtr FindIfAs(FindFunctionT<true>&& callback) const
+        {
+            return boost::dynamic_pointer_cast<const Lexer>(FindIfImpl<Lexer, true>(this, std::forward<FindFunctionT<true>>(callback)));
+        }
+
     private:
         template<IsLexer Lexer = void, bool IsConst = false>
-        static bool ForEachImpl(ForEachFunctionT<IsConst>&& callback, std::conditional_t<IsConst, const BaseLexer*, BaseLexer*> base, Params& params)
+        static bool ForEachImpl(ForEachFunctionT<IsConst>&& callback, BaseLexer::AdaptiveRawPtr<IsConst> base, Params& params)
         {
             if (!base || !callback)
             {
@@ -140,7 +157,7 @@ namespace Ast
             if (base->HasChildLexers())
             {
                 ++params.nesting;
-                for(auto& child : base->GetChildLexers())
+                for (auto& child : base->GetChildLexers())
                 {
                     if (child)
                     {
@@ -154,23 +171,24 @@ namespace Ast
         }
 
         template<IsLexer Lexer = void, bool IsConst = false>
-        [[nodiscard]] static std::conditional_t<IsConst, BaseLexer::CPtr, BaseLexer::Ptr> FindIfImpl(std::conditional_t<IsConst, const ASTFileTree, ASTFileTree>* fileTree, FindFunctionT<IsConst>&& callback)
+        [[nodiscard]] static BaseLexer::AdaptivePtr<IsConst> FindIfImpl(AdaptiveRawPtr<IsConst> fileTree, FindFunctionT<IsConst>&& callback)
         {
             if (!callback)
             {
                 return {};
             }
 
-            std::conditional_t<IsConst, BaseLexer::CPtr, BaseLexer::Ptr> ret;
-            fileTree->ForEach<Lexer>([&callback, &ret](std::conditional_t<IsConst, const BaseLexer, BaseLexer>* lexer, auto)
-            {
-                if (callback(lexer))
+            BaseLexer::AdaptivePtr<IsConst> ret;
+            fileTree->ForEach<Lexer>(
+                [&callback, &ret](BaseLexer::AdaptiveRawPtr<IsConst> lexer, auto)
                 {
-                    ret = lexer;
-                    return false;
-                }
-                return true;
-            });
+                    if (callback(lexer))
+                    {
+                        ret = lexer;
+                        return false;
+                    }
+                    return true;
+                });
 
             return ret;
         }
