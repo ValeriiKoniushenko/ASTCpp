@@ -446,13 +446,55 @@ TEST(ASTTests, GetRootLexer)
 
 TEST(ASTTests, LexerConstAndNonConstMiscTests)
 {
-    Ast::LogCollector logCollector;
-    auto tree = GetASTFileTree(logCollector);
-
-    const auto found = tree.FindIf([](Ast::BaseLexer* lexer)
     {
-        return lexer->GetName() == "Internal";
-    });
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
 
-    ASSERT_TRUE(found);
+        int lexersCount = 0;
+        tree.ForEach([&lexersCount](Ast::BaseLexer* lexer, auto)
+        {
+            ++lexersCount;
+            return true;
+        });
+
+        EXPECT_GT(lexersCount, 0);
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        const auto tree = GetASTFileTree(logCollector);
+
+        int lexersCount = 0;
+        tree.ForEach([&lexersCount](const Ast::BaseLexer* lexer, auto)
+        {
+            ++lexersCount;
+            return true;
+        });
+
+        EXPECT_GT(lexersCount, 0);
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
+
+        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
+        {
+            return lexer->GetName() == "Internal";
+        });
+
+        ASSERT_TRUE(found);
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        const auto tree = GetASTFileTree(logCollector);
+
+        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
+        {
+            return lexer->GetName() == "Internal";
+        });
+
+        ASSERT_TRUE(found);
+    }
 }

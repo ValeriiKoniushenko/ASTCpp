@@ -85,47 +85,31 @@ namespace Ast
         void ForEach(ForEachFunctionT<IsConst>&& callback)
         {
             Params params;
-            BaseForEach<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), _fileLexer.get(), params);
+            ForEachImpl<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), _fileLexer.get(), params);
         }
 
         template<IsLexer Lexer = void>
         void ForEach(ForEachFunctionT<true>&& callback) const
         {
             Params params;
-            BaseForEach<Lexer, true>(std::forward<ForEachFunctionT<true>>(callback), _fileLexer.get(), params);
-        }
-
-        template<IsLexer Lexer = void, bool IsConst = false>
-        [[nodiscard]] std::conditional_t<IsConst, const BaseLexer::Ptr, BaseLexer::Ptr> FindIf(FindFunctionT<IsConst>&& callback)
-        {
-            if (!callback)
-            {
-                return {};
-            }
-
-            BaseLexer::Ptr ret;
-            ForEach<Lexer>([&callback, &ret](BaseLexer* lexer, auto)
-            {
-                if (callback(lexer))
-                {
-                    ret = lexer;
-                    return false;
-                }
-                return true;
-            });
-
-            return ret;
+            ForEachImpl<Lexer, true>(std::forward<ForEachFunctionT<true>>(callback), _fileLexer.get(), params);
         }
 
         template<IsLexer Lexer = void>
-        [[nodiscard]] const BaseLexer::Ptr FindIf(FindFunctionT<true>&& callback) const
+        [[nodiscard]] BaseLexer::Ptr FindIf(FindFunctionT<false>&& callback)
         {
-            return FindIf<Lexer, true>(std::forward<FindFunctionT<true>>(callback));
+            return FindIfImpl<Lexer>(this, std::forward<FindFunctionT<false>>(callback));
+        }
+
+        template<IsLexer Lexer = void>
+        [[nodiscard]] BaseLexer::CPtr FindIf(FindFunctionT<true>&& callback) const
+        {
+            return FindIfImpl<Lexer, true>(this, std::forward<FindFunctionT<true>>(callback));
         }
 
     private:
         template<IsLexer Lexer = void, bool IsConst = false>
-        static bool BaseForEach(ForEachFunctionT<IsConst>&& callback, std::conditional_t<IsConst, const BaseLexer*, BaseLexer*> base, Params& params)
+        static bool ForEachImpl(ForEachFunctionT<IsConst>&& callback, std::conditional_t<IsConst, const BaseLexer*, BaseLexer*> base, Params& params)
         {
             if (!base || !callback)
             {
@@ -160,13 +144,35 @@ namespace Ast
                 {
                     if (child)
                     {
-                        BaseForEach<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), child.get(), params);
+                        ForEachImpl<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), child.get(), params);
                     }
                 }
                 --params.nesting;
             }
 
             return true;
+        }
+
+        template<IsLexer Lexer = void, bool IsConst = false>
+        [[nodiscard]] static std::conditional_t<IsConst, BaseLexer::CPtr, BaseLexer::Ptr> FindIfImpl(std::conditional_t<IsConst, const ASTFileTree, ASTFileTree>* fileTree, FindFunctionT<IsConst>&& callback)
+        {
+            if (!callback)
+            {
+                return {};
+            }
+
+            std::conditional_t<IsConst, BaseLexer::CPtr, BaseLexer::Ptr> ret;
+            fileTree->ForEach<Lexer>([&callback, &ret](std::conditional_t<IsConst, const BaseLexer, BaseLexer>* lexer, auto)
+            {
+                if (callback(lexer))
+                {
+                    ret = lexer;
+                    return false;
+                }
+                return true;
+            });
+
+            return ret;
         }
 
     private:

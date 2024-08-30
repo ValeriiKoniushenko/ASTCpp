@@ -40,7 +40,6 @@ namespace Ast
                           };
                       } && std::is_class_v<typename T::Ptr>) || std::is_void_v<T>;
 
-
     class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
     public:
@@ -99,20 +98,8 @@ namespace Ast
         [[nodiscard]] String GetName() const noexcept { return _name; }
         [[nodiscard]] String GetLexerType() const noexcept { return _lexerType; }
 
-        [[nodiscard]] Ptr GetRootLexer()
-        {
-            auto* i = this;
-            while (i->HasParent())
-            {
-                i = i->GetParentLexer().get();
-            }
-            return { i };
-        }
-
-        [[nodiscard]] CPtr GetRootLexer() const
-        {
-            return GetRootLexerImpl<true>(this);
-        }
+        [[nodiscard]] Ptr GetRootLexer() { return GetRootLexerImpl(this); }
+        [[nodiscard]] CPtr GetRootLexer() const { return GetRootLexerImpl<true>(this); }
 
         [[nodiscard]] bool HasTheSameParent(Ptr parent) const;
         [[nodiscard]] bool HasParent() const noexcept { return !!_parentLexer; }
@@ -148,20 +135,14 @@ namespace Ast
         void TryToSetAsChild(const Ptr& child);
         void ForceSetAsChild(const Ptr& child);
         [[nodiscard]] bool IsContainLexer(const BaseLexer* other, bool isInItsScope = false) const;
-        [[nodiscard]] bool IsContainLexer(const Ptr& other, bool isInItsScope = false) const
-        {
-            return IsContainLexer(other.get(), isInItsScope);
-        }
+        [[nodiscard]] bool IsContainLexer(const Ptr& other, bool isInItsScope = false) const { return IsContainLexer(other.get(), isInItsScope); }
         [[nodiscard]] std::optional<LineToken> GetOpenScope() const noexcept { return _openScope; }
         [[nodiscard]] std::optional<LineToken> GetCloseScope() const noexcept { return _closeScope; }
         [[nodiscard]] long long GetDistanceToLexer(const BaseLexer* lexer) const noexcept
         {
             return Verify(lexer && lexer->GetOpenScope() && _closeScope) ? lexer->_openScope->string - _closeScope->string : 0;
         }
-        [[nodiscard]] long long GetDistanceToLexer(const Ptr& lexer) const noexcept
-        {
-            return GetDistanceToLexer(lexer.get());
-        }
+        [[nodiscard]] long long GetDistanceToLexer(const Ptr& lexer) const noexcept { return GetDistanceToLexer(lexer.get()); }
 
         void Clear();
 
@@ -206,7 +187,6 @@ namespace Ast
             }
             return { i };
         }
-
     };
 
 } // namespace Ast
