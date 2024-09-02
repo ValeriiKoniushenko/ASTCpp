@@ -80,10 +80,14 @@ namespace Ast::Utils
         }
 
         if (*from == openedBracket)
+        {
             ++from;
+        }
 
         if (*to == openedBracket)
+        {
             --to;
+        }
 
         std::size_t bracketCounter = 0;
         for (; from != to; ++from)
@@ -101,4 +105,4 @@ namespace Ast::Utils
         return bracketCounter != 0;
     }
 
-} // namespace Ast
+} // namespace Ast::Utils

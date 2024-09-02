@@ -61,7 +61,8 @@ namespace Ast::Cpp
             path = String("none");
         }
 
-        logCollector.AddLog({String::Format("Successfully was build binding between lexers at file: '{}'", path.c_str()), LogCollector::LogType::Success});
+        logCollector.AddLog(
+            { String::Format("Successfully was build binding between lexers at file: '{}'", path.c_str()), LogCollector::LogType::Success });
     }
 
     BaseLexer* FileParser::BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector)
@@ -139,7 +140,7 @@ namespace Ast::Cpp
         {
             return nullptr;
         }
-        
+
         IterateOverLexers(
             [&](BaseLexer* lexer)
             {
@@ -174,14 +175,26 @@ namespace Ast::Cpp
         }
 
         for (auto&& lexer : _classLexers)
+        {
             if (!callback(lexer.get()))
+            {
                 return;
+            }
+        }
         for (auto&& lexer : _namespaceLexers)
+        {
             if (!callback(lexer.get()))
+            {
                 return;
+            }
+        }
         for (auto&& lexer : _enumClassLexers)
+        {
             if (!callback(lexer.get()))
+            {
                 return;
+            }
+        }
     }
 
 } // namespace Ast::Cpp

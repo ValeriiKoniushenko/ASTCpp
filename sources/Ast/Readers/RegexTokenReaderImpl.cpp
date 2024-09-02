@@ -20,8 +20,8 @@
 
 #include "RegexTokenReaderImpl.h"
 
-#include "Reader.h"
 #include "BaseTokenReader.h"
+#include "Reader.h"
 
 namespace Ast
 {
@@ -68,7 +68,10 @@ namespace Ast
                 auto s = match[0];
 
                 tempToken.beginData = data.c_str() + (match[0].first - data.begin());
-                while (String::Toolset::IsSpace(*tempToken.beginData)) ++tempToken.beginData;
+                while (String::Toolset::IsSpace(*tempToken.beginData))
+                {
+                    ++tempToken.beginData;
+                }
 
                 tempToken.endData = data.c_str() + (match[0].second - data.begin());
 

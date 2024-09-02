@@ -27,7 +27,7 @@
 namespace Ast::Cpp
 {
 
-    NamespaceLexer::NamespaceLexer(const Reader::Ptr&fileReader)
+    NamespaceLexer::NamespaceLexer(const Reader::Ptr& fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }
@@ -67,10 +67,13 @@ namespace Ast::Cpp
         }
 
         const auto* openedBracket = _token.endData;
-        while(String::Toolset::IsSpace(*openedBracket)) ++openedBracket;
+        while (String::Toolset::IsSpace(*openedBracket))
+        {
+            ++openedBracket;
+        }
         if (!Verify(*openedBracket == '{', "Impossible to define a namespace scope."))
         {
-            logCollector.AddLog({String::Format("Impossible to define a namespace scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error});
+            logCollector.AddLog({ String::Format("Impossible to define a namespace scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
             return false;
         }
 

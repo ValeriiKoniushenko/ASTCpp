@@ -46,7 +46,6 @@ namespace Ast::Cpp::Class
 
     bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const
     {
-
         if (const auto&& name = lexer->GetLexerName())
         {
             return name.RegexMatch(_regexNameRule.ToStringView());
@@ -55,4 +54,4 @@ namespace Ast::Cpp::Class
         return false;
     }
 
-} // namespace Ast::Cpp
+} // namespace Ast::Cpp::Class

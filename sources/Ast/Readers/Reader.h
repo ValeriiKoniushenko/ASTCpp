@@ -21,7 +21,6 @@
 #pragma once
 
 #include "../CommonTypes.h"
-
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
 #include <boost/smart_ptr/intrusive_ptr.hpp>
@@ -33,6 +32,7 @@ namespace Ast
     struct ContentFilter : public Utils::CopyableAndMoveable
     {
         virtual void MakeTransform(String& content) = 0;
+
     protected:
         ContentFilter() = default;
     };
@@ -40,7 +40,7 @@ namespace Ast
     template<class T>
     concept IsContentFilter = std::is_base_of_v<ContentFilter, T>;
 
-    class Reader : public Utils::CopyableAndMoveable,  public boost::intrusive_ref_counter<Reader>
+    class Reader : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Reader>
     {
     public:
         AST_CLASS(Reader)
@@ -51,7 +51,7 @@ namespace Ast
         bool Read(const String::CharT* content);
         [[nodiscard]] const String& Data() const noexcept;
 
-        template<IsContentFilter ...Filter>
+        template<IsContentFilter... Filter>
         void ApplyFilters()
         {
             (Filter{}.MakeTransform(_content), ...);

@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "Lexers/BaseLexer.h"
 #include "Ast/LogCollector.h"
+#include "Lexers/BaseLexer.h"
 
 #include <filesystem>
 

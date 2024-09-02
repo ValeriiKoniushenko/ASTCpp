@@ -21,10 +21,10 @@
 #pragma once
 
 #include "../Lexers/BaseLexer.h"
-#include "Core/AbstractIterators.h"
-#include "Utils/CopyableAndMoveableBehaviour.h"
-#include "Token.h"
 #include "BaseTokenReaderImpl.h"
+#include "Core/AbstractIterators.h"
+#include "Token.h"
+#include "Utils/CopyableAndMoveableBehaviour.h"
 #include "boost/smart_ptr/intrusive_ptr.hpp"
 
 #include <type_traits>
@@ -91,10 +91,7 @@ namespace Ast
             return temp;
         }
 
-        Iterator end()
-        {
-            return Iterator{};
-        }
+        Iterator end() { return Iterator{}; }
 
         [[nodiscard]] const Reader::Ptr GetReader() const noexcept { return _reader; }
         [[nodiscard]] const TokenReader& GetLastToken() const noexcept { return _lastToken; }

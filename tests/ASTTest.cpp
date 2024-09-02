@@ -183,7 +183,6 @@ namespace Ast
 
 } // namespace
 
-
 TEST(ASTTests, SimpleParse)
 {
     Ast::LogCollector logCollector;
@@ -197,10 +196,11 @@ TEST(ASTTests, SimpleGettingLexer)
     Ast::LogCollector logCollector;
     auto tree = GetASTFileTree(logCollector);
 
-    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
-    {
-        return lexer->GetLexerName() == "Internal";
-    });
+    auto found = tree.FindIf(
+        [](Ast::BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Internal";
+        });
 
     ASSERT_TRUE(found);
     EXPECT_EQ(found->GetLexerName(), "Internal");
@@ -212,10 +212,11 @@ TEST(ASTTests, ParentsChecking)
     Ast::LogCollector logCollector;
     auto tree = GetASTFileTree(logCollector);
 
-    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
-    {
-        return lexer->GetLexerName() == "Internal";
-    });
+    auto found = tree.FindIf(
+        [](Ast::BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Internal";
+        });
 
     ASSERT_TRUE(found);
     EXPECT_EQ(found->GetLexerName(), "Internal");
@@ -242,10 +243,11 @@ TEST(ASTTests, DetailedLexerClassChecking)
     Ast::LogCollector logCollector;
     auto tree = GetASTFileTree(logCollector);
 
-    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
-    {
-        return lexer->GetLexerName() == "Internal";
-    });
+    auto found = tree.FindIf(
+        [](Ast::BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Internal";
+        });
 
     ASSERT_TRUE(found);
     EXPECT_EQ(found->GetLexerName(), "Internal");
@@ -285,10 +287,11 @@ TEST(ASTTests, DetailedBiggerLexerClassChecking)
     Ast::LogCollector logCollector;
     auto tree = GetASTFileTree(logCollector);
 
-    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
-    {
-        return lexer->GetLexerName() == "GlobalClass";
-    });
+    auto found = tree.FindIf(
+        [](Ast::BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "GlobalClass";
+        });
 
     ASSERT_TRUE(found);
     ASSERT_EQ(found->GetLexerName(), "GlobalClass");
@@ -414,10 +417,11 @@ TEST(ASTTests, ScopeChecking)
         Ast::LogCollector logCollector;
         auto tree = GetASTFileTree(logCollector);
 
-        auto found = tree.FindIf([](Ast::BaseLexer* lexer)
-        {
-            return lexer->GetLexerName() == "Internal";
-        });
+        auto found = tree.FindIf(
+            [](Ast::BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Internal";
+            });
 
         lexer = found->CastTo<Ast::Cpp::ClassLexer>();
         ASSERT_TRUE(lexer);
@@ -433,10 +437,11 @@ TEST(ASTTests, GetRootLexer)
     Ast::LogCollector logCollector;
     auto tree = GetASTFileTree(logCollector);
 
-    auto found = tree.FindIf([](Ast::BaseLexer* lexer)
-    {
-        return lexer->GetLexerName() == "Internal";
-    });
+    auto found = tree.FindIf(
+        [](Ast::BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Internal";
+        });
 
     ASSERT_TRUE(found);
     const auto root = found->GetRootLexer();
@@ -451,11 +456,12 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
         auto tree = GetASTFileTree(logCollector);
 
         int lexersCount = 0;
-        tree.ForEach([&lexersCount](Ast::BaseLexer* lexer, auto)
-        {
-            ++lexersCount;
-            return true;
-        });
+        tree.ForEach(
+            [&lexersCount](Ast::BaseLexer* lexer, auto)
+            {
+                ++lexersCount;
+                return true;
+            });
 
         EXPECT_GT(lexersCount, 0);
     }
@@ -465,11 +471,12 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
         const auto tree = GetASTFileTree(logCollector);
 
         int lexersCount = 0;
-        tree.ForEach([&lexersCount](const Ast::BaseLexer* lexer, auto)
-        {
-            ++lexersCount;
-            return true;
-        });
+        tree.ForEach(
+            [&lexersCount](const Ast::BaseLexer* lexer, auto)
+            {
+                ++lexersCount;
+                return true;
+            });
 
         EXPECT_GT(lexersCount, 0);
     }
@@ -478,10 +485,11 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
         Ast::LogCollector logCollector;
         auto tree = GetASTFileTree(logCollector);
 
-        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
-        {
-            return lexer->GetLexerName() == "Internal";
-        });
+        const auto found = tree.FindIf(
+            [](const Ast::BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Internal";
+            });
 
         ASSERT_TRUE(found);
     }
@@ -490,10 +498,11 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
         Ast::LogCollector logCollector;
         const auto tree = GetASTFileTree(logCollector);
 
-        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
-        {
-            return lexer->GetLexerName() == "Internal";
-        });
+        const auto found = tree.FindIf(
+            [](const Ast::BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Internal";
+            });
 
         ASSERT_TRUE(found);
     }
@@ -502,10 +511,11 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
         Ast::LogCollector logCollector;
         auto tree = GetASTFileTree(logCollector);
 
-        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
-        {
-            return lexer->GetLexerName() == "GlobalClass";
-        });
+        const auto found = tree.FindIf(
+            [](const Ast::BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "GlobalClass";
+            });
 
         ASSERT_TRUE(found);
         EXPECT_GT(found->GetChildLexers().size(), 0);
@@ -517,10 +527,11 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
         Ast::LogCollector logCollector;
         const auto tree = GetASTFileTree(logCollector);
 
-        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
-        {
-            return lexer->GetLexerName() == "GlobalClass";
-        });
+        const auto found = tree.FindIf(
+            [](const Ast::BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "GlobalClass";
+            });
 
         ASSERT_TRUE(found);
         EXPECT_GT(found->GetChildLexers().size(), 0);
@@ -532,10 +543,11 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
         Ast::LogCollector logCollector;
         const auto tree = GetASTFileTree(logCollector);
 
-        const auto found = tree.FindIfAs<Ast::Cpp::ClassLexer>([](const Ast::BaseLexer* lexer)
-        {
-            return lexer->GetLexerName() == "GlobalClass";
-        });
+        const auto found = tree.FindIfAs<Ast::Cpp::ClassLexer>(
+            [](const Ast::BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "GlobalClass";
+            });
 
         ASSERT_TRUE(found);
         EXPECT_EQ(Ast::Cpp::ClassLexer::typeName, found->GetLexerType());
@@ -551,10 +563,11 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
         Ast::LogCollector logCollector;
         auto tree = GetASTFileTree(logCollector);
 
-        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
-        {
-            return lexer->GetLexerName() == "Ast2::Utils";
-        });
+        const auto found = tree.FindIf(
+            [](const Ast::BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Ast2::Utils";
+            });
 
         ASSERT_TRUE(found);
         for (auto&& child : found->GetChildLexers<Ast::Cpp::ClassLexer>())
@@ -571,10 +584,11 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
         Ast::LogCollector logCollector;
         auto tree = GetASTFileTree(logCollector);
 
-        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
-        {
-            return lexer->GetLexerName() == "Reader";
-        });
+        const auto found = tree.FindIf(
+            [](const Ast::BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Reader";
+            });
 
         ASSERT_TRUE(found);
         EXPECT_EQ("Ast::Ast2::Utils::Reader", found->GetFullPath().first);

@@ -20,9 +20,9 @@
 
 #pragma once
 
+#include "CommonTypes.h"
 #include "Core/Delegate.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
-#include "CommonTypes.h"
 
 namespace Ast
 {
@@ -58,20 +58,22 @@ namespace Ast
         template<LogType logType>
         [[nodiscard]] bool HasAny() const
         {
-            return std::find_if(_logs.cbegin(), _logs.cend(), [](const LogLine& logLine)
-            {
-                return logLine.type == logType;
-            }) != _logs.cend();
+            return std::find_if(_logs.cbegin(), _logs.cend(),
+                                [](const LogLine& logLine)
+                                {
+                                    return logLine.type == logType;
+                                }) != _logs.cend();
         }
 
         template<LogType logType>
         [[nodiscard]] Container GetFilteredLogs() const
         {
             Container temp;
-            std::copy_if(_logs.cbegin(), _logs.cend(), [&temp](const LogLine& logLine)
-            {
-                return logLine.type == logType;
-            });
+            std::copy_if(_logs.cbegin(), _logs.cend(),
+                         [&temp](const LogLine& logLine)
+                         {
+                             return logLine.type == logType;
+                         });
             return temp;
         }
 

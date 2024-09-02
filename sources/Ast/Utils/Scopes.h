@@ -27,6 +27,7 @@ namespace Ast::Utils
 
     [[nodiscard]] const String::CharT* FindFirstBracket(const String::CharT* source, String::CharT bracket);
     [[nodiscard]] const String::CharT* FindClosedBracket(const String::CharT* source, String::CharT closedBracket, String::CharT openedBracket);
-    [[nodiscard]] bool HasUnclosedBracket(const String::CharT* from, const String::CharT* to, String::CharT closedBracket, String::CharT openedBracket);
+    [[nodiscard]] bool HasUnclosedBracket(const String::CharT* from, const String::CharT* to, String::CharT closedBracket,
+                                          String::CharT openedBracket);
 
-} // namespace Ast
+} // namespace Ast::Utils

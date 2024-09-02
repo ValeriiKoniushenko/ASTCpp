@@ -30,15 +30,14 @@ namespace Ast
 {
     class BaseLexer;
 
-    class Rule : public Utils::CopyableAndMoveable,  public boost::intrusive_ref_counter<Rule>
+    class Rule : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Rule>
     {
     public:
         AST_CLASS(Rule)
 
-        [[nodiscard]] virtual bool IsCorrespondingTheRules(const BaseLexer* lexer,LogCollector& logCollector) const = 0;
+        [[nodiscard]] virtual bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const = 0;
 
     protected:
-
     };
 
 } // namespace Ast

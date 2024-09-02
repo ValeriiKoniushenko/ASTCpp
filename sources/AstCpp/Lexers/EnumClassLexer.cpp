@@ -27,7 +27,7 @@
 namespace Ast::Cpp
 {
 
-    EnumClassLexer::EnumClassLexer(const Reader::Ptr&fileReader)
+    EnumClassLexer::EnumClassLexer(const Reader::Ptr& fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }
@@ -57,7 +57,7 @@ namespace Ast::Cpp
         }
         else
         {
-            logCollector.AddLog({ String::Format("Impossible to parse enum class token at {}", _token.startLine) , LogCollector::LogType::Error});
+            logCollector.AddLog({ String::Format("Impossible to parse enum class token at {}", _token.startLine), LogCollector::LogType::Error });
             return false;
         }
 
@@ -77,10 +77,14 @@ namespace Ast::Cpp
         }
 
         const auto* openedBracket = _token.endData;
-        while(String::Toolset::IsSpace(*openedBracket)) ++openedBracket;
+        while (String::Toolset::IsSpace(*openedBracket))
+        {
+            ++openedBracket;
+        }
         if (!Verify(*openedBracket == '{', "Impossible to define an enum class scope."))
         {
-            logCollector.AddLog({String::Format("Impossible to define an enum class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error});
+            logCollector.AddLog(
+                { String::Format("Impossible to define an enum class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
             return false;
         }
 
@@ -101,12 +105,12 @@ namespace Ast::Cpp
     {
         if (!Verify(_openScope.has_value() && _openScope->IsValid() && _closeScope.has_value() && _closeScope->IsValid()))
         {
-            logCollector.AddLog({String::Format("Impossible to get an enum class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error});
+            logCollector.AddLog({ String::Format("Impossible to get an enum class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
             return false;
         }
 
         String buffer(_openScope->string, _closeScope->string - _openScope->string);
-        buffer.Trim('{').Trim('}').RegexReplace(R"(\s*)","");
+        buffer.Trim('{').Trim('}').RegexReplace(R"(\s*)", "");
         for (auto& constant : buffer.Split(","_atom))
         {
             if (auto match = constant.FindRegex(R"(^\w+)"); !match.empty())

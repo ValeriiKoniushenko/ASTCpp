@@ -38,4 +38,4 @@ namespace Ast
         bool DoValidate(LogCollector& logCollector) override;
     };
 
-} // namespace Ast::Cpp
+} // namespace Ast

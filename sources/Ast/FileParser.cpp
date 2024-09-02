@@ -29,22 +29,23 @@ namespace Ast
     std::optional<std::filesystem::path> FileParser::GetFilePath()
     {
         std::optional<std::filesystem::path> path;
-        IterateOverLexers([&](BaseLexer* lexer)
-        {
-            if (Verify(lexer))
+        IterateOverLexers(
+            [&](BaseLexer* lexer)
             {
-                const auto reader = lexer->GetReader();
-                if (Verify(!!reader))
+                if (Verify(lexer))
                 {
-                    if (const auto r = boost::dynamic_pointer_cast<const FileReader>(reader))
+                    const auto reader = lexer->GetReader();
+                    if (Verify(!!reader))
                     {
-                        path = r->GetPathToFile().string();
-                        return false;
+                        if (const auto r = boost::dynamic_pointer_cast<const FileReader>(reader))
+                        {
+                            path = r->GetPathToFile().string();
+                            return false;
+                        }
                     }
                 }
-            }
-            return true;
-        });
+                return true;
+            });
 
         return path;
     }

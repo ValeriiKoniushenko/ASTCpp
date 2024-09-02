@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "Ast/Readers/BaseTokenReader.h"
 #include "Ast/FileParser.h"
+#include "Ast/Readers/BaseTokenReader.h"
 #include "Lexers/ClassLexer.h"
 #include "Lexers/EnumClassLexer.h"
 #include "Lexers/NamespaceLexer.h"

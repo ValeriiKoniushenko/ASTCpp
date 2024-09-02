@@ -25,17 +25,18 @@ namespace Ast
 
     std::ostream& Print(std::ostream& stream, const Ast::ASTFileTree& tree)
     {
-        tree.ForEach([&](const Ast::BaseLexer* lexer, Ast::ASTFileTree::Params params)
-        {
-            stream << "> ";
-            for (int i = 0; i < params.nesting; ++i)
+        tree.ForEach(
+            [&](const Ast::BaseLexer* lexer, Ast::ASTFileTree::Params params)
             {
-                stream << "\t";
-            }
-            stream << lexer->GetLexerName().c_str() << std::endl;
+                stream << "> ";
+                for (int i = 0; i < params.nesting; ++i)
+                {
+                    stream << "\t";
+                }
+                stream << lexer->GetLexerName().c_str() << std::endl;
 
-            return true;
-        });
+                return true;
+            });
 
         return stream;
     }

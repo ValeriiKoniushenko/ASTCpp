@@ -61,8 +61,6 @@ namespace Ast::Cpp
             content.RegexReplace(regexExpr, endLines, std::regex_constants::match_flag_type::format_first_only);
             offset = end - content.c_str();
         }
-
-
     }
 
 } // namespace Ast::Cpp

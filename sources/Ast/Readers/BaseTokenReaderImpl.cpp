@@ -19,13 +19,14 @@
 // SOFTWARE.
 
 #include "BaseTokenReaderImpl.h"
+
 #include "BaseTokenReader.h"
 
 namespace Ast
 {
 
     BaseTokenReaderImpl::BaseTokenReaderImpl(BaseTokenReader* baseTokenReader)
-            : _baseTokenReader{ baseTokenReader }
+        : _baseTokenReader{ baseTokenReader }
     {
     }
 

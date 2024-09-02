@@ -30,11 +30,8 @@ namespace Ast
 
     bool BaseLexer::operator==(const BaseLexer& other) const
     {
-        return other._reader == _reader
-            && other._token.beginData == _token.beginData
-            && other._token.endData == _token.endData
-            && other._lexerName == _lexerName
-            && other._parentLexer == _parentLexer;
+        return other._reader == _reader && other._token.beginData == _token.beginData && other._token.endData == _token.endData &&
+               other._lexerName == _lexerName && other._parentLexer == _parentLexer;
     }
 
     void BaseLexer::SetToken(const TokenReader& token)
@@ -65,9 +62,7 @@ namespace Ast
 
     bool BaseLexer::IsValid() const
     {
-        return !_lexerType.IsEmpty()
-            && !_lexerName.IsEmpty()
-            && _reader;
+        return !_lexerType.IsEmpty() && !_lexerName.IsEmpty() && _reader;
     }
 
     bool BaseLexer::HasTheSameParentAs(BaseLexer::Ptr parent) const
@@ -89,10 +84,10 @@ namespace Ast
             if (IsContainLexer(child.get()))
             {
                 auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(),
-                   [&child](const auto& lexer)
-                   {
-                       return child->GetLexerName() == lexer->GetLexerName();
-                   });
+                                       [&child](const auto& lexer)
+                                       {
+                                           return child->GetLexerName() == lexer->GetLexerName();
+                                       });
 
                 if (Verify(it == _childLexers.cend(), "Such child already exists"))
                 {
@@ -107,10 +102,10 @@ namespace Ast
         if (Verify(!!child) && !child->HasParent())
         {
             auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(),
-               [&child](const auto& lexer)
-               {
-                   return child->GetLexerName() == lexer->GetLexerName();
-               });
+                                   [&child](const auto& lexer)
+                                   {
+                                       return child->GetLexerName() == lexer->GetLexerName();
+                                   });
 
             if (Verify(it == _childLexers.cend(), "Such child already exists"))
             {
@@ -120,7 +115,7 @@ namespace Ast
         }
     }
 
-    bool BaseLexer::IsContainLexer(const BaseLexer* other, bool isInItsScope/* = false*/) const
+    bool BaseLexer::IsContainLexer(const BaseLexer* other, bool isInItsScope /* = false*/) const
     {
         if (Verify(other) && Verify(_closeScope.has_value()) && Verify(_openScope.has_value()) && Verify(other->_closeScope.has_value()) &&
             Verify(other->_openScope.has_value()))

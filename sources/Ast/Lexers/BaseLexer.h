@@ -34,12 +34,9 @@ namespace Ast
     class BaseLexer;
 
     template<class T>
-    concept IsLexer = (std::derived_from<T, BaseLexer> && requires(T)
-    {
-        {
-            T::typeName
-        };
-    } && std::is_class_v<typename T::Ptr>) || std::is_void_v<T>;
+    concept IsLexer = (std::derived_from<T, BaseLexer> && requires(T) {
+                          { T::typeName };
+                      } && std::is_class_v<typename T::Ptr>) || std::is_void_v<T>;
 
     class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
@@ -135,15 +132,9 @@ namespace Ast
             return GetChildLexersImpl<Lexer, true>(this);
         }
 
-        [[nodiscard]] std::pair<String, std::vector<CPtr>> GetFullPath() const
-        {
-            return GetFullPathImpl<true>(this);
-        }
+        [[nodiscard]] std::pair<String, std::vector<CPtr>> GetFullPath() const { return GetFullPathImpl<true>(this); }
 
-        [[nodiscard]] std::pair<String, std::vector<Ptr>> GetFullPath()
-        {
-            return GetFullPathImpl(this);
-        }
+        [[nodiscard]] std::pair<String, std::vector<Ptr>> GetFullPath() { return GetFullPathImpl(this); }
 
         void TryToSetAsChild(const Ptr& child);
         void ForceSetAsChild(const Ptr& child);
