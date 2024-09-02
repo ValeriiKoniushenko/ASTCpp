@@ -10,11 +10,3 @@
 [submodule "dependencies/Utils"]
 	path = dependencies/Utils
 	url = git@github.com:ValeriiKoniushenko/Utils.git
-[submodule "dependencies/smart_ptr"]
-	path = dependencies/smart_ptr
-	url = https://github.com/boostorg/smart_ptr.git
-	branch = boost-1.86.0
-[submodule "dependencies/assert"]
-	path = dependencies/assert
-	url = https://github.com/boostorg/assert.git
-	branch = boost-1.86.0
