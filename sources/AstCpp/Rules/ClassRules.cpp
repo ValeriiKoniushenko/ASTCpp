@@ -18,26 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "ClassRules.h"
 
-#include "Core/String.h"
+#include "Ast/Lexers/BaseLexer.h"
+#include "AstCpp/Lexers/ClassLexer.h"
 
-#include <cstddef>
-
-#define AST_CLASS(className) \
-    template<bool IsConst = false> \
-    using AdaptiveRawPtr = std::conditional_t<IsConst, const className, className>*; \
-    template<bool IsConst = false> \
-    using AdaptivePtr = boost::intrusive_ptr<std::conditional_t<IsConst, const className, className>>; \
-    using Ptr = boost::intrusive_ptr<className>; \
-    using CPtr = boost::intrusive_ptr<const className>;
-
-namespace Ast
+namespace Ast::Cpp::Class
 {
 
-    using Char = char;
-    using Size = std::size_t;
-    using Index = long long;
-    using String = Core::BaseString<Char>;
+    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const
+    {
+        return lexer->IsTypeOf<ClassLexer>();
+    }
 
-}// namespace Ast
+    NameRule::NameRule(const String& regexNameRule)
+    {
+        SetRegexNameRule(regexNameRule);
+    }
+
+    void NameRule::SetRegexNameRule(const String& regexNameRule)
+    {
+        if (!Verify(regexNameRule.IsEmpty()))
+        {
+            _regexNameRule = regexNameRule;
+        }
+    }
+
+    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const
+    {
+
+        if (const auto&& name = lexer->GetLexerName())
+        {
+            return name.RegexMatch(_regexNameRule.ToStringView());
+        }
+
+        return false;
+    }
+
+} // namespace Ast::Cpp

@@ -20,45 +20,22 @@
 
 #pragma once
 
-#include "AST/Lexers/BaseLexer.h"
-
-namespace Ast
-{
-    class Reader;
-} // namespace Ast
+#include "Ast/Readers/BaseTokenReader.h"
+#include "Ast/Readers/RegexTokenReaderImpl.h"
 
 namespace Ast::Cpp
 {
-    class EnumClassLexer final : public BaseLexer
+    class NamespaceReader final : public BaseTokenReader
     {
     public:
-        AST_CLASS(EnumClassLexer)
-
-        struct Constant
-        {
-            String name;
-            std::optional<unsigned long long> value;
-        };
+        inline static const auto regex = R"(^\s*namespace\s+((::\s*)?\w+)+)"_atom;
 
     public:
-        inline static const auto typeName = "enum class"_atom;
-
-        explicit EnumClassLexer(const Reader::Ptr&fileReader);
-        ~EnumClassLexer() override = default;
-
-        [[nodiscard]] const String& GetType() const noexcept { return _type; }
-        [[nodiscard]] const std::vector<Constant>& GetConstants() const noexcept { return _constants; }
-
-    protected:
-        bool DoValidate(LogCollector& logCollector) override;
-        bool DoValidateScope(LogCollector& logCollector) override;
-
-    private:
-        bool RecognizeConstants(LogCollector& logCollector);
-
-    private:
-        String _type = "int"_atom;
-        std::vector<Constant> _constants;
+        explicit NamespaceReader(const Reader::Ptr& fileReader)
+            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regex))
+        {
+        }
+        ~NamespaceReader() override = default;
     };
 
 } // namespace Ast::Cpp

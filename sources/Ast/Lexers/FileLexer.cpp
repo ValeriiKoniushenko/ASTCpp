@@ -18,28 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "FileLexer.h"
 
-#include "Lexers/BaseLexer.h"
-#include "AST/LogCollector.h"
-
-#include <filesystem>
+#include "Ast/Readers/FileReader.h"
 
 namespace Ast
 {
-    class FileParser : Utils::CopyableAndMoveable
+
+    FileLexer::FileLexer(const Reader::Ptr& fileReader)
+        : BaseLexer(fileReader, typeName)
     {
-    public:
-        FileParser() = default;
-        ~FileParser() override = default;
+    }
 
-        virtual bool Parse(const Reader::Ptr& content, LogCollector& logCollector) = 0;
-        virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
+    bool FileLexer::DoValidate(LogCollector& logCollector)
+    {
+        if (const auto reader = boost::dynamic_pointer_cast<const FileReader>(_reader))
+        {
+            _lexerName = reader->GetPathToFile().string();
+        }
 
-        // TODO: add 'const'
-        [[nodiscard]] std::optional<std::filesystem::path> GetFilePath();
-    };
+        return true;
+    }
 
-    template<class T>
-    concept IsFileParser = std::derived_from<T, FileParser>;
 } // namespace Ast

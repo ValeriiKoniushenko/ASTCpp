@@ -20,19 +20,24 @@
 
 #pragma once
 
-#include "AST/Readers/Reader.h"
+#include "Ast/Readers/BaseTokenReader.h"
+#include "Ast/Readers/RegexTokenReaderImpl.h"
 
 namespace Ast::Cpp
 {
 
-    class CommentFilter : public Ast::ContentFilter
+    class ClassReader final : public BaseTokenReader
     {
     public:
-        void MakeTransform(String& content) override;
+        inline static const auto regex = R"(^\s*class\s+\w+(\s*:\s*)?([\w:<>\s,]+)\{)"_atom;
 
-    private:
-        void RemoveSingleLineComments(String& content);
-        void RemoveMultiLineComments(String& content);
+    public:
+        explicit ClassReader(const Reader::Ptr& reader)
+            : BaseTokenReader(reader, new RegexTokenReaderImpl(this, regex))
+        {
+        }
+
+        ~ClassReader() override = default;
     };
 
 } // namespace Ast::Cpp

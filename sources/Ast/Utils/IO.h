@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "AST/ASTFileTree.h"
+#include "Ast/ASTFileTree.h"
 
 #include <ostream>
 

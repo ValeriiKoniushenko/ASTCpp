@@ -21,8 +21,8 @@
 #include "BaseLexer.h"
 
 #include "../Readers/Reader.h"
-#include "AST/LogCollector.h"
-#include "AST/Utils/Scopes.h"
+#include "Ast/LogCollector.h"
+#include "Ast/Utils/Scopes.h"
 #include "Core/Assert.h"
 
 namespace Ast

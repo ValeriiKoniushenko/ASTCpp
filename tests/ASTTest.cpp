@@ -20,11 +20,11 @@
 
 #define CORE_DEBUG
 
-#include "AST/ASTFileTree.h"
-#include "AST/LogCollector.h"
-#include "AST/Readers/Reader.h"
-#include "ASTCpp/FileParser.h"
-#include "ASTCpp/Readers/Filters/CommentFilter.h"
+#include "Ast/ASTFileTree.h"
+#include "Ast/LogCollector.h"
+#include "Ast/Readers/Reader.h"
+#include "AstCpp/FileParser.h"
+#include "AstCpp/Readers/Filters/CommentFilter.h"
 
 #include <gtest/gtest.h>
 
@@ -542,5 +542,41 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
         EXPECT_GT(found->GetChildLexers().size(), 0);
         EXPECT_EQ(found->GetChildLexers<Ast::Cpp::NamespaceLexer>().size(), 0);
         EXPECT_EQ(found->GetChildLexers<Ast::Cpp::EnumClassLexer>().size(), 0);
+    }
+}
+
+TEST(ASTTests, LexerConstAndNonConstMiscTests2)
+{
+    {
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
+
+        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Ast2::Utils";
+        });
+
+        ASSERT_TRUE(found);
+        for (auto&& child : found->GetChildLexers<Ast::Cpp::ClassLexer>())
+        {
+            EXPECT_TRUE(child->IsTypeOf<Ast::Cpp::ClassLexer>());
+        }
+        for (auto&& child : found->GetChildLexers<Ast::Cpp::NamespaceLexer>())
+        {
+            EXPECT_TRUE(child->IsTypeOf<Ast::Cpp::NamespaceLexer>());
+        }
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
+
+        const auto found = tree.FindIf([](const Ast::BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Reader";
+        });
+
+        ASSERT_TRUE(found);
+        EXPECT_EQ("Ast::Ast2::Utils::Reader", found->GetFullPath().first);
     }
 }

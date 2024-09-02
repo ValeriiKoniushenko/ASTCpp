@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "AST/Lexers/BaseLexer.h"
+#include "Ast/Lexers/BaseLexer.h"
 
 namespace Ast
 {

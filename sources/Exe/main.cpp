@@ -18,11 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "AST/ASTFileTree.h"
-#include "AST/Readers/FileReader.h"
-#include "AST/Utils/IO.h"
-#include "ASTCpp/FileParser.h"
-#include "ASTCpp/Readers/Filters/CommentFilter.h"
+#include "Ast/ASTFileTree.h"
+#include "Ast/Readers/FileReader.h"
+#include "Ast/Utils/IO.h"
+#include "AstCpp/FileParser.h"
+#include "AstCpp/Readers/Filters/CommentFilter.h"
 
 #include <iostream>
 

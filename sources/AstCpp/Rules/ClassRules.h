@@ -20,24 +20,30 @@
 
 #pragma once
 
-#include "AST/Readers/BaseTokenReader.h"
-#include "AST/Readers/RegexTokenReaderImpl.h"
+#include "Ast/Rule.h"
 
-namespace Ast::Cpp
+namespace Ast::Cpp::Class
 {
-
-    class ClassReader final : public BaseTokenReader
+    class BaseRule : public Rule
     {
     public:
-        inline static const auto regex = R"(^\s*class\s+\w+(\s*:\s*)?([\w:<>\s,]+)\{)"_atom;
+        AST_CLASS(BaseRule)
 
-    public:
-        explicit ClassReader(const Reader::Ptr& reader)
-            : BaseTokenReader(reader, new RegexTokenReaderImpl(this, regex))
-        {
-        }
-
-        ~ClassReader() override = default;
+        bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const override;
     };
 
-} // namespace Ast::Cpp
+    class NameRule : public Rule
+    {
+    public:
+        AST_CLASS(NameRule)
+
+        explicit NameRule(const String& regexNameRule);
+
+        void SetRegexNameRule(const String& regexNameRule);
+        bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const override;
+
+    private:
+        String _regexNameRule;
+    };
+
+} // namespace Ast::Cpp::Class

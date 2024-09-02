@@ -18,26 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "FileLexer.h"
+#pragma once
 
-#include "AST/Readers/FileReader.h"
+#include "CommonTypes.h"
+#include "LogCollector.h"
+
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
 namespace Ast
 {
+    class BaseLexer;
 
-    FileLexer::FileLexer(const Reader::Ptr& fileReader)
-        : BaseLexer(fileReader, typeName)
+    class Rule : public Utils::CopyableAndMoveable,  public boost::intrusive_ref_counter<Rule>
     {
-    }
+    public:
+        AST_CLASS(Rule)
 
-    bool FileLexer::DoValidate(LogCollector& logCollector)
-    {
-        if (const auto reader = boost::dynamic_pointer_cast<const FileReader>(_reader))
-        {
-            _lexerName = reader->GetPathToFile().string();
-        }
+        [[nodiscard]] virtual bool IsCorrespondingTheRules(const BaseLexer* lexer,LogCollector& logCollector) const = 0;
 
-        return true;
-    }
+    protected:
+
+    };
 
 } // namespace Ast

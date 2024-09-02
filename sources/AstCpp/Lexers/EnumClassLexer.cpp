@@ -20,9 +20,9 @@
 
 #include "EnumClassLexer.h"
 
-#include "AST/LogCollector.h"
-#include "AST/Readers/Reader.h"
-#include "AST/Utils/Scopes.h"
+#include "Ast/LogCollector.h"
+#include "Ast/Readers/Reader.h"
+#include "Ast/Utils/Scopes.h"
 
 namespace Ast::Cpp
 {

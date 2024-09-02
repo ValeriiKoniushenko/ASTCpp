@@ -20,22 +20,22 @@
 
 #pragma once
 
-#include "AST/Readers/BaseTokenReader.h"
-#include "AST/Readers/RegexTokenReaderImpl.h"
+#include "Ast/Readers/BaseTokenReader.h"
+#include "Ast/Readers/RegexTokenReaderImpl.h"
 
 namespace Ast::Cpp
 {
-    class NamespaceReader final : public BaseTokenReader
+    class EnumClassReader final : public BaseTokenReader
     {
     public:
-        inline static const auto regex = R"(^\s*namespace\s+((::\s*)?\w+)+)"_atom;
+        inline static const auto regex = R"(^\s*enum\s+class\s+\w+(\s*:\s*[\w ]+)?)"_atom;
 
     public:
-        explicit NamespaceReader(const Reader::Ptr& fileReader)
+        explicit EnumClassReader(const Reader::Ptr& fileReader)
             : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regex))
         {
         }
-        ~NamespaceReader() override = default;
+        ~EnumClassReader() override = default;
     };
 
 } // namespace Ast::Cpp

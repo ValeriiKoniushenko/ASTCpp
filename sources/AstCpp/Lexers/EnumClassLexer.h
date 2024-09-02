@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "AST/Lexers/BaseLexer.h"
+#include "Ast/Lexers/BaseLexer.h"
 
 namespace Ast
 {
@@ -29,24 +29,36 @@ namespace Ast
 
 namespace Ast::Cpp
 {
-    class NamespaceLexer final : public BaseLexer
+    class EnumClassLexer final : public BaseLexer
     {
     public:
-        using Ptr = boost::intrusive_ptr<NamespaceLexer>;
+        AST_CLASS(EnumClassLexer)
 
-        inline static const auto typeName = "namespace"_atom;
+        struct Constant
+        {
+            String name;
+            std::optional<unsigned long long> value;
+        };
 
-        explicit NamespaceLexer(const Reader::Ptr&fileReader);
-        ~NamespaceLexer() override = default;
+    public:
+        inline static const auto typeName = "enum class"_atom;
 
-        [[nodiscard]] const std::vector<String>& GetNameList() { return _nameList; }
+        explicit EnumClassLexer(const Reader::Ptr&fileReader);
+        ~EnumClassLexer() override = default;
+
+        [[nodiscard]] const String& GetType() const noexcept { return _type; }
+        [[nodiscard]] const std::vector<Constant>& GetConstants() const noexcept { return _constants; }
 
     protected:
         bool DoValidate(LogCollector& logCollector) override;
         bool DoValidateScope(LogCollector& logCollector) override;
 
     private:
-        std::vector<String> _nameList; // e.g: namespace A::B -> { "A", "B" }
+        bool RecognizeConstants(LogCollector& logCollector);
+
+    private:
+        String _type = "int"_atom;
+        std::vector<Constant> _constants;
     };
 
 } // namespace Ast::Cpp

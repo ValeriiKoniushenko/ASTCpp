@@ -12,7 +12,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(DEPENDENCIES_DIR dependencies)
 
 add_subdirectory(${DEPENDENCIES_DIR}/Utils)
-add_subdirectory(${DEPENDENCIES_DIR}/boost)
+add_subdirectory(${DEPENDENCIES_DIR}/smart_ptr)
 
 add_subdirectory(sources)
 add_subdirectory(tests)

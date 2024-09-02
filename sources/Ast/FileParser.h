@@ -20,22 +20,26 @@
 
 #pragma once
 
-#include "AST/Readers/BaseTokenReader.h"
-#include "AST/Readers/RegexTokenReaderImpl.h"
+#include "Lexers/BaseLexer.h"
+#include "Ast/LogCollector.h"
 
-namespace Ast::Cpp
+#include <filesystem>
+
+namespace Ast
 {
-    class EnumClassReader final : public BaseTokenReader
+    class FileParser : Utils::CopyableAndMoveable
     {
     public:
-        inline static const auto regex = R"(^\s*enum\s+class\s+\w+(\s*:\s*[\w ]+)?)"_atom;
+        FileParser() = default;
+        ~FileParser() override = default;
 
-    public:
-        explicit EnumClassReader(const Reader::Ptr& fileReader)
-            : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regex))
-        {
-        }
-        ~EnumClassReader() override = default;
+        virtual bool Parse(const Reader::Ptr& content, LogCollector& logCollector) = 0;
+        virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
+
+        // TODO: add 'const'
+        [[nodiscard]] std::optional<std::filesystem::path> GetFilePath();
     };
 
-} // namespace Ast::Cpp
+    template<class T>
+    concept IsFileParser = std::derived_from<T, FileParser>;
+} // namespace Ast

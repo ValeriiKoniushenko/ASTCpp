@@ -20,22 +20,19 @@
 
 #pragma once
 
-#include "AST/Lexers/BaseLexer.h"
+#include "Ast/Readers/Reader.h"
 
-namespace Ast
+namespace Ast::Cpp
 {
-    class Reader;
 
-    class FileLexer final : public BaseLexer
+    class CommentFilter : public Ast::ContentFilter
     {
     public:
-        using Ptr = boost::intrusive_ptr<FileLexer>;
-        inline static const auto typeName = "file"_atom;
+        void MakeTransform(String& content) override;
 
-        explicit FileLexer(const Reader::Ptr& fileReader);
-        ~FileLexer() override = default;
-
-        bool DoValidate(LogCollector& logCollector) override;
+    private:
+        void RemoveSingleLineComments(String& content);
+        void RemoveMultiLineComments(String& content);
     };
 
 } // namespace Ast::Cpp
