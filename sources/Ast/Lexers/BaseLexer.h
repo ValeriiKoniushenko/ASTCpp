@@ -30,6 +30,7 @@
 
 namespace Ast
 {
+    class Rule;
     class LogCollector;
     class BaseLexer;
 
@@ -64,6 +65,8 @@ namespace Ast
         void SetToken(const TokenReader& token);
         bool Validate(LogCollector& logCollector);
         [[nodiscard]] bool IsValid() const;
+
+        bool IsCorrespondingToRule(const Rule& rule, LogCollector& logCollector, const char* additionalMessage = nullptr) const;
 
         template<IsLexer Lexer>
         [[nodiscard]] bool IsTypeOf() const noexcept

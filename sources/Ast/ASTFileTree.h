@@ -220,14 +220,15 @@ namespace Ast
         template<IsLexer Lexer = void, bool IsConst = false>
         [[nodiscard]] static BaseLexer::AdaptivePtr<IsConst> FindFirstByNameImpl(AdaptiveRawPtr<IsConst> fileTree, const String& lexerName)
         {
-            return FindIfImpl<Lexer, IsConst>(fileTree, [&lexerName](const BaseLexer* lexer)
-            {
-                if (lexer->GetLexerName() == lexerName)
-                {
-                    return true;
-                }
-                return false;
-            });
+            return FindIfImpl<Lexer, IsConst>(fileTree,
+                                              [&lexerName](const BaseLexer* lexer)
+                                              {
+                                                  if (lexer->GetLexerName() == lexerName)
+                                                  {
+                                                      return true;
+                                                  }
+                                                  return false;
+                                              });
         }
 
     private:

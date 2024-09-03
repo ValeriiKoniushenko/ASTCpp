@@ -20,15 +20,23 @@
 
 #include "ClassRules.h"
 
+#include "../../../dependencies/Utils/dependencies/benchmark/src/log.h"
 #include "Ast/Lexers/BaseLexer.h"
 #include "AstCpp/Lexers/ClassLexer.h"
 
 namespace Ast::Cpp::Class
 {
 
-    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const
+    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage/* = nullptr*/) const
     {
-        return lexer->IsTypeOf<ClassLexer>();
+        if (lexer->IsTypeOf<ClassLexer>())
+        {
+            return true;
+        }
+
+        logCollector.AddLog({ String::Format("ClassRule: invalid class type. Additional message: '{}'", additionalMessage ? additionalMessage : "none"), LogCollector::LogType::Error});
+
+        return false;
     }
 
     NameRule::NameRule(const String& regexNameRule)
@@ -38,18 +46,23 @@ namespace Ast::Cpp::Class
 
     void NameRule::SetRegexNameRule(const String& regexNameRule)
     {
-        if (!Verify(regexNameRule.IsEmpty()))
+        if (Verify(!regexNameRule.IsEmpty()))
         {
             _regexNameRule = regexNameRule;
         }
     }
 
-    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const
+    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage/* = nullptr*/) const
     {
         if (const auto&& name = lexer->GetLexerName())
         {
-            return name.RegexMatch(_regexNameRule.ToStringView());
+            if (name.RegexMatch(_regexNameRule.ToStringView()))
+            {
+                return true;
+            }
         }
+
+        logCollector.AddLog({ String::Format("ClassRule: invalid class name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"), LogCollector::LogType::Error});
 
         return false;
     }

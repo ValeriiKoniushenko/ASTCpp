@@ -28,5 +28,4 @@ namespace Ast
           _fileReader{ reader }
     {
     }
-
 } // namespace Ast

@@ -29,7 +29,7 @@ namespace Ast::Cpp::Class
     public:
         AST_CLASS(BaseRule)
 
-        bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const override;
+        bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage = nullptr) const override;
     };
 
     class NameRule : public Rule
@@ -40,7 +40,7 @@ namespace Ast::Cpp::Class
         explicit NameRule(const String& regexNameRule);
 
         void SetRegexNameRule(const String& regexNameRule);
-        bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector) const override;
+        bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage = nullptr) const override;
 
     private:
         String _regexNameRule;

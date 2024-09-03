@@ -25,6 +25,7 @@
 #include "Ast/Readers/Reader.h"
 #include "AstCpp/FileParser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
+#include "AstCpp/Rules/ClassRules.h"
 
 #include <gtest/gtest.h>
 
@@ -595,7 +596,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
     }
 }
 
-TEST(ASTTests, CheckRulesForClass)
+TEST(ASTTests, TryToGetLexerByXXX)
 {
     {
         Ast::LogCollector logCollector;
@@ -629,5 +630,28 @@ TEST(ASTTests, CheckRulesForClass)
         const auto tree = GetASTFileTree(logCollector);
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
+    }
+}
+
+TEST(ASTTests, CheckRulesForClass)
+{
+    {
+        Ast::LogCollector logCollector;
+        const auto tree = GetASTFileTree(logCollector);
+        const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+        EXPECT_TRUE(found->IsCorrespondingToRule(Ast::Cpp::Class::NameRule (R"(^([A-Z]\w+)*)"), logCollector));
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        const auto tree = GetASTFileTree(logCollector);
+        const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+        EXPECT_FALSE(found->IsCorrespondingToRule(Ast::Cpp::Class::NameRule (R"(^([a-z]\w+)*)"), logCollector));
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
     }
 }
