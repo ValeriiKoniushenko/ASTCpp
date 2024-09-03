@@ -101,6 +101,30 @@ namespace Ast
         }
 
         template<IsLexer Lexer = void>
+        [[nodiscard]] BaseLexer::Ptr FindFirstByName(const String& lexerName)
+        {
+            return FindFirstByNameImpl<Lexer>(this, lexerName);
+        }
+
+        template<IsLexer Lexer = void>
+        [[nodiscard]] BaseLexer::CPtr FindFirstByName(const String& lexerName) const
+        {
+            return FindFirstByNameImpl<Lexer, true>(this, lexerName);
+        }
+
+        template<IsLexer Lexer>
+        [[nodiscard]] typename Lexer::Ptr FindFirstByNameAs(const String& lexerName)
+        {
+            return boost::dynamic_pointer_cast<Lexer>(FindFirstByNameImpl<Lexer>(this, lexerName));
+        }
+
+        template<IsLexer Lexer = void>
+        [[nodiscard]] typename Lexer::CPtr FindFirstByNameAs(const String& lexerName) const
+        {
+            return boost::dynamic_pointer_cast<const Lexer>(FindFirstByNameImpl<Lexer, true>(this, lexerName));
+        }
+
+        template<IsLexer Lexer = void>
         [[nodiscard]] BaseLexer::Ptr FindIf(FindFunctionT<false>&& callback)
         {
             return FindIfImpl<Lexer>(this, std::forward<FindFunctionT<false>>(callback));
@@ -191,6 +215,19 @@ namespace Ast
                 });
 
             return ret;
+        }
+
+        template<IsLexer Lexer = void, bool IsConst = false>
+        [[nodiscard]] static BaseLexer::AdaptivePtr<IsConst> FindFirstByNameImpl(AdaptiveRawPtr<IsConst> fileTree, const String& lexerName)
+        {
+            return FindIfImpl<Lexer, IsConst>(fileTree, [&lexerName](const BaseLexer* lexer)
+            {
+                if (lexer->GetLexerName() == lexerName)
+                {
+                    return true;
+                }
+                return false;
+            });
         }
 
     private:

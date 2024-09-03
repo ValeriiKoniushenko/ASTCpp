@@ -594,3 +594,40 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
         EXPECT_EQ("Ast::Ast2::Utils::Reader", found->GetFullPath().first);
     }
 }
+
+TEST(ASTTests, CheckRulesForClass)
+{
+    {
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
+        auto found = tree.FindFirstByName<Ast::Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
+        auto found = tree.FindFirstByName<Ast::Cpp::ClassLexer>("1111111111111111");
+        ASSERT_FALSE(found);
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        const auto tree = GetASTFileTree(logCollector);
+        const auto found = tree.FindFirstByName<Ast::Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+    }
+    {
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
+        auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+    }
+
+    {
+        Ast::LogCollector logCollector;
+        const auto tree = GetASTFileTree(logCollector);
+        const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+    }
+}
