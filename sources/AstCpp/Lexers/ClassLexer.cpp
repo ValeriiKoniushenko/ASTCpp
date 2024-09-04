@@ -23,6 +23,7 @@
 #include "Ast/LogCollector.h"
 #include "Ast/Readers/Reader.h"
 #include "Ast/Utils/Scopes.h"
+#include "Ast/Utils/String.h"
 #include "AstCpp/TemplateLexer/CheckForTemplateLexer.h"
 
 namespace Ast::Cpp
@@ -148,6 +149,50 @@ namespace Ast::Cpp
         if (!BaseLexer::DoMarkingValidate(logCollector))
         {
             return false;
+        }
+
+        const auto* begin = Ast::Cpp::TryToFindTemplateBegin(this);
+        if (begin == nullptr)
+        {
+            begin = _token.beginData;
+        }
+        if (!Verify(begin))
+        {
+            return false;
+        }
+
+        --begin;
+
+        while(String::IsSpace(*begin)){--begin;}
+
+        // Corresponding to AstCpp/Markers.h -> #define CLASS
+        if ((begin = Ast::Utils::SkipBracketsR(this, begin, '(', ')')))
+        {
+            while(String::IsSpace(*begin)) { --begin; }
+            const auto marker = "CLASS"_atom;
+            begin -= marker.Size();
+            if (begin >= _reader->Data().c_str())
+            {
+                if (String(begin, marker.Size()).RegexMatch(marker))
+                {
+                    Marker marker;
+
+                    while (*begin != '(')
+                    {
+                        marker.rule.push_back(*begin);
+                        ++begin;
+                    }
+
+                    const auto* end = Utils::FindClosedBracket(begin, ')', '(');
+                    for (auto param : String(begin, end - begin).Split(","))
+                    {
+                        param.Trim(' ').Trim('(').Trim(')');
+                        marker.params.push_back(std::move(param));
+                    }
+
+                    _marking = std::move(marker);
+                }
+            }
         }
 
         return true;

@@ -24,24 +24,13 @@
 
 namespace Ast
 {
-
-    struct TokenReader final : ::Utils::CopyableAndMoveable
-    {
-        const String::CharT* beginData = nullptr;
-        const String::CharT* endData = nullptr;
-
-        std::size_t startLine = 0;
-        std::size_t endLine = 0;
-
-        void Clear()
-        {
-            beginData = nullptr;
-            endData = nullptr;
-
-            startLine = 0;
-            endLine = 0;
-        }
-        [[nodiscard]] bool IsValid() const noexcept { return beginData != nullptr && endData != nullptr; }
-    };
-
+    class BaseLexer;
 } // namespace Ast
+
+namespace Ast::Utils
+{
+
+    /// @brief pass ptr to the 'closedBracket'
+    const String::CharT* SkipBracketsR(const BaseLexer* lexer, const String::CharT* str, String::CharT openBracket, String::CharT closedBracket);
+
+} // namespace Ast::Utils

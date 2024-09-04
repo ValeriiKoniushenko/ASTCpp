@@ -39,7 +39,7 @@ namespace Ast
                           { T::typeName };
                       } && std::is_class_v<typename T::Ptr>) || std::is_void_v<T>;
 
-    class BaseLexer : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
+    class BaseLexer : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
     public:
         AST_CLASS(BaseLexer)
@@ -57,10 +57,10 @@ namespace Ast
             }
         };
 
-        struct Marking
+        struct Marker
         {
-            LineToken start;
-            String markString;
+            String rule;
+            std::vector<String> params;
         };
 
     public:
@@ -164,8 +164,9 @@ namespace Ast
         [[nodiscard]] Reader::Ptr GetReader() { return _reader; }
         [[nodiscard]] Reader::CPtr GetReader() const { return _reader; }
         [[nodiscard]] TokenReader GetTokenReader() const noexcept { return _token; }
-        [[nodiscard]] std::optional<Marking> GetMarking() const noexcept { return _marking; }
+        [[nodiscard]] std::optional<Marker> GetMark() const noexcept { return _marking; }
         [[nodiscard]] bool IsMarked() const noexcept { return _marking.has_value(); }
+
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;
@@ -179,7 +180,7 @@ namespace Ast
         TokenReader _token;
         Reader::Ptr _reader;
 
-        std::optional<Marking> _marking;
+        std::optional<Marker> _marking;
 
         std::optional<LineToken> _openScope;
         std::optional<LineToken> _closeScope;

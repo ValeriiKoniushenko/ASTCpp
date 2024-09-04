@@ -18,30 +18,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "String.h"
 
-#include "../CommonTypes.h"
+#include "../Lexers/BaseLexer.h"
 
-namespace Ast
+namespace Ast::Utils
 {
-
-    struct TokenReader final : ::Utils::CopyableAndMoveable
+    const String::CharT* SkipBracketsR(const BaseLexer* lexer, const String::CharT* str, String::CharT openBracket, String::CharT closedBracket)
     {
-        const String::CharT* beginData = nullptr;
-        const String::CharT* endData = nullptr;
-
-        std::size_t startLine = 0;
-        std::size_t endLine = 0;
-
-        void Clear()
+        if (!Verify(lexer->GetTokenReader().IsValid()) || *str != closedBracket || !Verify(str))
         {
-            beginData = nullptr;
-            endData = nullptr;
-
-            startLine = 0;
-            endLine = 0;
+            return nullptr;
         }
-        [[nodiscard]] bool IsValid() const noexcept { return beginData != nullptr && endData != nullptr; }
-    };
 
-} // namespace Ast
+        if (*str == closedBracket)
+        {
+            --str; // to skip closedBracket
+        }
+        else
+        {
+            return nullptr;
+        }
+
+        int bracketsCount = -1;
+        while(str >= lexer->GetReader()->Data().c_str() && bracketsCount != 0)
+        {
+            if (*str == openBracket)
+            {
+                ++bracketsCount;
+            }
+            else if (*str == closedBracket)
+            {
+                --bracketsCount;
+            }
+
+            --str;
+        }
+
+        return ++str;
+    }
+
+} // namespace Ast::Utils

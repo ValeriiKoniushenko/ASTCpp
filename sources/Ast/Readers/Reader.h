@@ -29,7 +29,7 @@
 namespace Ast
 {
 
-    struct ContentFilter : public Utils::CopyableAndMoveable
+    struct ContentFilter : public ::Utils::CopyableAndMoveable
     {
         virtual void MakeTransform(String& content) = 0;
 
@@ -40,7 +40,7 @@ namespace Ast
     template<class T>
     concept IsContentFilter = std::is_base_of_v<ContentFilter, T>;
 
-    class Reader : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Reader>
+    class Reader : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Reader>
     {
     public:
         AST_CLASS(Reader)

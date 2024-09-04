@@ -38,6 +38,7 @@ namespace
 
 #include <filesystem>
 
+CLASS(Smth)
 class GlobalClass : public std::base_string<char, std::char_traits<char>, std::allocator<char>>,
     private SomeInterface<char>,
     public ElseOne, protected SomeInterface222<char>
@@ -153,6 +154,7 @@ namespace Ast
         };
     }
 
+    CLASS(Smth1, Smth2)
     template<class T>
     class Vec2
     {
@@ -161,6 +163,7 @@ namespace Ast
         T y{};
     }
 
+    CLASS(Smth1,Smth2)
     template<class T>
     class PrivateVec2
     {
@@ -643,13 +646,37 @@ TEST(ASTTests, CheckRulesForClass)
     }
 }
 
-TEST(ASTTests, IsTemplate)
+TEST(ASTTests, Marks)
 {
+    Ast::LogCollector logCollector;
+    const auto tree = GetASTFileTree(logCollector);
+
     {
-        Ast::LogCollector logCollector;
-        const auto tree = GetASTFileTree(logCollector);
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
-        ASSERT_TRUE(found->IsTemplate());
+        EXPECT_FALSE(found->IsTemplate());
+        ASSERT_TRUE(found->IsMarked());
+        EXPECT_EQ("CLASS", found->GetMark()->rule);
+        EXPECT_EQ("Smth", found->GetMark()->params.front());
+    }
+
+    {
+        const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("Vec2");
+        ASSERT_TRUE(found);
+        EXPECT_TRUE(found->IsTemplate());
+        ASSERT_TRUE(found->IsMarked());
+        EXPECT_EQ("CLASS", found->GetMark()->rule);
+        EXPECT_EQ("Smth1", found->GetMark()->params.front());
+        EXPECT_EQ("Smth2", found->GetMark()->params.back());
+    }
+
+    {
+        const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("PrivateVec2");
+        ASSERT_TRUE(found);
+        EXPECT_TRUE(found->IsTemplate());
+        ASSERT_TRUE(found->IsMarked());
+        EXPECT_EQ("CLASS", found->GetMark()->rule);
+        EXPECT_EQ("Smth1", found->GetMark()->params.front());
+        EXPECT_EQ("Smth2", found->GetMark()->params.back());
     }
 }
