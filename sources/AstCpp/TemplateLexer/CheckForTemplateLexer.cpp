@@ -36,7 +36,10 @@ namespace Ast::Cpp
         if (auto scope = lexer->GetTokenReader(); scope.beginData)
         {
             auto end = scope.beginData - 1;
-            while (String::Toolset::IsSpace(*end)) { --end; }
+            while (String::Toolset::IsSpace(*end))
+            {
+                --end;
+            }
 
             if (auto* src = Ast::Utils::FindClosedBracketR(end, '>', '<'))
             {
