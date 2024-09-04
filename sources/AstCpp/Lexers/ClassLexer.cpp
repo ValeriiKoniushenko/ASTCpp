@@ -150,8 +150,6 @@ namespace Ast::Cpp
             return false;
         }
 
-
-
         return true;
     }
 

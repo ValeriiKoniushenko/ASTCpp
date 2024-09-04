@@ -56,7 +56,7 @@ namespace
                 auto string = Ast::String(src, end - src + 1).Trim(' ');
                 if (string.RegexReplace(R"(^template[ ]*)", ""))
                 {
-                    return {{src, string}};
+                    return { { src, string } };
                 }
             }
         }

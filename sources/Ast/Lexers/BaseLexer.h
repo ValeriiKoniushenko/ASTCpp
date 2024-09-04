@@ -44,7 +44,6 @@ namespace Ast
     public:
         AST_CLASS(BaseLexer)
 
-
         struct LineToken final
         {
             const String::CharT* string = nullptr;
