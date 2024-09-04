@@ -42,7 +42,12 @@ namespace Ast::Cpp
             Protected
         };
 
-        struct Parent
+        struct TemplateUnit
+        {
+            String expression;
+        };
+
+        struct ParentUnit
         {
             InheritanceType type = InheritanceType::Private;
             String name;
@@ -72,11 +77,12 @@ namespace Ast::Cpp
         explicit ClassLexer(const Reader::Ptr& fileReader);
         ~ClassLexer() override = default;
 
-        [[nodiscard]] const std::vector<Parent>& GetClassParents() const noexcept { return _parents; }
+        [[nodiscard]] const std::vector<ParentUnit>& GetClassParents() const noexcept { return _parents; }
         [[nodiscard]] bool HasClassParents() const noexcept { return _parents.size(); }
         [[nodiscard]] const std::vector<Field>& GetFields() const noexcept { return _fields; }
         [[nodiscard]] bool HasFields() const noexcept { return _fields.size(); }
         [[nodiscard]] bool IsFinal() const noexcept { return _hasFinal; }
+        [[nodiscard]] bool IsTemplate() const noexcept { return _isTemplate; }
 
     protected:
         bool DoValidate(LogCollector& logCollector) override;
@@ -84,12 +90,15 @@ namespace Ast::Cpp
         bool DoPostValidate(LogCollector& logCollector) override;
 
     private:
+        void TryToFindTemplate(LogCollector& logCollector);
         void RecognizeFields(LogCollector& logCollector);
         void RemoveNestedScopes(String& body);
 
     private:
         bool _hasFinal = false;
-        std::vector<Parent> _parents;
+        bool _isTemplate = false;
+        std::vector<TemplateUnit> _templateUnits;
+        std::vector<ParentUnit> _parents;
         std::vector<Field> _fields;
     };
 

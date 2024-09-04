@@ -30,6 +30,8 @@ file(
 	"ASTCpp/Readers/Filters/*.cpp"
 	"ASTCpp/Rules/*.h"
 	"ASTCpp/Rules/*.cpp"
+	"ASTCpp/TemplateLexer/*.h"
+	"ASTCpp/TemplateLexer/*.cpp"
 )
 
 add_library(ASTCppCore STATIC ${ASTCppSources})

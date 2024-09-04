@@ -21,8 +21,8 @@
 #include "BaseLexer.h"
 
 #include "../Readers/Reader.h"
-#include "Ast/Rule.h"
 #include "Ast/LogCollector.h"
+#include "Ast/Rule.h"
 #include "Ast/Utils/Scopes.h"
 #include "Core/Assert.h"
 
@@ -66,7 +66,7 @@ namespace Ast
         return !_lexerType.IsEmpty() && !_lexerName.IsEmpty() && _reader;
     }
 
-    bool BaseLexer::IsCorrespondingToRule(const Rule& rule, LogCollector& logCollector, const char* additionalMessage/* = nullptr*/) const
+    bool BaseLexer::IsCorrespondingToRule(const Rule& rule, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
     {
         return rule.IsCorrespondingTheRules(this, logCollector, additionalMessage);
     }

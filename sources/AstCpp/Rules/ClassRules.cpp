@@ -27,14 +27,16 @@
 namespace Ast::Cpp::Class
 {
 
-    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage/* = nullptr*/) const
+    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
     {
         if (lexer->IsTypeOf<ClassLexer>())
         {
             return true;
         }
 
-        logCollector.AddLog({ String::Format("ClassRule: invalid class type. Additional message: '{}'", additionalMessage ? additionalMessage : "none"), LogCollector::LogType::Error});
+        logCollector.AddLog(
+            { String::Format("ClassRule: invalid class type. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
+              LogCollector::LogType::Error });
 
         return false;
     }
@@ -52,7 +54,7 @@ namespace Ast::Cpp::Class
         }
     }
 
-    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage/* = nullptr*/) const
+    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
     {
         if (const auto&& name = lexer->GetLexerName())
         {
@@ -62,7 +64,9 @@ namespace Ast::Cpp::Class
             }
         }
 
-        logCollector.AddLog({ String::Format("ClassRule: invalid class name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"), LogCollector::LogType::Error});
+        logCollector.AddLog(
+            { String::Format("ClassRule: invalid class name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
+              LogCollector::LogType::Error });
 
         return false;
     }

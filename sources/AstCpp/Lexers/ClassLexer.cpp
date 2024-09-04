@@ -23,6 +23,7 @@
 #include "Ast/LogCollector.h"
 #include "Ast/Readers/Reader.h"
 #include "Ast/Utils/Scopes.h"
+#include "AstCpp/TemplateLexer/CheckForTemplateLexer.h"
 
 namespace Ast::Cpp
 {
@@ -148,9 +149,47 @@ namespace Ast::Cpp
             return false;
         }
 
+        TryToFindTemplate(logCollector);
+
         RecognizeFields(logCollector);
 
         return true;
+    }
+
+    void ClassLexer::TryToFindTemplate(LogCollector& logCollector)
+    {
+        auto* begin = _token.beginData;
+
+        if (auto string = Cpp::TryToFindTemplate(this))
+        {
+            _isTemplate = true;
+
+            string.Trim('<').Trim('>');
+            int bracketsCount = 0;
+            String tmp;
+            for (int i = 0; i < string.Size(); ++i)
+            {
+                if (string[i] == '<')
+                {
+                    ++bracketsCount;
+                }
+                else if (string[i] == '>')
+                {
+                    --bracketsCount;
+                }
+                tmp.PushBack(string[i]);
+
+                if (bracketsCount == 0)
+                {
+                    if (string[i] == ',')
+                    {
+                        tmp.Trim(',').Trim(' ');
+                        _templateUnits.push_back({ std::move(tmp) });
+                    }
+                }
+            }
+            _templateUnits.push_back({ std::move(tmp) });
+        }
     }
 
     void ClassLexer::RecognizeFields(LogCollector& logCollector)

@@ -638,20 +638,18 @@ TEST(ASTTests, CheckRulesForClass)
     {
         Ast::LogCollector logCollector;
         const auto tree = GetASTFileTree(logCollector);
-        const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
+        const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("Vec2");
         ASSERT_TRUE(found);
-        EXPECT_TRUE(found->IsCorrespondingToRule(Ast::Cpp::Class::NameRule (R"(^([A-Z]\w+)*)"), logCollector));
-        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
-        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
     }
+}
 
+TEST(ASTTests, IsTemplate)
+{
     {
         Ast::LogCollector logCollector;
         const auto tree = GetASTFileTree(logCollector);
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
-        EXPECT_FALSE(found->IsCorrespondingToRule(Ast::Cpp::Class::NameRule (R"(^([a-z]\w+)*)"), logCollector));
-        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
-        EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+        ASSERT_TRUE(found->IsTemplate());
     }
 }

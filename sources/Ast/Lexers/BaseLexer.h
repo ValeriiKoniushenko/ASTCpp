@@ -157,6 +157,7 @@ namespace Ast
 
         [[nodiscard]] Reader::Ptr GetReader() { return _reader; }
         [[nodiscard]] Reader::CPtr GetReader() const { return _reader; }
+        [[nodiscard]] TokenReader GetTokenReader() const noexcept { return _token; }
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;

@@ -19,16 +19,17 @@
 // SOFTWARE.
 
 #pragma once
+#include "Ast/CommonTypes.h"
 
-#include "../CommonTypes.h"
+namespace Ast
+{
+    class BaseLexer;
+}
 
-namespace Ast::Utils
+namespace Ast::Cpp
 {
 
-    [[nodiscard]] const String::CharT* FindFirstBracket(const String::CharT* source, String::CharT bracket);
-    [[nodiscard]] const String::CharT* FindClosedBracket(const String::CharT* source, String::CharT closedBracket, String::CharT openedBracket);
-    [[nodiscard]] const String::CharT* FindClosedBracketR(const String::CharT* source, String::CharT closedBracket, String::CharT openedBracket);
-    [[nodiscard]] bool HasUnclosedBracket(const String::CharT* from, const String::CharT* to, String::CharT closedBracket,
-                                          String::CharT openedBracket);
+    String TryToFindTemplate(const BaseLexer* lexer);
+    bool IsTemplate(const BaseLexer* lexer);
 
-} // namespace Ast::Utils
+} // namespace Ast::Cpp

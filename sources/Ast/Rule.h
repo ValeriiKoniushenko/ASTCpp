@@ -35,7 +35,8 @@ namespace Ast
     public:
         AST_CLASS(Rule)
 
-        [[nodiscard]] virtual bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage = nullptr) const = 0;
+        [[nodiscard]] virtual bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector,
+                                                           const char* additionalMessage = nullptr) const = 0;
 
     protected:
     };

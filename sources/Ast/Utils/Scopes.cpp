@@ -67,6 +67,41 @@ namespace Ast::Utils
         return *source != 0 ? --source : nullptr;
     }
 
+    const String::CharT* FindClosedBracketR(const String::CharT* source, String::CharT closedBracket, String::CharT openedBracket)
+    {
+        if (!Verify(source, "Impossible to find the first bracket because was passed the NULL string"))
+        {
+            return nullptr;
+        }
+
+        // skipping of the opened bracket
+        if (String::Toolset::IsSpace(*source))
+        {
+            --source;
+        }
+
+        std::size_t bracketCounter = 0;
+        if (*source == closedBracket)
+        {
+            ++bracketCounter;
+            --source;
+        }
+        for (; *source != 0 && bracketCounter != 0; --source)
+        {
+            if (*source == closedBracket)
+            {
+                ++bracketCounter;
+            }
+            else if (*source == openedBracket)
+            {
+                --bracketCounter;
+            }
+        }
+        ++source;
+
+        return *source != 0 ? source : nullptr;
+    }
+
     bool HasUnclosedBracket(const String::CharT* from, const String::CharT* to, String::CharT closedBracket, String::CharT openedBracket)
     {
         if (!Verify(from && to, "Impossible to find the unclosed bracket because was passed the NULL string[s]"))
