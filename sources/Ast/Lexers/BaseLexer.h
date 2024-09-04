@@ -167,7 +167,6 @@ namespace Ast
         [[nodiscard]] std::optional<Marker> GetMark() const noexcept { return _marking; }
         [[nodiscard]] bool IsMarked() const noexcept { return _marking.has_value(); }
 
-
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;
         virtual bool DoValidateScope(LogCollector& logCollector) { return true; }

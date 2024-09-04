@@ -163,12 +163,18 @@ namespace Ast::Cpp
 
         --begin;
 
-        while(String::IsSpace(*begin)){--begin;}
+        while (String::IsSpace(*begin))
+        {
+            --begin;
+        }
 
         // Corresponding to AstCpp/Markers.h -> #define CLASS
         if ((begin = Ast::Utils::SkipBracketsR(this, begin, '(', ')')))
         {
-            while(String::IsSpace(*begin)) { --begin; }
+            while (String::IsSpace(*begin))
+            {
+                --begin;
+            }
             const auto marker = "CLASS"_atom;
             begin -= marker.Size();
             if (begin >= _reader->Data().c_str())

@@ -41,7 +41,7 @@ namespace Ast::Utils
         }
 
         int bracketsCount = -1;
-        while(str >= lexer->GetReader()->Data().c_str() && bracketsCount != 0)
+        while (str >= lexer->GetReader()->Data().c_str() && bracketsCount != 0)
         {
             if (*str == openBracket)
             {
