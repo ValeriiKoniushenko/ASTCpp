@@ -643,6 +643,7 @@ TEST(ASTTests, CheckRulesForClass)
         const auto tree = GetASTFileTree(logCollector);
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("Vec2");
         ASSERT_TRUE(found);
+        found->IsCorrespondingToRule(Ast::Cpp::Class::NameRule(R"([A-Z]\w+)"), logCollector);
     }
 }
 
