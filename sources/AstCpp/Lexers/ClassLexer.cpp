@@ -142,6 +142,19 @@ namespace Ast::Cpp
 
         return true;
     }
+
+    bool ClassLexer::DoMarkingValidate(LogCollector& logCollector)
+    {
+        if (!BaseLexer::DoMarkingValidate(logCollector))
+        {
+            return false;
+        }
+
+
+
+        return true;
+    }
+
     bool ClassLexer::DoPostValidate(LogCollector& logCollector)
     {
         if (!BaseLexer::DoPostValidate(logCollector))
@@ -160,7 +173,7 @@ namespace Ast::Cpp
     {
         auto* begin = _token.beginData;
 
-        if (auto string = Cpp::TryToFindTemplate(this))
+        if (auto string = Cpp::TryToExtrudeTemplate(this))
         {
             _isTemplate = true;
 

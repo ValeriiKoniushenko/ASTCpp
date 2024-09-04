@@ -29,7 +29,8 @@ namespace Ast
 namespace Ast::Cpp
 {
 
-    String TryToFindTemplate(const BaseLexer* lexer);
+    const String::CharT* TryToFindTemplateBegin(const BaseLexer* lexer);
+    String TryToExtrudeTemplate(const BaseLexer* lexer);
     bool IsTemplate(const BaseLexer* lexer);
 
 } // namespace Ast::Cpp

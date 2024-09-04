@@ -44,6 +44,7 @@ namespace Ast
     public:
         AST_CLASS(BaseLexer)
 
+
         struct LineToken final
         {
             const String::CharT* string = nullptr;
@@ -55,6 +56,12 @@ namespace Ast
             {
                 return Verify(other.IsValid() && IsValid()) ? string < other.string : false;
             }
+        };
+
+        struct Marking
+        {
+            LineToken start;
+            String markString;
         };
 
     public:
@@ -158,10 +165,13 @@ namespace Ast
         [[nodiscard]] Reader::Ptr GetReader() { return _reader; }
         [[nodiscard]] Reader::CPtr GetReader() const { return _reader; }
         [[nodiscard]] TokenReader GetTokenReader() const noexcept { return _token; }
+        [[nodiscard]] std::optional<Marking> GetMarking() const noexcept { return _marking; }
+        [[nodiscard]] bool IsMarked() const noexcept { return _marking.has_value(); }
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;
         virtual bool DoValidateScope(LogCollector& logCollector) { return true; }
+        virtual bool DoMarkingValidate(LogCollector& logCollector) { return true; }
         virtual bool DoPostValidate(LogCollector& logCollector) { return true; }
 
         BaseLexer(const Reader::Ptr& reader, const String& type);
@@ -169,6 +179,8 @@ namespace Ast
     protected:
         TokenReader _token;
         Reader::Ptr _reader;
+
+        std::optional<Marking> _marking;
 
         std::optional<LineToken> _openScope;
         std::optional<LineToken> _closeScope;

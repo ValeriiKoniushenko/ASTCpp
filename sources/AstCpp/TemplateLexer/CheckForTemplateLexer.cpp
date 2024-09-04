@@ -24,49 +24,69 @@
 #include "Ast/Utils/Scopes.h"
 #include "Core/Assert.h"
 
-namespace Ast::Cpp
+namespace
 {
-    String TryToFindTemplate(const BaseLexer* lexer)
+    std::optional<std::pair<const Ast::String::CharT*, Ast::String>> FindTemplate(const Ast::BaseLexer* lexer)
     {
         if (!Verify(lexer))
         {
-            return false;
+            return {};
         }
 
         if (auto scope = lexer->GetTokenReader(); scope.beginData)
         {
             auto end = scope.beginData - 1;
-            while (String::Toolset::IsSpace(*end))
+            while (Ast::String::Toolset::IsSpace(*end))
             {
                 --end;
             }
 
             if (auto* src = Ast::Utils::FindClosedBracketR(end, '>', '<'))
             {
-                while (String::IsSpace(*src) || *src == '<')
+                while (Ast::String::IsSpace(*src) || *src == '<')
                 {
                     --src;
                 }
-                while (!String::IsSpace(*src))
+                while (!Ast::String::IsSpace(*src))
                 {
                     --src;
                 }
                 ++src;
 
-                auto string = String(src, end - src + 1).Trim(' ');
-                const auto isTemplateRegex = String();
+                auto string = Ast::String(src, end - src + 1).Trim(' ');
                 if (string.RegexReplace(R"(^template[ ]*)", ""))
                 {
-                    return string;
+                    return {{src, string}};
                 }
             }
         }
 
         return {};
     }
+} // namespace
+
+namespace Ast::Cpp
+{
+    const String::CharT* TryToFindTemplateBegin(const BaseLexer* lexer)
+    {
+        if (const auto temp = FindTemplate(lexer))
+        {
+            return temp->first;
+        }
+        return nullptr;
+    }
+
+    String TryToExtrudeTemplate(const BaseLexer* lexer)
+    {
+        if (const auto temp = FindTemplate(lexer))
+        {
+            return temp->second;
+        }
+        return {};
+    }
 
     bool IsTemplate(const BaseLexer* lexer)
     {
-        return !TryToFindTemplate(lexer).IsEmpty();
+        return FindTemplate(lexer).has_value();
     }
 } // namespace Ast::Cpp

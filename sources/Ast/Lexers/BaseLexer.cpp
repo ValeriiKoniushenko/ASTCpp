@@ -50,6 +50,10 @@ namespace Ast
         {
             return false;
         }
+        if (!DoMarkingValidate(logCollector))
+        {
+            return false;
+        }
         if (!DoPostValidate(logCollector))
         {
             return false;
