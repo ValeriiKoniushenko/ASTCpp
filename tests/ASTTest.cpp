@@ -681,3 +681,17 @@ TEST(ASTTests, Marks)
         EXPECT_EQ("Smth2", found->GetMark()->params.back());
     }
 }
+
+TEST(ASTTests, ApplyRule)
+{
+    Ast::LogCollector logCollector;
+    const auto tree = GetASTFileTree(logCollector);
+
+    const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
+    ASSERT_TRUE(found);
+
+    Ast::Cpp::Class::NameRule nameRule(R"(([A-Z_]\w*)+)");
+    nameRule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+    EXPECT_TRUE(found->IsCorrespondingToRule(nameRule, logCollector));
+    logCollector.ClearLogs();
+}

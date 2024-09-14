@@ -56,6 +56,11 @@ namespace Ast::Cpp::Class
 
     bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
     {
+        if (!BaseRule::IsCorrespondingTheRules(lexer, logCollector, additionalMessage))
+        {
+            return false;
+        }
+
         if (const auto&& name = lexer->GetLexerName())
         {
             if (name.RegexMatch(_regexNameRule.ToStringView()))
@@ -66,7 +71,7 @@ namespace Ast::Cpp::Class
 
         logCollector.AddLog(
             { String::Format("ClassRule: invalid class name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
-              LogCollector::LogType::Error });
+               GetLogType() });
 
         return false;
     }

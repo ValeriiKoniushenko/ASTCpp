@@ -55,6 +55,8 @@ namespace Ast
         [[nodiscard]] const Container& GetLogs() const noexcept { return _logs; }
         [[nodiscard]] bool IsEmpty() const { return _logs.empty(); }
 
+        void ClearLogs() { _logs.clear(); }
+
         template<LogType logType>
         [[nodiscard]] bool HasAny() const
         {

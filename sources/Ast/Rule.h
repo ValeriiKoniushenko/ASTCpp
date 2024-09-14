@@ -41,4 +41,18 @@ namespace Ast
     protected:
     };
 
+    class OverrideRuleLogType : public Utils::CopyableAndMoveable
+    {
+    public:
+        [[nodiscard]] LogCollector::LogType GetLogType() const noexcept { return _logType; }
+        void OverrideLogType(LogCollector::LogType type) noexcept { _logType = type; }
+
+    protected:
+        explicit OverrideRuleLogType(LogCollector::LogType type = LogCollector::LogType::Error) : _logType{ type } {}
+        ~OverrideRuleLogType() override = default;
+
+    private:
+        LogCollector::LogType _logType = LogCollector::LogType::Error;
+    };
+
 } // namespace Ast

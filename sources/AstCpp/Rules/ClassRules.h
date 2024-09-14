@@ -32,7 +32,7 @@ namespace Ast::Cpp::Class
         bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage = nullptr) const override;
     };
 
-    class NameRule : public Rule
+    class NameRule : public BaseRule, public OverrideRuleLogType
     {
     public:
         AST_CLASS(NameRule)
