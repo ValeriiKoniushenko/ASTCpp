@@ -682,7 +682,7 @@ TEST(ASTTests, Marks)
     }
 }
 
-TEST(ASTTests, ApplyRule)
+TEST(ASTTests, ApplyClassRule)
 {
     Ast::LogCollector logCollector;
     const auto tree = GetASTFileTree(logCollector);
@@ -699,4 +699,12 @@ TEST(ASTTests, ApplyRule)
         logCollector.ClearLogs();
     }
 
+    {
+        Ast::Cpp::Class::NameRule nameRule(R"(([a-z_]\w*)+)");
+        nameRule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_FALSE(found->IsCorrespondingToRule(nameRule, logCollector));
+        EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
 }
