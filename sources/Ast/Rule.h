@@ -48,7 +48,10 @@ namespace Ast
         void OverrideLogType(LogCollector::LogType type) noexcept { _logType = type; }
 
     protected:
-        explicit OverrideRuleLogType(LogCollector::LogType type = LogCollector::LogType::Error) : _logType{ type } {}
+        explicit OverrideRuleLogType(LogCollector::LogType type = LogCollector::LogType::Error)
+            : _logType{ type }
+        {
+        }
         ~OverrideRuleLogType() override = default;
 
     private:

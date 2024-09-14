@@ -71,7 +71,7 @@ namespace Ast::Cpp::Class
 
         logCollector.AddLog(
             { String::Format("ClassRule: invalid class name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
-               GetLogType() });
+              GetLogType() });
 
         return false;
     }

@@ -690,8 +690,13 @@ TEST(ASTTests, ApplyRule)
     const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
     ASSERT_TRUE(found);
 
-    Ast::Cpp::Class::NameRule nameRule(R"(([A-Z_]\w*)+)");
-    nameRule.OverrideLogType(Ast::LogCollector::LogType::Warning);
-    EXPECT_TRUE(found->IsCorrespondingToRule(nameRule, logCollector));
-    logCollector.ClearLogs();
+    {
+        Ast::Cpp::Class::NameRule nameRule(R"(([A-Z_]\w*)+)");
+        nameRule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_TRUE(found->IsCorrespondingToRule(nameRule, logCollector));
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
 }
