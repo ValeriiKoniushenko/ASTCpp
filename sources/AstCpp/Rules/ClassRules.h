@@ -29,7 +29,7 @@ namespace Ast::Cpp::Class
     public:
         AST_CLASS(BaseRule)
 
-        bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage = nullptr) const override;
+        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage = nullptr) const override;
     };
 
     class NameRule : public BaseRule, public OverrideRuleLogType
@@ -40,10 +40,25 @@ namespace Ast::Cpp::Class
         explicit NameRule(const String& regexNameRule);
 
         void SetRegexNameRule(const String& regexNameRule);
-        bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage = nullptr) const override;
+        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage = nullptr) const override;
 
     private:
         String _regexNameRule;
+    };
+
+    class LineCountRule : public BaseRule, public OverrideRuleLogType
+    {
+    public:
+        AST_CLASS(LineCountRule)
+
+        explicit LineCountRule(std::size_t max = 0);
+
+        void SetMaxLineCount(std::size_t max) noexcept { _max = max; };
+        [[nodiscard]] std::size_t GetMaxLineCount() const noexcept { return _max; }
+        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage = nullptr) const override;
+
+    private:
+        std::size_t _max = 0;
     };
 
 } // namespace Ast::Cpp::Class

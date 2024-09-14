@@ -700,10 +700,28 @@ TEST(ASTTests, ApplyClassRule)
     }
 
     {
-        Ast::Cpp::Class::NameRule nameRule(R"(([a-z_]\w*)+)");
-        nameRule.OverrideLogType(Ast::LogCollector::LogType::Warning);
-        EXPECT_FALSE(found->IsCorrespondingToRule(nameRule, logCollector));
+        Ast::Cpp::Class::NameRule rule(R"(([a-z_]\w*)+)");
+        rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_FALSE(found->IsCorrespondingToRule(rule, logCollector));
         EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Ast::Cpp::Class::LineCountRule rule(1);
+        rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_FALSE(found->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Ast::Cpp::Class::LineCountRule rule(300);
+        rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_TRUE(found->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
         EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
         logCollector.ClearLogs();
     }

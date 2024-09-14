@@ -76,4 +76,30 @@ namespace Ast::Cpp::Class
         return false;
     }
 
+    LineCountRule::LineCountRule(std::size_t max)
+    {
+        SetMaxLineCount(max);
+    }
+
+    bool LineCountRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage) const
+    {
+        if (!BaseRule::IsCorrespondingTheRules(lexer, logCollector, additionalMessage))
+        {
+            return false;
+        }
+
+        if (lexer->GetOpenScope() && lexer->GetCloseScope())
+        {
+            if (lexer->GetCloseScope()->line - lexer->GetOpenScope()->line <= _max)
+            {
+                return true;
+            }
+        }
+
+        logCollector.AddLog(
+            { String::Format("ClassRule: invalid class name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
+              GetLogType() });
+
+        return false;
+    }
 } // namespace Ast::Cpp::Class
