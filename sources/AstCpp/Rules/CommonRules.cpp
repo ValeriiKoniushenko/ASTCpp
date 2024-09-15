@@ -52,4 +52,36 @@ namespace Ast::Cpp
 
         return false;
     }
+
+
+    NameRule::NameRule(const String& regexNameRule)
+    {
+        SetRegexNameRule(regexNameRule);
+    }
+
+    void NameRule::SetRegexNameRule(const String& regexNameRule)
+    {
+        if (Verify(!regexNameRule.IsEmpty()))
+        {
+            _regexNameRule = regexNameRule;
+        }
+    }
+
+    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
+    {
+        if (const auto&& name = lexer->GetLexerName())
+        {
+            if (name.RegexMatch(_regexNameRule.ToStringView()))
+            {
+                return true;
+            }
+        }
+
+        logCollector.AddLog(
+            { String::Format("Rule: invalid lexer name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
+              GetLogType() });
+
+        return false;
+    }
+
 } // namespace Ast::Cpp

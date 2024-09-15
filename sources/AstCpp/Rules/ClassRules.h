@@ -33,19 +33,4 @@ namespace Ast::Cpp::Class
                                                    const char* additionalMessage = nullptr) const override;
     };
 
-    class NameRule : public BaseRule, public OverrideRuleLogType
-    {
-    public:
-        AST_CLASS(NameRule)
-
-        explicit NameRule(const String& regexNameRule);
-
-        void SetRegexNameRule(const String& regexNameRule);
-        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector,
-                                                   const char* additionalMessage = nullptr) const override;
-
-    private:
-        String _regexNameRule;
-    };
-
 } // namespace Ast::Cpp::Class

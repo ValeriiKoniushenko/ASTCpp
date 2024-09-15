@@ -644,7 +644,7 @@ TEST(ASTTests, CheckRulesForClass)
         const auto tree = GetASTFileTree(logCollector);
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("Vec2");
         ASSERT_TRUE(found);
-        found->IsCorrespondingToRule(Ast::Cpp::Class::NameRule(R"([A-Z]\w+)"), logCollector);
+        found->IsCorrespondingToRule(Ast::Cpp::NameRule(R"([A-Z]\w+)"), logCollector);
     }
 }
 
@@ -692,7 +692,7 @@ TEST(ASTTests, ApplyClassRule)
     ASSERT_TRUE(found);
 
     {
-        Ast::Cpp::Class::NameRule nameRule(R"(([A-Z_]\w*)+)");
+        Ast::Cpp::NameRule nameRule(R"(([A-Z_]\w*)+)");
         nameRule.OverrideLogType(Ast::LogCollector::LogType::Warning);
         EXPECT_TRUE(found->IsCorrespondingToRule(nameRule, logCollector));
         EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
@@ -701,7 +701,7 @@ TEST(ASTTests, ApplyClassRule)
     }
 
     {
-        Ast::Cpp::Class::NameRule rule(R"(([a-z_]\w*)+)");
+        Ast::Cpp::NameRule rule(R"(([a-z_]\w*)+)");
         rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
         EXPECT_FALSE(found->IsCorrespondingToRule(rule, logCollector));
         EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());

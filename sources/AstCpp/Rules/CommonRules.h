@@ -40,4 +40,19 @@ namespace Ast::Cpp
         std::size_t _max = 0;
     };
 
+    class NameRule : public Rule, public OverrideRuleLogType
+    {
+    public:
+        AST_CLASS(NameRule)
+
+        explicit NameRule(const String& regexNameRule);
+
+        void SetRegexNameRule(const String& regexNameRule);
+        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector,
+                                                   const char* additionalMessage = nullptr) const override;
+
+    private:
+        String _regexNameRule;
+    };
+
 } // namespace Ast::Cpp

@@ -18,26 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "ClassRules.h"
+#include "EnumClassRules.h"
 
 #include "Ast/Lexers/BaseLexer.h"
-#include "AstCpp/Lexers/ClassLexer.h"
+#include "AstCpp/Lexers/EnumClassLexer.h"
 
-namespace Ast::Cpp::Class
+namespace Ast::Cpp::EnumClass
 {
 
     bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
     {
-        if (lexer->IsTypeOf<ClassLexer>())
+        if (lexer->IsTypeOf<EnumClassLexer>())
         {
             return true;
         }
 
         logCollector.AddLog(
-            { String::Format("ClassRule: invalid class type. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
+            { String::Format("EnumClassRule: invalid class type. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
               LogCollector::LogType::Error });
 
         return false;
     }
 
-} // namespace Ast::Cpp::Class
+} // namespace Ast::Cpp::EnumClass
