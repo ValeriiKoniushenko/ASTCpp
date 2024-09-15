@@ -27,6 +27,8 @@
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 #include "AstCpp/Rules/ClassRules.h"
 #include "AstCpp/Rules/CommonRules.h"
+#include "AstCpp/Rules/EnumClassRules.h"
+#include "AstCpp/Rules/NamespaceRules.h"
 
 #include <gtest/gtest.h>
 
@@ -688,8 +690,57 @@ TEST(ASTTests, ApplyClassRule)
     Ast::LogCollector logCollector;
     const auto tree = GetASTFileTree(logCollector);
 
-    const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
+    const auto foundClass = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
+    ASSERT_TRUE(foundClass);
+
+    ASSERT_TRUE(foundClass->IsCorrespondingToRule(Ast::Cpp::Class::BaseRule{}, logCollector));
+
+    {
+        Ast::Cpp::NameRule nameRule(R"(([A-Z_]\w*)+)");
+        nameRule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_TRUE(foundClass->IsCorrespondingToRule(nameRule, logCollector));
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Ast::Cpp::NameRule rule(R"(([a-z_]\w*)+)");
+        rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_FALSE(foundClass->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Ast::Cpp::LineCountRule rule(1);
+        rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_FALSE(foundClass->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Ast::Cpp::LineCountRule rule(300);
+        rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_TRUE(foundClass->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+}
+
+TEST(ASTTests, ApplyEnumClassRule)
+{
+    Ast::LogCollector logCollector;
+    const auto tree = GetASTFileTree(logCollector);
+
+    const auto found = tree.FindFirstByNameAs<Ast::Cpp::EnumClassLexer>("EType");
     ASSERT_TRUE(found);
+
+    ASSERT_TRUE(found->IsCorrespondingToRule(Ast::Cpp::EnumClass::BaseRule{}, logCollector));
 
     {
         Ast::Cpp::NameRule nameRule(R"(([A-Z_]\w*)+)");
@@ -708,21 +759,32 @@ TEST(ASTTests, ApplyClassRule)
         EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
         logCollector.ClearLogs();
     }
+}
+
+TEST(ASTTests, ApplyNamespaceRule)
+{
+    Ast::LogCollector logCollector;
+    const auto tree = GetASTFileTree(logCollector);
+
+    const auto found = tree.FindFirstByNameAs<Ast::Cpp::NamespaceLexer>("Ast");
+    ASSERT_TRUE(found);
+
+    ASSERT_TRUE(found->IsCorrespondingToRule(Ast::Cpp::Namespace::BaseRule{}, logCollector));
 
     {
-        Ast::Cpp::LineCountRule rule(1);
-        rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
-        EXPECT_FALSE(found->IsCorrespondingToRule(rule, logCollector));
-        EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        Ast::Cpp::NameRule nameRule(R"(([A-Z_]\w*)+)");
+        nameRule.OverrideLogType(Ast::LogCollector::LogType::Warning);
+        EXPECT_TRUE(found->IsCorrespondingToRule(nameRule, logCollector));
+        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
         EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
         logCollector.ClearLogs();
     }
 
     {
-        Ast::Cpp::LineCountRule rule(300);
+        Ast::Cpp::NameRule rule(R"(([a-z_]\w*)+)");
         rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
-        EXPECT_TRUE(found->IsCorrespondingToRule(rule, logCollector));
-        EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+        EXPECT_FALSE(found->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
         EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
         logCollector.ClearLogs();
     }

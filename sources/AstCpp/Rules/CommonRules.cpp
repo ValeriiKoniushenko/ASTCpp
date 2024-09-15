@@ -53,7 +53,6 @@ namespace Ast::Cpp
         return false;
     }
 
-
     NameRule::NameRule(const String& regexNameRule)
     {
         SetRegexNameRule(regexNameRule);
@@ -78,8 +77,7 @@ namespace Ast::Cpp
         }
 
         logCollector.AddLog(
-            { String::Format("Rule: invalid lexer name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
-              GetLogType() });
+            { String::Format("Rule: invalid lexer name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"), GetLogType() });
 
         return false;
     }
