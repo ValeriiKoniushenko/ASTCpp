@@ -26,6 +26,7 @@
 #include "AstCpp/FileParser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 #include "AstCpp/Rules/ClassRules.h"
+#include "AstCpp/Rules/CommonRules.h"
 
 #include <gtest/gtest.h>
 
@@ -709,7 +710,7 @@ TEST(ASTTests, ApplyClassRule)
     }
 
     {
-        Ast::Cpp::Class::LineCountRule rule(1);
+        Ast::Cpp::LineCountRule rule(1);
         rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
         EXPECT_FALSE(found->IsCorrespondingToRule(rule, logCollector));
         EXPECT_TRUE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
@@ -718,7 +719,7 @@ TEST(ASTTests, ApplyClassRule)
     }
 
     {
-        Ast::Cpp::Class::LineCountRule rule(300);
+        Ast::Cpp::LineCountRule rule(300);
         rule.OverrideLogType(Ast::LogCollector::LogType::Warning);
         EXPECT_TRUE(found->IsCorrespondingToRule(rule, logCollector));
         EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());

@@ -18,52 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "ClassRules.h"
+#include "CommonRules.h"
 
-#include "../../../dependencies/Utils/dependencies/benchmark/src/log.h"
 #include "Ast/Lexers/BaseLexer.h"
 #include "AstCpp/Lexers/ClassLexer.h"
 
-namespace Ast::Cpp::Class
+namespace Ast::Cpp
 {
 
-    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
+    LineCountRule::LineCountRule(std::size_t max)
     {
-        if (lexer->IsTypeOf<ClassLexer>())
-        {
-            return true;
-        }
-
-        logCollector.AddLog(
-            { String::Format("ClassRule: invalid class type. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
-              LogCollector::LogType::Error });
-
-        return false;
+        SetMaxLineCount(max);
     }
 
-    NameRule::NameRule(const String& regexNameRule)
+    bool LineCountRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage) const
     {
-        SetRegexNameRule(regexNameRule);
-    }
-
-    void NameRule::SetRegexNameRule(const String& regexNameRule)
-    {
-        if (Verify(!regexNameRule.IsEmpty()))
-        {
-            _regexNameRule = regexNameRule;
-        }
-    }
-
-    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
-    {
-        if (!BaseRule::IsCorrespondingTheRules(lexer, logCollector, additionalMessage))
+        if (!Verify(lexer))
         {
             return false;
         }
 
-        if (const auto&& name = lexer->GetLexerName())
+        if (lexer->GetOpenScope() && lexer->GetCloseScope())
         {
-            if (name.RegexMatch(_regexNameRule.ToStringView()))
+            if (lexer->GetCloseScope()->line - lexer->GetOpenScope()->line <= _max)
             {
                 return true;
             }
@@ -75,5 +52,4 @@ namespace Ast::Cpp::Class
 
         return false;
     }
-
-} // namespace Ast::Cpp::Class
+} // namespace Ast::Cpp

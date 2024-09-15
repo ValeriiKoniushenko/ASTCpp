@@ -22,30 +22,22 @@
 
 #include "Ast/Rule.h"
 
-namespace Ast::Cpp::Class
+namespace Ast::Cpp
 {
-    class BaseRule : public Rule
+    class LineCountRule : public Rule, public OverrideRuleLogType
     {
     public:
-        AST_CLASS(BaseRule)
+        AST_CLASS(LineCountRule)
 
-        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector,
-                                                   const char* additionalMessage = nullptr) const override;
-    };
+        explicit LineCountRule(std::size_t max = 0);
 
-    class NameRule : public BaseRule, public OverrideRuleLogType
-    {
-    public:
-        AST_CLASS(NameRule)
-
-        explicit NameRule(const String& regexNameRule);
-
-        void SetRegexNameRule(const String& regexNameRule);
+        void SetMaxLineCount(std::size_t max) noexcept { _max = max; };
+        [[nodiscard]] std::size_t GetMaxLineCount() const noexcept { return _max; }
         [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector,
                                                    const char* additionalMessage = nullptr) const override;
 
     private:
-        String _regexNameRule;
+        std::size_t _max = 0;
     };
 
-} // namespace Ast::Cpp::Class
+} // namespace Ast::Cpp
