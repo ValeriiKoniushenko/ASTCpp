@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3.0...3.5)
+cmake_minimum_required(VERSION 3.30.0..)
 
 project(AST-Cpp VERSION 1.0 LANGUAGES CXX)
 
@@ -10,6 +10,15 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(DEPENDENCIES_DIR dependencies)
+
+if(WIN32)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
+    set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+    set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+endif(WIN32)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
 set(BOOST_DIR "boost-1.86.0")
 set(BOOST_ZIP_FILE ${BOOST_DIR}.7z)
