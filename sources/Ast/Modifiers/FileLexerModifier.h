@@ -20,24 +20,25 @@
 
 #pragma once
 
-#include "ILexerModifier.h"
+
+#include "BaseLexerModifier.h"
+#include "Ast/Lexers/FileLexer.h"
 
 namespace Ast
 {
 
-    template<IsLexer Lexer>
-    class BaseLexerModifier : public ILexerModifier<Lexer>
+    class FileLexerModifier : public BaseLexerModifier<Ast::FileLexer>
     {
     public:
-        AST_CLASS(BaseLexerModifier<Lexer>);
+        AST_CLASS(FileLexerModifier);
 
-        void SetLexerName(const String& name)
+        void SetFileName(const String& fileName)
         {
             if (!Verify(IsValid()))
             {
                 return;
             }
-            _object->_lexerName = name;
+            SetLexerName(fileName);
         }
     };
 

@@ -22,8 +22,9 @@
 
 #include "Ast/ASTFileTree.h"
 #include "Ast/LogCollector.h"
-#include "Ast/Readers/Reader.h"
 #include "Ast/Modifiers/BaseLexerModifier.h"
+#include "Ast/Modifiers/FileLexerModifier.h"
+#include "Ast/Readers/Reader.h"
 #include "AstCpp/FileParser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 #include "AstCpp/Rules/ClassRules.h"
@@ -793,11 +794,19 @@ TEST(ASTTests, ApplyNamespaceRule)
 
 TEST(ASTTests, GenerateNewClass)
 {
-    Ast::Reader::Ptr file = new Ast::Reader;
-    Ast::Cpp::ClassLexer myClass(file);
-    Ast::BaseLexerModifier<Ast::Cpp::ClassLexer> modifier;
-    modifier.AttachTo(myClass);
-    modifier.SetLexerName("MyClass");
+    Ast::Reader::Ptr reader = new Ast::Reader;
+
+    Ast::FileLexer myFile(reader);
+    Ast::FileLexerModifier fileModifier;
+    fileModifier.AttachTo(myFile);
+    fileModifier.SetFileName("smth.cpp");
+
+    Ast::Cpp::ClassLexer myClass(reader);
+    Ast::BaseLexerModifier<Ast::Cpp::ClassLexer> classModifier;
+    classModifier.AttachTo(myClass);
+    classModifier.SetLexerName("MyClass");
+
+    myClass.TryToSetParent(&myFile);
 
     int i = 1;
 }

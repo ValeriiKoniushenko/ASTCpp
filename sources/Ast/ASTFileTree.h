@@ -203,7 +203,7 @@ namespace Ast
             }
 
             BaseLexer::AdaptivePtr<IsConst> ret;
-            fileTree->ForEach<Lexer>(
+            fileTree->template ForEach<Lexer>(
                 [&callback, &ret](BaseLexer::AdaptiveRawPtr<IsConst> lexer, auto)
                 {
                     if (callback(lexer))

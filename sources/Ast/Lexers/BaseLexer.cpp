@@ -87,11 +87,16 @@ namespace Ast
         return false;
     }
 
+    void BaseLexer::TryToSetParent(const Ptr& parent)
+    {
+        parent->TryToSetAsChild(this);
+    }
+
     void BaseLexer::TryToSetAsChild(const Ptr& child)
     {
         if (Verify(!!child) && !child->HasParent())
         {
-            if (IsContainLexer(child.get()))
+            if (_modifierParams.wasModified || IsContainLexer(child.get()))
             {
                 auto it = std::find_if(_childLexers.cbegin(), _childLexers.cend(),
                                        [&child](const auto& lexer)

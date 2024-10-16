@@ -20,25 +20,34 @@
 
 #pragma once
 
-#include "ILexerModifier.h"
+#include "Ast/CommonTypes.h"
+#include "../Lexers/BaseLexer.h"
+
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
 namespace Ast
 {
 
     template<IsLexer Lexer>
-    class BaseLexerModifier : public ILexerModifier<Lexer>
+    class ILexerModifier : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<ILexerModifier<Lexer>>
     {
     public:
-        AST_CLASS(BaseLexerModifier<Lexer>);
+        AST_CLASS(ILexerModifier<Lexer>);
 
-        void SetLexerName(const String& name)
+        [[nodiscard]] virtual bool IsValid() const noexcept
         {
-            if (!Verify(IsValid()))
-            {
-                return;
-            }
-            _object->_lexerName = name;
+            return !!_object;
         }
+
+        void AttachTo(Lexer& object)
+        {
+            _object = &object;
+            _object->_modifierParams.wasModified = true;
+        }
+
+    protected:
+        typename Lexer::Ptr _object;
     };
 
 } // namespace Ast
