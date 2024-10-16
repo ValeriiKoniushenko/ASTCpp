@@ -36,7 +36,7 @@
 
 namespace
 {
-    const char* const content = R"(
+    const char* const content = R"(#pragma   once
 #include "../CommonTypes.h"
 
 #include "Utils/CopyableAndMoveableBehaviour.h"
@@ -800,6 +800,7 @@ TEST(ASTTests, GenerateNewClass)
     Ast::FileLexerModifier fileModifier;
     fileModifier.AttachTo(myFile);
     fileModifier.SetFileName("smth.cpp");
+    fileModifier.SetPragmaOnce();
 
     Ast::Cpp::ClassLexer myClass(reader);
     Ast::BaseLexerModifier<Ast::Cpp::ClassLexer> classModifier;

@@ -37,6 +37,11 @@ namespace Ast
             _lexerName = reader->GetPathToFile().string();
         }
 
+        if (!_reader->Data().FindRegex("#pragma +once", 0, std::regex_constants::format_first_only).empty())
+        {
+            _hasPragmaOnce = true;
+        }
+
         return true;
     }
 

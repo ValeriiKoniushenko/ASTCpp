@@ -18,30 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
-#include "Ast/Lexers/BaseLexer.h"
+#include "FileLexerModifier.h"
 
 namespace Ast
 {
-    class Reader;
 
-    class FileLexer final : public BaseLexer
+    void FileLexerModifier::SetFileName(const String& fileName)
     {
-    public:
-        using Ptr = boost::intrusive_ptr<FileLexer>;
-        inline static const auto typeName = "file"_atom;
+        if (!Verify(IsValid()))
+        {
+            return;
+        }
+        SetLexerName(fileName);
+    }
 
-        explicit FileLexer(const Reader::Ptr& fileReader);
-        ~FileLexer() override = default;
+    void FileLexerModifier::SetPragmaOnce(bool has/* = true*/) noexcept
+    {
+        if (!Verify(IsValid()))
+        {
+            return;
+        }
 
-        bool DoValidate(LogCollector& logCollector) override;
-        [[nodiscard]] bool HasPragmaOnce() const noexcept { return _hasPragmaOnce; }
-
-    private:
-        bool _hasPragmaOnce = false;
-
-        friend class FileLexerModifier;
-    };
+        _object->_hasPragmaOnce = has;
+    }
 
 } // namespace Ast

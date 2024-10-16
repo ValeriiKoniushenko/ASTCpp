@@ -32,14 +32,8 @@ namespace Ast
     public:
         AST_CLASS(FileLexerModifier);
 
-        void SetFileName(const String& fileName)
-        {
-            if (!Verify(IsValid()))
-            {
-                return;
-            }
-            SetLexerName(fileName);
-        }
+        void SetFileName(const String& fileName);
+        void SetPragmaOnce(bool has = true) noexcept;
     };
 
 } // namespace Ast
