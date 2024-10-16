@@ -36,7 +36,9 @@ namespace Ast
 
     template<class T>
     concept IsLexer = (std::derived_from<T, BaseLexer> && requires(T) {
-                          { T::typeName };
+                          {
+                              T::typeName
+                          };
                       } && std::is_class_v<typename T::Ptr>) || std::is_void_v<T>;
 
     class BaseLexer : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
@@ -61,6 +63,12 @@ namespace Ast
         {
             String rule;
             std::vector<String> params;
+        };
+
+        struct ModifierParams
+        {
+            bool wasModified = false;
+            bool isDirty = true;
         };
 
     public:
@@ -99,6 +107,8 @@ namespace Ast
             }
             return {};
         }
+
+        [[nodiscard]] bool WasModified() const noexcept { return _modifierParams.wasModified; }
 
         [[nodiscard]] String GetLexerName() const noexcept { return _lexerName; }
         [[nodiscard]] String GetLexerType() const noexcept { return _lexerType; }
@@ -176,6 +186,7 @@ namespace Ast
         BaseLexer(const Reader::Ptr& reader, const String& type);
 
     protected:
+        ModifierParams _modifierParams;
         TokenReader _token;
         Reader::Ptr _reader;
 
@@ -243,5 +254,9 @@ namespace Ast
             std::reverse(pathLexers.begin(), pathLexers.end());
             return { std::move(path), std::move(pathLexers) };
         }
+
+    private:
+        template<IsLexer>
+        friend class BaseLexerModifier;
     };
 } // namespace Ast

@@ -23,6 +23,7 @@
 #include "Ast/ASTFileTree.h"
 #include "Ast/LogCollector.h"
 #include "Ast/Readers/Reader.h"
+#include "Ast/Modifiers/BaseLexerModifier.h"
 #include "AstCpp/FileParser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 #include "AstCpp/Rules/ClassRules.h"
@@ -788,4 +789,15 @@ TEST(ASTTests, ApplyNamespaceRule)
         EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
         logCollector.ClearLogs();
     }
+}
+
+TEST(ASTTests, GenerateNewClass)
+{
+    Ast::Reader::Ptr file = new Ast::Reader;
+    Ast::Cpp::ClassLexer myClass(file);
+    Ast::BaseLexerModifier<Ast::Cpp::ClassLexer> modifier;
+    modifier.AttachTo(myClass);
+    modifier.SetLexerName("MyClass");
+
+    int i = 1;
 }
