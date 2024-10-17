@@ -21,15 +21,21 @@
 #pragma once
 
 #include "ILexerModifier.h"
+#include "../Lexers/BaseLexer.h"
 
 namespace Ast
 {
 
-    template<IsLexer Lexer>
+    template<IsLexerOrBase Lexer = BaseLexer>
     class BaseLexerModifier : public ILexerModifier<Lexer>
     {
     public:
         AST_CLASS(BaseLexerModifier<Lexer>);
+
+        BaseLexerModifier() = default;
+        BaseLexerModifier(const Lexer::Ptr& object) : ILexerModifier<Lexer>(object)
+        {
+        }
 
         void SetLexerName(const String& name)
         {

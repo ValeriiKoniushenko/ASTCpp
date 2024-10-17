@@ -44,6 +44,9 @@ namespace Ast
                           };
                       } && std::is_class_v<typename T::Ptr>) || std::is_void_v<T>;
 
+    template<class T>
+    concept IsLexerOrBase = IsLexer<T> || std::is_base_of_v<BaseLexer, T>;
+
     /**
      * @brief Base class for all derived lexer
      * @details Never let for a user to create derived class without using of smart pointers
@@ -274,10 +277,10 @@ namespace Ast
         }
 
     private:
-        template<IsLexer>
+        template<IsLexerOrBase>
         friend class ILexerModifier;
 
-        template<IsLexer>
+        template<IsLexerOrBase>
         friend class BaseLexerModifier;
     };
 } // namespace Ast

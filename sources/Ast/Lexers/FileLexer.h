@@ -49,6 +49,7 @@ namespace Ast
     private:
         bool _hasPragmaOnce = false;
 
+        template<IsLexerOrBase>
         friend class FileLexerModifier;
     };
 

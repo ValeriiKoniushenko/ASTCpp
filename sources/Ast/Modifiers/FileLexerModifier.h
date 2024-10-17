@@ -27,13 +27,35 @@
 namespace Ast
 {
 
-    class FileLexerModifier : public BaseLexerModifier<Ast::FileLexer>
+    template<IsLexerOrBase Lexer = FileLexer>
+    class FileLexerModifier : public BaseLexerModifier<Lexer>
     {
     public:
-        AST_CLASS(FileLexerModifier);
+        AST_CLASS(FileLexerModifier<Lexer>);
 
-        void SetFileName(const String& fileName);
-        void SetPragmaOnce(bool has = true) noexcept;
+        FileLexerModifier() = default;
+        FileLexerModifier(const Lexer::Ptr& object) : BaseLexerModifier<Lexer>(object)
+        {
+        }
+
+        void SetFileName(const String& fileName)
+        {
+            if (!Verify(IsValid()))
+            {
+                return;
+            }
+            SetLexerName(fileName);
+        }
+
+        void SetPragmaOnce(bool has = true) noexcept
+        {
+            if (!Verify(IsValid()))
+            {
+                return;
+            }
+
+            _object->_hasPragmaOnce = has;
+        }
     };
 
 } // namespace Ast

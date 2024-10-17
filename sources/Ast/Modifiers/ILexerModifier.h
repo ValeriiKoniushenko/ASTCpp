@@ -29,7 +29,7 @@
 namespace Ast
 {
 
-    template<IsLexer Lexer>
+    template<IsLexerOrBase Lexer>
     class ILexerModifier : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<ILexerModifier<Lexer>>
     {
     public:
@@ -44,6 +44,13 @@ namespace Ast
         {
             _object = object;
             _object->_modifierParams.wasModified = true;
+        }
+
+    protected:
+        ILexerModifier() = default;
+        ILexerModifier(const Lexer::Ptr& object)
+        {
+            AttachTo(object);
         }
 
     protected:

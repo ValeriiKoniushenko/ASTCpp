@@ -797,14 +797,12 @@ TEST(ASTTests, GenerateNewClass)
     auto reader = Ast::Reader::Create();
 
     auto myFile = Ast::FileLexer::Create(reader);
-    Ast::FileLexerModifier fileModifier;
-    fileModifier.AttachTo(myFile);
+    Ast::FileLexerModifier fileModifier(myFile);
     fileModifier.SetFileName("smth.cpp");
     fileModifier.SetPragmaOnce();
 
     auto myClass = Ast::Cpp::ClassLexer::Create(reader);
-    Ast::BaseLexerModifier<Ast::Cpp::ClassLexer> classModifier;
-    classModifier.AttachTo(myClass);
+    Ast::BaseLexerModifier classModifier(myClass);
     classModifier.SetLexerName("MyClass");
 
     myClass->TryToSetParent(myFile);
