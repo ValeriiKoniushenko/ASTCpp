@@ -43,6 +43,11 @@ namespace Ast
             return { new FileLexer(fileReader) };
         }
 
+        [[nodiscard]] String GetFileName() const
+        {
+            return _lexerName;
+        }
+
     private:
         explicit FileLexer(const Reader::Ptr& fileReader);
 

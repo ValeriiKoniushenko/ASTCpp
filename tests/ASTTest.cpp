@@ -797,15 +797,22 @@ TEST(ASTTests, GenerateNewClass)
     auto reader = Ast::Reader::Create();
 
     auto myFile = Ast::FileLexer::Create(reader);
+    ASSERT_TRUE(myFile);
     Ast::FileLexerModifier fileModifier(myFile);
     fileModifier.SetFileName("smth.cpp");
     fileModifier.SetPragmaOnce();
 
+    EXPECT_EQ("smth.cpp", myFile->GetFileName());
+    EXPECT_TRUE(myFile->HasPragmaOnce());
+
     auto myClass = Ast::Cpp::ClassLexer::Create(reader);
+    ASSERT_TRUE(myClass);
     Ast::BaseLexerModifier classModifier(myClass);
     classModifier.SetLexerName("MyClass");
 
+    EXPECT_EQ("MyClass", myClass->GetLexerName());
+
     myClass->TryToSetParent(myFile);
 
-    int i = 1;
+    EXPECT_EQ(myClass->GetParentLexer(), myFile);
 }
