@@ -29,14 +29,22 @@ namespace Ast
     class FileLexer final : public BaseLexer
     {
     public:
-        using Ptr = boost::intrusive_ptr<FileLexer>;
+        AST_CLASS(FileLexer);
+
         inline static const auto typeName = "file"_atom;
 
-        explicit FileLexer(const Reader::Ptr& fileReader);
         ~FileLexer() override = default;
 
         bool DoValidate(LogCollector& logCollector) override;
         [[nodiscard]] bool HasPragmaOnce() const noexcept { return _hasPragmaOnce; }
+
+        [[nodiscard]] static Ptr Create(const Reader::Ptr& fileReader)
+        {
+            return { new FileLexer(fileReader) };
+        }
+
+    private:
+        explicit FileLexer(const Reader::Ptr& fileReader);
 
     private:
         bool _hasPragmaOnce = false;

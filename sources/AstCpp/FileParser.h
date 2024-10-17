@@ -55,7 +55,7 @@ namespace Ast::Cpp
         {
             for (auto&& token : ReaderT(reader))
             {
-                boost::intrusive_ptr<Lexer> lexer(new Lexer(reader));
+                auto lexer = Lexer::Create(reader);
                 lexer->SetToken(token);
                 if (lexer->Validate(logCollector))
                 {

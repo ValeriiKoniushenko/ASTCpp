@@ -39,8 +39,25 @@ namespace Ast
                           {
                               T::typeName
                           };
+                          {
+                              T::Create
+                          };
                       } && std::is_class_v<typename T::Ptr>) || std::is_void_v<T>;
 
+    /**
+     * @brief Base class for all derived lexer
+     * @details Never let for a user to create derived class without using of smart pointers
+     * @code
+     * // Incorrect example
+     * SomeDerivedLexer lexer;
+     *
+     * // Correct example #1
+     * SomeDerivedLexer::Ptr lexer = new SomeDerivedLexer;
+     *
+     * // Correct example #2
+     * boost::intrusive_ptr<SomeDerivedLexer> lexer = new SomeDerivedLexer;
+     * @endcode
+     */
     class BaseLexer : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
     public:

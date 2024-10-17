@@ -24,7 +24,7 @@ namespace Ast
 {
 
     ASTFileTree::ASTFileTree(const Reader::Ptr& reader)
-        : _fileLexer{ new FileLexer(reader) },
+        : _fileLexer{ FileLexer::Create(reader) },
           _fileReader{ reader }
     {
     }

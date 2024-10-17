@@ -40,9 +40,9 @@ namespace Ast
             return !!_object;
         }
 
-        void AttachTo(Lexer& object)
+        void AttachTo(const Lexer::Ptr& object)
         {
-            _object = &object;
+            _object = object;
             _object->_modifierParams.wasModified = true;
         }
 

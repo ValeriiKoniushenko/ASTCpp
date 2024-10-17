@@ -74,8 +74,12 @@ namespace Ast::Cpp
     public:
         inline static const auto typeName = "class"_atom;
 
-        explicit ClassLexer(const Reader::Ptr& fileReader);
         ~ClassLexer() override = default;
+
+        [[nodiscard]] static Ptr Create(const Reader::Ptr& fileReader)
+        {
+            return { new ClassLexer(fileReader) };
+        }
 
         [[nodiscard]] const std::vector<ParentUnit>& GetClassParents() const noexcept { return _parents; }
         [[nodiscard]] bool HasClassParents() const noexcept { return _parents.size(); }
@@ -85,6 +89,8 @@ namespace Ast::Cpp
         [[nodiscard]] bool IsTemplate() const noexcept { return _isTemplate; }
 
     protected:
+        explicit ClassLexer(const Reader::Ptr& fileReader);
+
         bool DoValidate(LogCollector& logCollector) override;
         bool DoValidateScope(LogCollector& logCollector) override;
         bool DoMarkingValidate(LogCollector& logCollector) override;

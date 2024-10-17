@@ -36,12 +36,18 @@ namespace Ast::Cpp
 
         inline static const auto typeName = "namespace"_atom;
 
-        explicit NamespaceLexer(const Reader::Ptr& fileReader);
+        [[nodiscard]] static Ptr Create(const Reader::Ptr& fileReader)
+        {
+            return { new NamespaceLexer(fileReader) };
+        }
+
         ~NamespaceLexer() override = default;
 
         [[nodiscard]] const std::vector<String>& GetNameList() { return _nameList; }
 
     protected:
+        explicit NamespaceLexer(const Reader::Ptr& fileReader);
+
         bool DoValidate(LogCollector& logCollector) override;
         bool DoValidateScope(LogCollector& logCollector) override;
 

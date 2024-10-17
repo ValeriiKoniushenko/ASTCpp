@@ -45,11 +45,15 @@ namespace Ast
     public:
         AST_CLASS(Reader)
 
-        Reader() = default;
         ~Reader() override = default;
 
         bool Read(const String::CharT* content);
         [[nodiscard]] const String& Data() const noexcept;
+
+        [[nodiscard]] static Ptr Create()
+        {
+            return { new Reader() };
+        }
 
         template<IsContentFilter... Filter>
         void ApplyFilters()
@@ -58,6 +62,8 @@ namespace Ast
         }
 
     protected:
+        Reader() = default;
+
         String _content;
     };
 

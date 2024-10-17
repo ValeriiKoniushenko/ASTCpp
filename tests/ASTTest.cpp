@@ -180,7 +180,7 @@ namespace Ast
 
     Ast::ASTFileTree GetASTFileTree(Ast::LogCollector& logCollector)
     {
-        Ast::Reader::Ptr reader = new Ast::Reader;
+        auto reader = Ast::Reader::Create();
         reader->Read(content);
         reader->ApplyFilters<Ast::Cpp::CommentFilter>();
 
@@ -794,20 +794,20 @@ TEST(ASTTests, ApplyNamespaceRule)
 
 TEST(ASTTests, GenerateNewClass)
 {
-    Ast::Reader::Ptr reader = new Ast::Reader;
+    auto reader = Ast::Reader::Create();
 
-    Ast::FileLexer myFile(reader);
+    auto myFile = Ast::FileLexer::Create(reader);
     Ast::FileLexerModifier fileModifier;
     fileModifier.AttachTo(myFile);
     fileModifier.SetFileName("smth.cpp");
     fileModifier.SetPragmaOnce();
 
-    Ast::Cpp::ClassLexer myClass(reader);
+    auto myClass = Ast::Cpp::ClassLexer::Create(reader);
     Ast::BaseLexerModifier<Ast::Cpp::ClassLexer> classModifier;
     classModifier.AttachTo(myClass);
     classModifier.SetLexerName("MyClass");
 
-    myClass.TryToSetParent(&myFile);
+    myClass->TryToSetParent(myFile);
 
     int i = 1;
 }
