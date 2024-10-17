@@ -24,7 +24,7 @@
 
 namespace Ast
 {
-    class Reader;
+    class ContentStream;
 } // namespace Ast
 
 namespace Ast::Cpp
@@ -36,7 +36,7 @@ namespace Ast::Cpp
 
         inline static const auto typeName = "namespace"_atom;
 
-        [[nodiscard]] static Ptr Create(const Reader::Ptr& fileReader)
+        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
         {
             return { new NamespaceLexer(fileReader) };
         }
@@ -46,7 +46,7 @@ namespace Ast::Cpp
         [[nodiscard]] const std::vector<String>& GetNameList() { return _nameList; }
 
     protected:
-        explicit NamespaceLexer(const Reader::Ptr& fileReader);
+        explicit NamespaceLexer(const ContentStream::Ptr& fileReader);
 
         bool DoValidate(LogCollector& logCollector) override;
         bool DoValidateScope(LogCollector& logCollector) override;

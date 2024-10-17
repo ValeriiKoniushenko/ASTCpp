@@ -24,7 +24,7 @@
 
 namespace Ast
 {
-    class Reader;
+    class ContentStream;
 } // namespace Ast
 
 namespace Ast::Cpp
@@ -43,7 +43,7 @@ namespace Ast::Cpp
     public:
         inline static const auto typeName = "enum class"_atom;
 
-        [[nodiscard]] static Ptr Create(const Reader::Ptr& fileReader)
+        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
         {
             return { new EnumClassLexer(fileReader) };
         }
@@ -54,7 +54,7 @@ namespace Ast::Cpp
         [[nodiscard]] const std::vector<Constant>& GetConstants() const noexcept { return _constants; }
 
     protected:
-        explicit EnumClassLexer(const Reader::Ptr& fileReader);
+        explicit EnumClassLexer(const ContentStream::Ptr& fileReader);
 
         bool DoValidate(LogCollector& logCollector) override;
         bool DoValidateScope(LogCollector& logCollector) override;

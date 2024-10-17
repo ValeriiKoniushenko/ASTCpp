@@ -20,7 +20,7 @@
 
 #include "BaseLexer.h"
 
-#include "../Readers/Reader.h"
+#include "../Readers/ContentStream.h"
 #include "Ast/LogCollector.h"
 #include "Ast/Rule.h"
 #include "Ast/Utils/Scopes.h"
@@ -158,7 +158,7 @@ namespace Ast
         _childLexers.clear();
     }
 
-    BaseLexer::BaseLexer(const Reader::Ptr& reader, const String& type)
+    BaseLexer::BaseLexer(const ContentStream::Ptr& reader, const String& type)
         : _reader{ reader },
           _lexerType{ type }
     {

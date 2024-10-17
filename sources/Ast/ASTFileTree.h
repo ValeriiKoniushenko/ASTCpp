@@ -22,7 +22,7 @@
 
 #include "FileParser.h"
 #include "Lexers/FileLexer.h"
-#include "Readers/Reader.h"
+#include "Readers/ContentStream.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
 namespace Ast
@@ -45,7 +45,7 @@ namespace Ast
         using FindFunctionT = std::function<bool(std::conditional_t<IsConst, const BaseLexer*, BaseLexer*>)>;
 
     public:
-        explicit ASTFileTree(const Reader::Ptr& reader);
+        explicit ASTFileTree(const ContentStream::Ptr& reader);
         ~ASTFileTree() override = default;
 
         template<IsFileParser Parser>
@@ -80,7 +80,7 @@ namespace Ast
             _fileLexer->DoValidate(logCollector);
         }
 
-        [[nodiscard]] Reader::Ptr GetReader() const { return _fileReader; }
+        [[nodiscard]] ContentStream::Ptr GetReader() const { return _fileReader; }
 
         // ===========================================================
         // ================== WORKING WITH LEXERS ====================
@@ -233,7 +233,7 @@ namespace Ast
 
     private:
         FileLexer::Ptr _fileLexer;
-        Reader::Ptr _fileReader;
+        ContentStream::Ptr _fileReader;
     };
 
 } // namespace Ast

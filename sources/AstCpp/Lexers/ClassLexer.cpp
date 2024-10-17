@@ -21,7 +21,7 @@
 #include "ClassLexer.h"
 
 #include "Ast/LogCollector.h"
-#include "Ast/Readers/Reader.h"
+#include "Ast/Readers/ContentStream.h"
 #include "Ast/Utils/Scopes.h"
 #include "Ast/Utils/String.h"
 #include "AstCpp/TemplateLexer/CheckForTemplateLexer.h"
@@ -29,7 +29,7 @@
 namespace Ast::Cpp
 {
 
-    ClassLexer::ClassLexer(const Reader::Ptr& fileReader)
+    ClassLexer::ClassLexer(const ContentStream::Ptr& fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }

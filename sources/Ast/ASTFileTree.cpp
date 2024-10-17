@@ -23,7 +23,7 @@
 namespace Ast
 {
 
-    ASTFileTree::ASTFileTree(const Reader::Ptr& reader)
+    ASTFileTree::ASTFileTree(const ContentStream::Ptr& reader)
         : _fileLexer{ FileLexer::Create(reader) },
           _fileReader{ reader }
     {

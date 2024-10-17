@@ -24,7 +24,7 @@
 
 namespace Ast
 {
-    class Reader;
+    class ContentStream;
 
     class FileLexer final : public BaseLexer
     {
@@ -38,7 +38,7 @@ namespace Ast
         bool DoValidate(LogCollector& logCollector) override;
         [[nodiscard]] bool HasPragmaOnce() const noexcept { return _hasPragmaOnce; }
 
-        [[nodiscard]] static Ptr Create(const Reader::Ptr& fileReader)
+        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
         {
             return { new FileLexer(fileReader) };
         }
@@ -49,7 +49,7 @@ namespace Ast
         }
 
     private:
-        explicit FileLexer(const Reader::Ptr& fileReader);
+        explicit FileLexer(const ContentStream::Ptr& fileReader);
 
     private:
         bool _hasPragmaOnce = false;

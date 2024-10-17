@@ -21,7 +21,7 @@
 #pragma once
 
 #include "../CommonTypes.h"
-#include "../Readers/Reader.h"
+#include "../Readers/ContentStream.h"
 #include "../Readers/Token.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
@@ -192,8 +192,8 @@ namespace Ast
 
         void Clear();
 
-        [[nodiscard]] Reader::Ptr GetReader() { return _reader; }
-        [[nodiscard]] Reader::CPtr GetReader() const { return _reader; }
+        [[nodiscard]] ContentStream::Ptr GetReader() { return _reader; }
+        [[nodiscard]] ContentStream::CPtr GetReader() const { return _reader; }
         [[nodiscard]] TokenReader GetTokenReader() const noexcept { return _token; }
         [[nodiscard]] std::optional<Marker> GetMark() const noexcept { return _marking; }
         [[nodiscard]] bool IsMarked() const noexcept { return _marking.has_value(); }
@@ -204,12 +204,12 @@ namespace Ast
         virtual bool DoMarkingValidate(LogCollector& logCollector) { return true; }
         virtual bool DoPostValidate(LogCollector& logCollector) { return true; }
 
-        BaseLexer(const Reader::Ptr& reader, const String& type);
+        BaseLexer(const ContentStream::Ptr& reader, const String& type);
 
     protected:
         ModifierParams _modifierParams;
         TokenReader _token;
-        Reader::Ptr _reader;
+        ContentStream::Ptr _reader;
 
         std::optional<Marker> _marking;
 

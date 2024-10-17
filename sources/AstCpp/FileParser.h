@@ -30,7 +30,7 @@
 
 namespace Ast
 {
-    class Reader;
+    class ContentStream;
 } // namespace Ast
 
 namespace Ast::Cpp
@@ -46,12 +46,12 @@ namespace Ast::Cpp
         FileParser() = default;
         ~FileParser() override = default;
 
-        bool Parse(const Reader::Ptr& file, LogCollector& logCollector) override;
+        bool Parse(const ContentStream::Ptr& file, LogCollector& logCollector) override;
         void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) override;
 
     protected:
         template<IsLexer Lexer, IsReader ReaderT>
-        static void ReadAs(Container<Lexer>& container, const Reader::Ptr& reader, LogCollector& logCollector)
+        static void ReadAs(Container<Lexer>& container, const ContentStream::Ptr& reader, LogCollector& logCollector)
         {
             for (auto&& token : ReaderT(reader))
             {
@@ -65,7 +65,7 @@ namespace Ast::Cpp
         }
 
     private:
-        void RawParse(const Reader::Ptr& file, LogCollector& logCollector);
+        void RawParse(const ContentStream::Ptr& file, LogCollector& logCollector);
         void BindScopes(LogCollector& logCollector);
         BaseLexer* BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector);
         BaseLexer* FindNextLexer(const BaseLexer* prevLexer);

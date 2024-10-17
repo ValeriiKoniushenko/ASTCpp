@@ -24,7 +24,7 @@
 
 namespace Ast
 {
-    class Reader;
+    class ContentStream;
 
     class RegexTokenReaderImpl : public BaseTokenReaderImpl
     {

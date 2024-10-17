@@ -24,7 +24,7 @@
 #include "Ast/LogCollector.h"
 #include "Ast/Modifiers/BaseLexerModifier.h"
 #include "Ast/Modifiers/FileLexerModifier.h"
-#include "Ast/Readers/Reader.h"
+#include "Ast/Readers/ContentStream.h"
 #include "AstCpp/FileParser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 #include "AstCpp/Rules/ClassRules.h"
@@ -180,7 +180,7 @@ namespace Ast
 
     Ast::ASTFileTree GetASTFileTree(Ast::LogCollector& logCollector)
     {
-        auto reader = Ast::Reader::Create();
+        auto reader = Ast::ContentStream::Create();
         reader->Read(content);
         reader->ApplyFilters<Ast::Cpp::CommentFilter>();
 
@@ -794,7 +794,7 @@ TEST(ASTTests, ApplyNamespaceRule)
 
 TEST(ASTTests, GenerateNewClass)
 {
-    auto reader = Ast::Reader::Create();
+    auto reader = Ast::ContentStream::Create();
 
     auto myFile = Ast::FileLexer::Create(reader);
     ASSERT_TRUE(myFile);

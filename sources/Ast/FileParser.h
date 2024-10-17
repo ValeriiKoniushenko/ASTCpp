@@ -33,7 +33,7 @@ namespace Ast
         FileParser() = default;
         ~FileParser() override = default;
 
-        virtual bool Parse(const Reader::Ptr& content, LogCollector& logCollector) = 0;
+        virtual bool Parse(const ContentStream::Ptr& content, LogCollector& logCollector) = 0;
         virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
 
         // TODO: add 'const'

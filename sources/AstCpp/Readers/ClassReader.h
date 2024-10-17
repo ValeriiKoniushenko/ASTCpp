@@ -32,7 +32,7 @@ namespace Ast::Cpp
         inline static const auto regex = R"(^\s*class\s+\w+(\s*:\s*)?([\w:<>\s,]+)\{)"_atom;
 
     public:
-        explicit ClassReader(const Reader::Ptr& reader)
+        explicit ClassReader(const ContentStream::Ptr& reader)
             : BaseTokenReader(reader, new RegexTokenReaderImpl(this, regex))
         {
         }

@@ -21,7 +21,7 @@
 #include "RegexTokenReaderImpl.h"
 
 #include "BaseTokenReader.h"
-#include "Reader.h"
+#include "ContentStream.h"
 
 namespace Ast
 {

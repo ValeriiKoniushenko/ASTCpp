@@ -20,8 +20,8 @@
 
 #include "FileParser.h"
 
+#include "Readers/ContentStream.h"
 #include "Readers/FileReader.h"
-#include "Readers/Reader.h"
 
 namespace Ast
 {

@@ -18,20 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Reader.h"
-
+#include "ContentStream.h"
 #include "Utils/Functions.h"
 
 namespace Ast
 {
 
-    bool Reader::Read(const String::CharT* content)
+    bool ContentStream::Read(const String::CharT* content)
     {
         _content = String(content);
         return !_content.IsEmpty();
     }
 
-    const String& Reader::Data() const noexcept
+    const String& ContentStream::Data() const noexcept
     {
         return _content;
     }

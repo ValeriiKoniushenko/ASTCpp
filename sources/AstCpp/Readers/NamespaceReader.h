@@ -31,7 +31,7 @@ namespace Ast::Cpp
         inline static const auto regex = R"(^\s*namespace\s+((::\s*)?\w+)+)"_atom;
 
     public:
-        explicit NamespaceReader(const Reader::Ptr& fileReader)
+        explicit NamespaceReader(const ContentStream::Ptr& fileReader)
             : BaseTokenReader(fileReader, new RegexTokenReaderImpl(this, regex))
         {
         }

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "Ast/Readers/Reader.h"
+#include "Ast/Readers/ContentStream.h"
 
 namespace Ast::Cpp
 {

@@ -24,7 +24,7 @@
 
 namespace Ast
 {
-    class Reader;
+    class ContentStream;
 } // namespace Ast
 
 namespace Ast::Cpp
@@ -76,7 +76,7 @@ namespace Ast::Cpp
 
         ~ClassLexer() override = default;
 
-        [[nodiscard]] static Ptr Create(const Reader::Ptr& fileReader)
+        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
         {
             return { new ClassLexer(fileReader) };
         }
@@ -89,7 +89,7 @@ namespace Ast::Cpp
         [[nodiscard]] bool IsTemplate() const noexcept { return _isTemplate; }
 
     protected:
-        explicit ClassLexer(const Reader::Ptr& fileReader);
+        explicit ClassLexer(const ContentStream::Ptr& fileReader);
 
         bool DoValidate(LogCollector& logCollector) override;
         bool DoValidateScope(LogCollector& logCollector) override;

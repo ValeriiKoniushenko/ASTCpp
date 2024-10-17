@@ -40,19 +40,19 @@ namespace Ast
     template<class T>
     concept IsContentFilter = std::is_base_of_v<ContentFilter, T>;
 
-    class Reader : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Reader>
+    class ContentStream : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<ContentStream>
     {
     public:
-        AST_CLASS(Reader)
+        AST_CLASS(ContentStream)
 
-        ~Reader() override = default;
+        ~ContentStream() override = default;
 
         bool Read(const String::CharT* content);
         [[nodiscard]] const String& Data() const noexcept;
 
         [[nodiscard]] static Ptr Create()
         {
-            return { new Reader() };
+            return { new ContentStream() };
         }
 
         template<IsContentFilter... Filter>
@@ -62,7 +62,7 @@ namespace Ast
         }
 
     protected:
-        Reader() = default;
+        ContentStream() = default;
 
         String _content;
     };

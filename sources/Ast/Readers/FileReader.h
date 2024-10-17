@@ -20,14 +20,14 @@
 
 #pragma once
 
-#include "Reader.h"
+#include "ContentStream.h"
 
 #include <filesystem>
 
 namespace Ast
 {
 
-    class FileReader final : public Reader
+    class FileReader final : public ContentStream
     {
     public:
         AST_CLASS(FileReader)

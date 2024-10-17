@@ -25,7 +25,7 @@
 namespace Ast
 {
 
-    FileLexer::FileLexer(const Reader::Ptr& fileReader)
+    FileLexer::FileLexer(const ContentStream::Ptr& fileReader)
         : BaseLexer(fileReader, typeName)
     {
     }
