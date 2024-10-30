@@ -58,7 +58,7 @@ namespace Ast::Cpp
             }
 
             static auto* const regexExpr = R"((?:\/\*[\s\S]*?\*\/))";
-            content.RegexReplace(regexExpr, endLines, std::regex_constants::match_flag_type::format_first_only);
+            content.RegexReplace(regexExpr, endLines, std::regex_constants::format_first_only);
             offset = end - content.c_str();
         }
     }

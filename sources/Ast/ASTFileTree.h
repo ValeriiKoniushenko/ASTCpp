@@ -46,6 +46,7 @@ namespace Ast
 
     public:
         explicit ASTFileTree(const ContentStream::Ptr& reader);
+        explicit ASTFileTree(const FileLexer::Ptr& fileLexer);
         ~ASTFileTree() override = default;
 
         template<IsFileParser Parser>
@@ -79,6 +80,8 @@ namespace Ast
 
             _fileLexer->DoValidate(logCollector);
         }
+
+        void ParseFrom(const FileLexer::Ptr& fileLexer);
 
         [[nodiscard]] ContentStream::Ptr GetReader() const { return _fileReader; }
 
@@ -149,6 +152,9 @@ namespace Ast
         }
 
     private:
+
+        // ======================= PIMPLs =======================
+
         template<IsLexer Lexer = void, bool IsConst = false>
         static bool ForEachImpl(ForEachFunctionT<IsConst>&& callback, BaseLexer::AdaptiveRawPtr<IsConst> base, Params& params)
         {

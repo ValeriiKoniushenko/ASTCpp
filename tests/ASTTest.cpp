@@ -794,9 +794,10 @@ TEST(ASTTests, ApplyNamespaceRule)
 
 TEST(ASTTests, GenerateNewClass)
 {
-    auto reader = Ast::ContentStream::Create();
+    auto stream = Ast::ContentStream::Create();
+    ASSERT_TRUE(stream);
 
-    auto myFile = Ast::FileLexer::Create(reader);
+    auto myFile = Ast::FileLexer::Create(stream);
     ASSERT_TRUE(myFile);
     Ast::FileLexerModifier fileModifier(myFile);
     fileModifier.SetFileName("smth.cpp");
@@ -805,7 +806,7 @@ TEST(ASTTests, GenerateNewClass)
     EXPECT_EQ("smth.cpp", myFile->GetFileName());
     EXPECT_TRUE(myFile->HasPragmaOnce());
 
-    auto myClass = Ast::Cpp::ClassLexer::Create(reader);
+    auto myClass = Ast::Cpp::ClassLexer::Create(stream);
     ASSERT_TRUE(myClass);
     Ast::BaseLexerModifier classModifier(myClass);
     classModifier.SetLexerName("MyClass");
@@ -815,4 +816,33 @@ TEST(ASTTests, GenerateNewClass)
     myClass->TryToSetParent(myFile);
 
     EXPECT_EQ(myClass->GetParentLexer(), myFile);
+}
+
+TEST(ASTTests, GenerateNewClassAndPutToStream)
+{
+    auto stream = Ast::ContentStream::Create();
+    ASSERT_TRUE(stream);
+
+    auto myFile = Ast::FileLexer::Create(stream);
+    ASSERT_TRUE(myFile);
+    Ast::FileLexerModifier fileModifier(myFile);
+    fileModifier.SetFileName("smth.cpp");
+    fileModifier.SetPragmaOnce();
+
+    EXPECT_EQ("smth.cpp", myFile->GetFileName());
+    EXPECT_TRUE(myFile->HasPragmaOnce());
+
+    auto myClass = Ast::Cpp::ClassLexer::Create(stream);
+    ASSERT_TRUE(myClass);
+    Ast::BaseLexerModifier classModifier(myClass);
+    classModifier.SetLexerName("MyClass");
+
+    EXPECT_EQ("MyClass", myClass->GetLexerName());
+
+    myClass->TryToSetParent(myFile);
+
+    EXPECT_EQ(myClass->GetParentLexer(), myFile);
+
+    Ast::LogCollector logCollector;
+    Ast::ASTFileTree astFileTree(myFile);
 }

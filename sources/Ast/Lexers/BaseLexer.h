@@ -66,6 +66,12 @@ namespace Ast
     public:
         AST_CLASS(BaseLexer)
 
+        struct TextSource final
+        {
+            String source;
+            String::IteratorT writableSpace;
+        };
+
         struct LineToken final
         {
             const String::CharT* string = nullptr;
@@ -197,6 +203,8 @@ namespace Ast
         [[nodiscard]] TokenReader GetTokenReader() const noexcept { return _token; }
         [[nodiscard]] std::optional<Marker> GetMark() const noexcept { return _marking; }
         [[nodiscard]] bool IsMarked() const noexcept { return _marking.has_value(); }
+
+        [[nodiscard]] virtual TextSource GetTextSource() const = 0;
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;

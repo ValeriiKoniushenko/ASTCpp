@@ -27,6 +27,11 @@
 namespace Ast::Cpp
 {
 
+    BaseLexer::TextSource NamespaceLexer::GetTextSource() const
+    {
+        return {};
+    }
+
     NamespaceLexer::NamespaceLexer(const ContentStream::Ptr& fileReader)
         : BaseLexer(fileReader, typeName)
     {

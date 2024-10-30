@@ -28,4 +28,17 @@ namespace Ast
           _fileReader{ reader }
     {
     }
+
+    ASTFileTree::ASTFileTree(const FileLexer::Ptr& fileLexer)
+        : _fileLexer{ fileLexer },
+          _fileReader{ fileLexer->GetReader() }
+    {
+    }
+
+    void ASTFileTree::ParseFrom(const FileLexer::Ptr& fileLexer)
+    {
+        _fileLexer = fileLexer;
+        _fileReader = fileLexer->GetReader();
+    }
+
 } // namespace Ast

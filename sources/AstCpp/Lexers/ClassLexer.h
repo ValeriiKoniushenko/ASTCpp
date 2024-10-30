@@ -87,6 +87,7 @@ namespace Ast::Cpp
         [[nodiscard]] bool HasFields() const noexcept { return _fields.size(); }
         [[nodiscard]] bool IsFinal() const noexcept { return _hasFinal; }
         [[nodiscard]] bool IsTemplate() const noexcept { return _isTemplate; }
+        [[nodiscard]] TextSource GetTextSource() const override;
 
     protected:
         explicit ClassLexer(const ContentStream::Ptr& fileReader);

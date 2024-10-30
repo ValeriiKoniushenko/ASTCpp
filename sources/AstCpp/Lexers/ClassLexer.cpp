@@ -29,6 +29,31 @@
 namespace Ast::Cpp
 {
 
+    BaseLexer::TextSource ClassLexer::GetTextSource() const
+    {
+        BaseLexer::TextSource textSource;
+
+        String templateSource;
+        if (_isTemplate)
+        {
+            templateSource = String("template<");
+            for (const auto& unit : _templateUnits)
+            {
+                templateSource.PushBack(unit.expression);
+                templateSource.PushBack(","_atom);
+            }
+
+            if (!_templateUnits.empty())
+            {
+                templateSource.PopBack();
+            }
+
+            templateSource += String(">");
+        }
+
+        textSource.source = String::Format("{}class", templateSource);
+    }
+
     ClassLexer::ClassLexer(const ContentStream::Ptr& fileReader)
         : BaseLexer(fileReader, typeName)
     {

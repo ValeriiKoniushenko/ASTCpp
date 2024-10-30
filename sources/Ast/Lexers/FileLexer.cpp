@@ -45,4 +45,9 @@ namespace Ast
         return true;
     }
 
+    BaseLexer::TextSource FileLexer::GetTextSource() const
+    {
+        return {};
+    }
+
 } // namespace Ast
