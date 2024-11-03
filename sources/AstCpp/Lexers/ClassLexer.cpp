@@ -286,9 +286,9 @@ namespace Ast::Cpp
 
         RemoveNestedScopes(body);
 
-        const auto publics = body.FindRegex(R"(^\s*public\s*\:)");
-        const auto protecteds = body.FindRegex(R"(^\s*protected\s*\:)");
-        const auto privates = body.FindRegex(R"(^\s*private\s*\:)");
+        const auto publics = body.FindRegex(R"(^\s*public\s*\:)", 0, std::regex_constants::match_default, std::regex::multiline);
+        const auto protecteds = body.FindRegex(R"(^\s*protected\s*\:)", 0, std::regex_constants::match_default, std::regex::multiline);
+        const auto privates = body.FindRegex(R"(^\s*private\s*\:)", 0, std::regex_constants::match_default, std::regex::multiline);
 
         body.IterateRegex(R"(^\s*((static\s+)|(constexpr\s+)|(const\s+)|(constinit\s+))*[\w:]+(\<.*\>)?\s+\w+(((\s*=).*)|(;)))",
                           [&](const String::StdRegexMatchResults& field)
@@ -302,22 +302,22 @@ namespace Ast::Cpp
                               if (auto match = str.FindRegex(R"(static\s+)"); !match.empty())
                               {
                                   tempField.isStatic = true;
-                                  str.RegexReplace(R"(static\s+)", "", std::regex_constants::match_flag_type::format_first_only);
+                                  str.RegexReplace(R"(static\s+)", "", std::regex_constants::format_first_only);
                               }
                               if (auto match = str.FindRegex(R"(const\s+)"); !match.empty())
                               {
                                   tempField.isConst = true;
-                                  str.RegexReplace(R"(const\s+)", "", std::regex_constants::match_flag_type::format_first_only);
+                                  str.RegexReplace(R"(const\s+)", "", std::regex_constants::format_first_only);
                               }
                               if (auto match = str.FindRegex(R"(constexpr\s+)"); !match.empty())
                               {
                                   tempField.isConstexpr = true;
-                                  str.RegexReplace(R"(constexpr\s+)", "", std::regex_constants::match_flag_type::format_first_only);
+                                  str.RegexReplace(R"(constexpr\s+)", "", std::regex_constants::format_first_only);
                               }
                               if (auto match = str.FindRegex(R"(constinit\s+)"); !match.empty())
                               {
                                   tempField.isConstinit = true;
-                                  str.RegexReplace(R"(constinit\s+)", "", std::regex_constants::match_flag_type::format_first_only);
+                                  str.RegexReplace(R"(constinit\s+)", "", std::regex_constants::format_first_only);
                               }
 
                               if (auto matchType = str.FindRegex(R"(^[\w:]+(\<.*\>)?)"); Verify(!matchType.empty()))
@@ -382,7 +382,7 @@ namespace Ast::Cpp
                               _fields.push_back(std::move(tempField));
 
                               return true;
-                          });
+                          }, 0, std::regex_constants::match_default, std::regex::multiline);
     }
 
     void ClassLexer::RemoveNestedScopes(String& body)

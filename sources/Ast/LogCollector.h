@@ -24,6 +24,8 @@
 #include "Core/Delegate.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
+#include <algorithm>
+
 namespace Ast
 {
 

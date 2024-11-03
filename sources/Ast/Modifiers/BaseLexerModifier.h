@@ -39,11 +39,11 @@ namespace Ast
 
         void SetLexerName(const String& name)
         {
-            if (!Verify(IsValid()))
+            if (!Verify(this->IsValid()))
             {
                 return;
             }
-            _object->_lexerName = name;
+            this->_object->_lexerName = name;
         }
     };
 

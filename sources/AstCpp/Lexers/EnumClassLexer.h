@@ -53,6 +53,8 @@ namespace Ast::Cpp
         [[nodiscard]] const String& GetType() const noexcept { return _type; }
         [[nodiscard]] const std::vector<Constant>& GetConstants() const noexcept { return _constants; }
 
+        [[nodiscard]] TextSource GetTextSource() const override;
+
     protected:
         explicit EnumClassLexer(const ContentStream::Ptr& fileReader);
 

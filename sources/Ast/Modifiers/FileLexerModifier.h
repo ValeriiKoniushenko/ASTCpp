@@ -40,21 +40,21 @@ namespace Ast
 
         void SetFileName(const String& fileName)
         {
-            if (!Verify(IsValid()))
+            if (!Verify(this->IsValid()))
             {
                 return;
             }
-            SetLexerName(fileName);
+            this->SetLexerName(fileName);
         }
 
         void SetPragmaOnce(bool has = true) noexcept
         {
-            if (!Verify(IsValid()))
+            if (!Verify(this->IsValid()))
             {
                 return;
             }
 
-            _object->_hasPragmaOnce = has;
+            this->_object->_hasPragmaOnce = has;
         }
     };
 

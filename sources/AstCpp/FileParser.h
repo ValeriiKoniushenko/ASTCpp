@@ -53,7 +53,8 @@ namespace Ast::Cpp
         template<IsLexer Lexer, IsReader ReaderT>
         static void ReadAs(Container<Lexer>& container, const ContentStream::Ptr& reader, LogCollector& logCollector)
         {
-            for (auto&& token : ReaderT(reader))
+            ReaderT readerObject(reader);
+            for (auto&& token : readerObject)
             {
                 auto lexer = Lexer::Create(reader);
                 lexer->SetToken(token);

@@ -27,6 +27,11 @@
 namespace Ast::Cpp
 {
 
+    BaseLexer::TextSource EnumClassLexer::GetTextSource() const
+    {
+        return {};
+    }
+
     EnumClassLexer::EnumClassLexer(const ContentStream::Ptr& fileReader)
         : BaseLexer(fileReader, typeName)
     {
@@ -110,7 +115,7 @@ namespace Ast::Cpp
         }
 
         String buffer(_openScope->string, _closeScope->string - _openScope->string);
-        buffer.Trim('{').Trim('}').RegexReplace(R"(\s*)", "");
+        buffer.Trim('{').Trim('}').RegexReplace(R"(\s)", "");
         for (auto& constant : buffer.Split(","_atom))
         {
             if (auto match = constant.FindRegex(R"(^\w+)"); !match.empty())

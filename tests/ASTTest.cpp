@@ -432,6 +432,7 @@ TEST(ASTTests, ScopeChecking)
                 return lexer->GetLexerName() == "Internal";
             });
 
+        ASSERT_TRUE(found);
         lexer = found->CastTo<Ast::Cpp::ClassLexer>();
         ASSERT_TRUE(lexer);
     }

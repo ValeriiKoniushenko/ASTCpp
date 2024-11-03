@@ -11,6 +11,19 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(DEPENDENCIES_DIR dependencies)
 
+# Fixing unix clang lib dependencies
+if(MSVC)
+	# do nothing
+else()
+	# do nothing
+	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		message(STATUS "Clang: added flag[s]")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+	else()
+		# do nothing
+	endif()
+endif()
+
 if (MSVC)
 	if(WIN32)
 		set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
