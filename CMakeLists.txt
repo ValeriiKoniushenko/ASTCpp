@@ -2,36 +2,39 @@ cmake_minimum_required(VERSION 3.30.0..)
 
 project(AST-Cpp VERSION 1.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 23)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+
+include(ExternalDependencies)
+include(Flags)
+include(Features)
+include(Predefinitions)
+
+
+# ========= Base setup & Predefinitions =========
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+set(REQUIRED_CXX_STANDARD cxx_std_23) # read-only
+set(CXX_STANDARD)
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(DEPENDENCIES_DIR dependencies)
+set(BENCHMARK_ENABLE_TESTING)
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY)
+set(CMAKE_CXX_FLAGS_RELEASE)
+set(CMAKE_CXX_FLAGS_DEBUG)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(DEPENDENCIES_DIR dependencies)
+InstallWin32MSVCFlags()
+InstallCXXStandardVersion()
+InstallDebugLevel()
+InstallBenchmarkDependenciesTesting()
 
-# Fixing unix clang lib dependencies
-if(MSVC)
-	# do nothing
-else()
-	# do nothing
-	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		message(STATUS "Clang: added flag[s]")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-	else()
-		# do nothing
-	endif()
-endif()
 
-if (MSVC)
-	if(WIN32)
-		set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
-		set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-		set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
-	endif(WIN32)
-endif()
-
+# ========= Fetch & apply dependencies =========
 set(BOOST_DIR "boost-1.86.0")
 set(BOOST_ZIP_FILE ${BOOST_DIR}.7z)
 set(BOOST_ZIP_FILE_PATH ${CMAKE_BINARY_DIR}/${BOOST_ZIP_FILE})
