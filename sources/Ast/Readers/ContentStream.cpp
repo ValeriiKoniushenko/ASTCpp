@@ -27,6 +27,7 @@ namespace Ast
     bool ContentStream::Read(const String::CharT* content)
     {
         _content = String(content);
+        _content.shrink_to_fit();
         return !_content.IsEmpty();
     }
 

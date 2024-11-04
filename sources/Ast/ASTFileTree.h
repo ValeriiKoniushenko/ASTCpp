@@ -28,7 +28,7 @@
 namespace Ast
 {
 
-    class ASTFileTree : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<ASTFileTree>
+    class ASTFileTree : public virtual ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<ASTFileTree>
     {
     public:
         AST_CLASS(ASTFileTree)

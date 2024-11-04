@@ -33,7 +33,7 @@ namespace Ast
 {
     class ContentStream;
 
-    class BaseTokenReader : public Utils::CopyableAndMoveable
+    class BaseTokenReader : public virtual ::Utils::CopyableAndMoveable
     {
     public:
         BaseTokenReader(const ContentStream::Ptr& fileReader, BaseTokenReaderImpl::Ptr tokenReaderImpl)

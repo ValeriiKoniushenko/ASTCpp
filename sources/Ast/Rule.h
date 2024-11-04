@@ -30,7 +30,7 @@ namespace Ast
 {
     class BaseLexer;
 
-    class Rule : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Rule>
+    class Rule : public virtual ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Rule>
     {
     public:
         AST_CLASS(Rule)
@@ -41,7 +41,7 @@ namespace Ast
     protected:
     };
 
-    class OverrideRuleLogType : public Utils::CopyableAndMoveable
+    class OverrideRuleLogType : public virtual ::Utils::CopyableAndMoveable
     {
     public:
         [[nodiscard]] LogCollector::LogType GetLogType() const noexcept { return _logType; }

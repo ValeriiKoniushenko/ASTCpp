@@ -52,6 +52,8 @@ namespace Ast::Cpp
         }
 
         textSource.source = String::Format("{}class", templateSource);
+
+        return textSource;
     }
 
     ClassLexer::ClassLexer(const ContentStream::Ptr& fileReader)
@@ -76,7 +78,7 @@ namespace Ast::Cpp
             return false;
         }
 
-        if (string.RegexReplace("\\sfinal", ""))
+        if (string.RegexReplace("\\final", ""))
         {
             _hasFinal = true;
         }

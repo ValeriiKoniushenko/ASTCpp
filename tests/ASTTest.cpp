@@ -192,10 +192,23 @@ namespace Ast
 
 } // namespace
 
+namespace
+{
+    const Ast::ASTFileTree gTree = []()
+    {
+        Ast::LogCollector logCollector;
+        auto tree = GetASTFileTree(logCollector);
+
+        Verify(!logCollector.HasAny<Ast::LogCollector::LogType::Error>(), "Impossible to build a correct AST. Try to recheck your code & source code above");
+
+        return tree;
+    }();
+} // namespace
+
 TEST(ASTTests, SimpleParse)
 {
     Ast::LogCollector logCollector;
-    auto tree = GetASTFileTree(logCollector);
+    auto tree = gTree;
 
     EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
 }
@@ -203,7 +216,7 @@ TEST(ASTTests, SimpleParse)
 TEST(ASTTests, SimpleGettingLexer)
 {
     Ast::LogCollector logCollector;
-    auto tree = GetASTFileTree(logCollector);
+    auto tree = gTree;
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -219,7 +232,7 @@ TEST(ASTTests, SimpleGettingLexer)
 TEST(ASTTests, ParentsChecking)
 {
     Ast::LogCollector logCollector;
-    auto tree = GetASTFileTree(logCollector);
+    auto tree = gTree;
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -250,7 +263,7 @@ TEST(ASTTests, ParentsChecking)
 TEST(ASTTests, DetailedLexerClassChecking)
 {
     Ast::LogCollector logCollector;
-    auto tree = GetASTFileTree(logCollector);
+    auto tree = gTree;
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -294,7 +307,7 @@ TEST(ASTTests, DetailedLexerClassChecking)
 TEST(ASTTests, DetailedBiggerLexerClassChecking)
 {
     Ast::LogCollector logCollector;
-    auto tree = GetASTFileTree(logCollector);
+    auto tree = gTree;
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -424,7 +437,7 @@ TEST(ASTTests, ScopeChecking)
 
     {
         Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
+        auto tree = gTree;
 
         auto found = tree.FindIf(
             [](Ast::BaseLexer* lexer)
@@ -445,7 +458,7 @@ TEST(ASTTests, ScopeChecking)
 TEST(ASTTests, GetRootLexer)
 {
     Ast::LogCollector logCollector;
-    auto tree = GetASTFileTree(logCollector);
+    auto tree = gTree;
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -463,7 +476,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 {
     {
         Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
+        auto tree = gTree;
 
         int lexersCount = 0;
         tree.ForEach(
@@ -478,7 +491,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = GetASTFileTree(logCollector);
+        const auto tree = gTree;
 
         int lexersCount = 0;
         tree.ForEach(
@@ -493,7 +506,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
+        auto tree = gTree;
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -506,7 +519,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = GetASTFileTree(logCollector);
+        const auto tree = gTree;
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -519,7 +532,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
+        auto tree = gTree;
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -535,7 +548,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = GetASTFileTree(logCollector);
+        const auto tree = gTree;
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -551,7 +564,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = GetASTFileTree(logCollector);
+        const auto tree = gTree;
 
         const auto found = tree.FindIfAs<Ast::Cpp::ClassLexer>(
             [](const Ast::BaseLexer* lexer)
@@ -571,7 +584,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
 {
     {
         Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
+        auto tree = gTree;
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -592,7 +605,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
 
     {
         Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
+        auto tree = gTree;
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -609,34 +622,34 @@ TEST(ASTTests, TryToGetLexerByXXX)
 {
     {
         Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
+        auto tree = gTree;
         auto found = tree.FindFirstByName<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
 
     {
         Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
+        auto tree = gTree;
         auto found = tree.FindFirstByName<Ast::Cpp::ClassLexer>("1111111111111111");
         ASSERT_FALSE(found);
     }
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = GetASTFileTree(logCollector);
+        const auto tree = gTree;
         const auto found = tree.FindFirstByName<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
     {
         Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
+        auto tree = gTree;
         auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = GetASTFileTree(logCollector);
+        const auto tree = gTree;
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
@@ -646,7 +659,7 @@ TEST(ASTTests, CheckRulesForClass)
 {
     {
         Ast::LogCollector logCollector;
-        const auto tree = GetASTFileTree(logCollector);
+        const auto tree = gTree;
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("Vec2");
         ASSERT_TRUE(found);
         found->IsCorrespondingToRule(Ast::Cpp::NameRule(R"([A-Z]\w+)"), logCollector);
@@ -656,7 +669,7 @@ TEST(ASTTests, CheckRulesForClass)
 TEST(ASTTests, Marks)
 {
     Ast::LogCollector logCollector;
-    const auto tree = GetASTFileTree(logCollector);
+    const auto tree = gTree;
 
     {
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
@@ -691,7 +704,7 @@ TEST(ASTTests, Marks)
 TEST(ASTTests, ApplyClassRule)
 {
     Ast::LogCollector logCollector;
-    const auto tree = GetASTFileTree(logCollector);
+    const auto tree = gTree;
 
     const auto foundClass = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
     ASSERT_TRUE(foundClass);
@@ -738,7 +751,7 @@ TEST(ASTTests, ApplyClassRule)
 TEST(ASTTests, ApplyEnumClassRule)
 {
     Ast::LogCollector logCollector;
-    const auto tree = GetASTFileTree(logCollector);
+    const auto tree = gTree;
 
     const auto found = tree.FindFirstByNameAs<Ast::Cpp::EnumClassLexer>("EType");
     ASSERT_TRUE(found);
@@ -767,7 +780,7 @@ TEST(ASTTests, ApplyEnumClassRule)
 TEST(ASTTests, ApplyNamespaceRule)
 {
     Ast::LogCollector logCollector;
-    const auto tree = GetASTFileTree(logCollector);
+    const auto tree = gTree;
 
     const auto found = tree.FindFirstByNameAs<Ast::Cpp::NamespaceLexer>("Ast");
     ASSERT_TRUE(found);

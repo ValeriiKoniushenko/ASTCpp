@@ -30,7 +30,7 @@ namespace Ast
 {
 
     template<IsLexerOrBase Lexer>
-    class ILexerModifier : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<ILexerModifier<Lexer>>
+    class ILexerModifier : public virtual ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<ILexerModifier<Lexer>>
     {
     public:
         AST_CLASS(ILexerModifier<Lexer>);

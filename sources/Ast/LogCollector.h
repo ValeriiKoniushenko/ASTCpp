@@ -29,7 +29,7 @@
 namespace Ast
 {
 
-    class LogCollector final : public Utils::CopyableAndMoveable
+    class LogCollector final : public virtual ::Utils::CopyableAndMoveable
     {
     public:
         enum class LogType

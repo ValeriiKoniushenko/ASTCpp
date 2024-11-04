@@ -25,7 +25,7 @@
 namespace Ast
 {
 
-    struct TokenReader final : ::Utils::CopyableAndMoveable
+    struct TokenReader final : public ::Utils::CopyableAndMoveable
     {
         const String::CharT* beginData = nullptr;
         const String::CharT* endData = nullptr;

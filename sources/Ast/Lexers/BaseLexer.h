@@ -61,7 +61,7 @@ namespace Ast
      * boost::intrusive_ptr<SomeDerivedLexer> lexer = new SomeDerivedLexer;
      * @endcode
      */
-    class BaseLexer : public ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
+    class BaseLexer : public virtual ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
     {
     public:
         AST_CLASS(BaseLexer)

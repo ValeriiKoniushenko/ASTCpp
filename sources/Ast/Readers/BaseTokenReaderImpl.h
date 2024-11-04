@@ -30,7 +30,7 @@ namespace Ast
 {
     class BaseTokenReader;
 
-    class BaseTokenReaderImpl : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseTokenReaderImpl>
+    class BaseTokenReaderImpl : public virtual ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseTokenReaderImpl>
     {
     public:
         using Ptr = boost::intrusive_ptr<BaseTokenReaderImpl>;
