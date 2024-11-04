@@ -10,3 +10,8 @@
 [submodule "dependencies/Utils"]
 	path = dependencies/Utils
 	url = git@github.com:ValeriiKoniushenko/Utils.git
+	branch = develop
+[submodule "dependencies/boost"]
+	path = dependencies/boost
+	url = git@github.com:boostorg/boost.git
+	branch = boost-1.86.0

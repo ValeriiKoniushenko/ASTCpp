@@ -1,1 +1,33 @@
 include_guard()
+
+function(TryToHelpInstallBoost)
+	set(BOOST_PATH ${DEPENDENCIES_PATH}/${BOOST_NAME})
+	if(EXISTS ${BOOST_PATH})
+		if(NOT EXISTS ${BOOST_PATH}/boost)
+			set(BOOTSTRAP "bootstrap")
+			set(ADMIN_NAME)
+			set(SCRIPTS)
+
+			if (WIN32)
+				set(BOOTSTRAP "${BOOTSTRAP}.bat")
+				set(ADMIN_NAME "administrator")
+				list(APPEND SCRIPTS "${BOOST_PATH}/${BOOTSTRAP}")
+				list(APPEND SCRIPTS "${BOOST_PATH}/b2")
+			elseif(UNIX)
+				set(BOOTSTRAP "${BOOTSTRAP}.sh")
+				set(ADMIN_NAME "super-user")
+				list(APPEND SCRIPTS "sudo find ${BOOST_PATH} -type f -name '*.sh' -exec chmod +x {} \\;")
+				list(APPEND SCRIPTS "sudo ${BOOST_PATH}/${BOOTSTRAP}")
+				list(APPEND SCRIPTS "sudo ${BOOST_PATH}/b2")
+			endif()
+
+
+			message(FATAL_ERROR "You have to run the next scrip(using terminal) step by step with ${ADMIN_NAME}"
+				"privileges to install the ${BOOST_NAME}: '${SCRIPTS}'")
+		else()
+			message(STATUS "Boost was installed & built")
+		endif()
+	else()
+		message(WARNING "Impossible to install ${BOOST_NAME}. Because, expected folder(${BOOST_PATH}) not found. Try to update all submodules")
+	endif()
+endfunction()
