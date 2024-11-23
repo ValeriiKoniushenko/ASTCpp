@@ -1,17 +1,4 @@
-[submodule "dependencies/glm"]
-	path = dependencies/glm
-	url = git@github.com:g-truc/glm.git
-[submodule "dependencies/googletest"]
-	path = dependencies/googletest
-	url = git@github.com:google/googletest.git
-[submodule "dependencies/benchmark"]
-	path = dependencies/benchmark
-	url = git@github.com:google/benchmark.git
 [submodule "dependencies/Utils"]
 	path = dependencies/Utils
 	url = git@github.com:ValeriiKoniushenko/Utils.git
 	branch = develop
-[submodule "dependencies/boost"]
-	path = dependencies/boost
-	url = git@github.com:boostorg/boost.git
-	branch = boost-1.86.0
