@@ -11,7 +11,7 @@ include(Predefinitions)
 
 
 # ========= Base setup & Predefinitions =========
-set(BOOST_NAME "boost-1.86.0") # this name corresponding to git module from .gitmodules
+set(BOOST_NAME "boost-1.86.0") # this name corresponding to installed boost: scripts/install_boost.sh\bat
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(REQUIRED_CXX_STANDARD cxx_std_23) # read-only
 set(CXX_STANDARD)
