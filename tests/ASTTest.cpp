@@ -36,7 +36,10 @@
 
 namespace
 {
-    const char* const content = R"(#pragma   once
+    class ASTCppTests : public testing::Test
+    {
+    public:
+        inline static const char* const content = R"(#pragma   once
 #include "../CommonTypes.h"
 
 #include "Utils/CopyableAndMoveableBehaviour.h"
@@ -178,45 +181,48 @@ namespace Ast
 }
 )";
 
-    Ast::ASTFileTree GetASTFileTree(Ast::LogCollector& logCollector)
-    {
-        auto reader = Ast::ContentStream::Create();
-        reader->Read(content);
-        reader->ApplyFilters<Ast::Cpp::CommentFilter>();
+    public:
+        ~ASTCppTests() override = default;
+        Ast::ASTFileTree getTree() const
+        {
+            static const Ast::ASTFileTree _tree = []()
+            {
+                Ast::LogCollector logCollector;
+                auto reader = Ast::ContentStream::Create();
+                reader->Read(ASTCppTests::content);
+                reader->ApplyFilters<Ast::Cpp::CommentFilter>();
 
-        Ast::ASTFileTree tree(reader);
-        tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
+                Ast::ASTFileTree tree(reader);
+                tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
 
-        return tree;
-    }
+                Verify(!logCollector.HasAny<Ast::LogCollector::LogType::Error>(), "Impossible to build a correct AST. Try to recheck your code & source code above");
 
+                return tree;
+            }();
+
+            return _tree;
+        }
+
+    protected:
+        ASTCppTests() = default;
+
+    private:
+
+    };
 } // namespace
 
-namespace
-{
-    const Ast::ASTFileTree gTree = []()
-    {
-        Ast::LogCollector logCollector;
-        auto tree = GetASTFileTree(logCollector);
-
-        Verify(!logCollector.HasAny<Ast::LogCollector::LogType::Error>(), "Impossible to build a correct AST. Try to recheck your code & source code above");
-
-        return tree;
-    }();
-} // namespace
-
-TEST(ASTTests, SimpleParse)
+TEST_F(ASTCppTests, SimpleParse)
 {
     Ast::LogCollector logCollector;
-    auto tree = gTree;
+    auto tree = getTree();
 
     EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
 }
 
-TEST(ASTTests, SimpleGettingLexer)
+TEST_F(ASTCppTests, SimpleGettingLexer)
 {
     Ast::LogCollector logCollector;
-    auto tree = gTree;
+    auto tree = getTree();
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -229,10 +235,10 @@ TEST(ASTTests, SimpleGettingLexer)
     ASSERT_TRUE(found->HasParent());
 }
 
-TEST(ASTTests, ParentsChecking)
+TEST_F(ASTCppTests, ParentsChecking)
 {
     Ast::LogCollector logCollector;
-    auto tree = gTree;
+    auto tree = getTree();
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -260,10 +266,10 @@ TEST(ASTTests, ParentsChecking)
     }
 }
 
-TEST(ASTTests, DetailedLexerClassChecking)
+TEST_F(ASTCppTests, DetailedLexerClassChecking)
 {
     Ast::LogCollector logCollector;
-    auto tree = gTree;
+    auto tree = getTree();
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -304,10 +310,10 @@ TEST(ASTTests, DetailedLexerClassChecking)
     }
 }
 
-TEST(ASTTests, DetailedBiggerLexerClassChecking)
+TEST_F(ASTCppTests, DetailedBiggerLexerClassChecking)
 {
     Ast::LogCollector logCollector;
-    auto tree = gTree;
+    auto tree = getTree();
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -431,13 +437,13 @@ TEST(ASTTests, DetailedBiggerLexerClassChecking)
     }
 }
 
-TEST(ASTTests, ScopeChecking)
+TEST_F(ASTCppTests, ScopeChecking)
 {
     Ast::Cpp::ClassLexer::Ptr lexer;
 
     {
         Ast::LogCollector logCollector;
-        auto tree = gTree;
+        auto tree = getTree();
 
         auto found = tree.FindIf(
             [](Ast::BaseLexer* lexer)
@@ -455,10 +461,10 @@ TEST(ASTTests, ScopeChecking)
     ASSERT_TRUE(lexer->HasParent());
 }
 
-TEST(ASTTests, GetRootLexer)
+TEST_F(ASTCppTests, GetRootLexer)
 {
     Ast::LogCollector logCollector;
-    auto tree = gTree;
+    auto tree = getTree();
 
     auto found = tree.FindIf(
         [](Ast::BaseLexer* lexer)
@@ -472,11 +478,11 @@ TEST(ASTTests, GetRootLexer)
     EXPECT_EQ("none", root->GetLexerName());
 }
 
-TEST(ASTTests, LexerConstAndNonConstMiscTests)
+TEST_F(ASTCppTests, LexerConstAndNonConstMiscTests)
 {
     {
         Ast::LogCollector logCollector;
-        auto tree = gTree;
+        auto tree = getTree();
 
         int lexersCount = 0;
         tree.ForEach(
@@ -491,7 +497,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = gTree;
+        const auto tree = getTree();
 
         int lexersCount = 0;
         tree.ForEach(
@@ -506,7 +512,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        auto tree = gTree;
+        auto tree = getTree();
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -519,7 +525,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = gTree;
+        const auto tree = getTree();
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -532,7 +538,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        auto tree = gTree;
+        auto tree = getTree();
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -548,7 +554,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = gTree;
+        const auto tree = getTree();
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -564,7 +570,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = gTree;
+        const auto tree = getTree();
 
         const auto found = tree.FindIfAs<Ast::Cpp::ClassLexer>(
             [](const Ast::BaseLexer* lexer)
@@ -580,11 +586,11 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 }
 
-TEST(ASTTests, LexerConstAndNonConstMiscTests2)
+TEST_F(ASTCppTests, LexerConstAndNonConstMiscTests2)
 {
     {
         Ast::LogCollector logCollector;
-        auto tree = gTree;
+        auto tree = getTree();
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -605,7 +611,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
 
     {
         Ast::LogCollector logCollector;
-        auto tree = gTree;
+        auto tree = getTree();
 
         const auto found = tree.FindIf(
             [](const Ast::BaseLexer* lexer)
@@ -618,58 +624,58 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
     }
 }
 
-TEST(ASTTests, TryToGetLexerByXXX)
+TEST_F(ASTCppTests, TryToGetLexerByXXX)
 {
     {
         Ast::LogCollector logCollector;
-        auto tree = gTree;
+        auto tree = getTree();
         auto found = tree.FindFirstByName<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
 
     {
         Ast::LogCollector logCollector;
-        auto tree = gTree;
+        auto tree = getTree();
         auto found = tree.FindFirstByName<Ast::Cpp::ClassLexer>("1111111111111111");
         ASSERT_FALSE(found);
     }
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = gTree;
+        const auto tree = getTree();
         const auto found = tree.FindFirstByName<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
     {
         Ast::LogCollector logCollector;
-        auto tree = gTree;
+        auto tree = getTree();
         auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
 
     {
         Ast::LogCollector logCollector;
-        const auto tree = gTree;
+        const auto tree = getTree();
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
 }
 
-TEST(ASTTests, CheckRulesForClass)
+TEST_F(ASTCppTests, CheckRulesForClass)
 {
     {
         Ast::LogCollector logCollector;
-        const auto tree = gTree;
+        const auto tree = getTree();
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("Vec2");
         ASSERT_TRUE(found);
         found->IsCorrespondingToRule(Ast::Cpp::NameRule(R"([A-Z]\w+)"), logCollector);
     }
 }
 
-TEST(ASTTests, Marks)
+TEST_F(ASTCppTests, Marks)
 {
     Ast::LogCollector logCollector;
-    const auto tree = gTree;
+    const auto tree = getTree();
 
     {
         const auto found = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
@@ -701,10 +707,10 @@ TEST(ASTTests, Marks)
     }
 }
 
-TEST(ASTTests, ApplyClassRule)
+TEST_F(ASTCppTests, ApplyClassRule)
 {
     Ast::LogCollector logCollector;
-    const auto tree = gTree;
+    const auto tree = getTree();
 
     const auto foundClass = tree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("GlobalClass");
     ASSERT_TRUE(foundClass);
@@ -748,10 +754,10 @@ TEST(ASTTests, ApplyClassRule)
     }
 }
 
-TEST(ASTTests, ApplyEnumClassRule)
+TEST_F(ASTCppTests, ApplyEnumClassRule)
 {
     Ast::LogCollector logCollector;
-    const auto tree = gTree;
+    const auto tree = getTree();
 
     const auto found = tree.FindFirstByNameAs<Ast::Cpp::EnumClassLexer>("EType");
     ASSERT_TRUE(found);
@@ -777,10 +783,10 @@ TEST(ASTTests, ApplyEnumClassRule)
     }
 }
 
-TEST(ASTTests, ApplyNamespaceRule)
+TEST_F(ASTCppTests, ApplyNamespaceRule)
 {
     Ast::LogCollector logCollector;
-    const auto tree = gTree;
+    const auto tree = getTree();
 
     const auto found = tree.FindFirstByNameAs<Ast::Cpp::NamespaceLexer>("Ast");
     ASSERT_TRUE(found);
@@ -806,7 +812,7 @@ TEST(ASTTests, ApplyNamespaceRule)
     }
 }
 
-TEST(ASTTests, GenerateNewClass)
+TEST_F(ASTCppTests, GenerateNewClass)
 {
     auto stream = Ast::ContentStream::Create();
     ASSERT_TRUE(stream);
@@ -832,7 +838,7 @@ TEST(ASTTests, GenerateNewClass)
     EXPECT_EQ(myClass->GetParentLexer(), myFile);
 }
 
-TEST(ASTTests, GenerateNewClassAndPutToStream)
+TEST_F(ASTCppTests, GenerateNewClassAndPutToStream)
 {
     auto stream = Ast::ContentStream::Create();
     ASSERT_TRUE(stream);

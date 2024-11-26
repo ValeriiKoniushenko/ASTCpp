@@ -33,6 +33,7 @@ namespace Ast
             : BaseTokenReaderImpl(baseTokenReader),
               _regexExpr{ regexExpr }
         {
+            Assert(!!_regexExpr, "Was passed NULL string as regex expression");
         }
 
         [[nodiscard]] std::optional<TokenReader> FindNextToken() const override;

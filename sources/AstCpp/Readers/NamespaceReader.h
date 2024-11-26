@@ -22,6 +22,7 @@
 
 #include "Ast/Readers/BaseTokenReader.h"
 #include "Ast/Readers/RegexTokenReaderImpl.h"
+#include "Core/String.h"
 
 namespace Ast::Cpp
 {
