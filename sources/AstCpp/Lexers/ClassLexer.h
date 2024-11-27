@@ -29,6 +29,10 @@ namespace Ast
 
 namespace Ast::Cpp
 {
+    class ClassLexer;
+
+    template<class T>
+    concept IsClassLexerBase = std::is_base_of_v<ClassLexer, T> || std::is_same_v<T, ClassLexer>;
 
     class ClassLexer final : public BaseLexer
     {
@@ -62,12 +66,22 @@ namespace Ast::Cpp
 
         struct Field
         {
+            Field() = default;
+            Field(const String& type, const String& name, AccessSpecifier accessSpecifier, const String& value = ""_atom)
+                : name{ name },
+                  type{ type },
+                  value{ value },
+                  accessSpecifier{ accessSpecifier }
+            {
+            }
+
             bool isConst = false;
             bool isConstexpr = false;
             bool isConstinit = false;
             bool isStatic = false;
             String name;
             String type;
+            String value;
             AccessSpecifier accessSpecifier = AccessSpecifier::Private;
         };
 
@@ -108,6 +122,9 @@ namespace Ast::Cpp
         std::vector<TemplateUnit> _templateUnits;
         std::vector<ParentUnit> _parents;
         std::vector<Field> _fields;
+
+        template<IsClassLexerBase>
+        friend class ClassLexerModifier;
     };
 
 } // namespace Ast::Cpp

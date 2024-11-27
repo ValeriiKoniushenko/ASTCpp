@@ -34,7 +34,8 @@ namespace Ast
         AST_CLASS(FileLexerModifier<Lexer>);
 
         FileLexerModifier() = default;
-        FileLexerModifier(const Lexer::Ptr& object) : BaseLexerModifier<Lexer>(object)
+        explicit FileLexerModifier(const typename Lexer::Ptr& object)
+            : BaseLexerModifier<Lexer>(object)
         {
         }
 

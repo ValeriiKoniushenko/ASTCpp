@@ -23,6 +23,7 @@
 #include "Ast/ASTFileTree.h"
 #include "Ast/LogCollector.h"
 #include "Ast/Modifiers/BaseLexerModifier.h"
+#include "Ast/Modifiers/ClassLexerModifier.h"
 #include "Ast/Modifiers/FileLexerModifier.h"
 #include "Ast/Readers/ContentStream.h"
 #include "AstCpp/FileParser.h"
@@ -838,7 +839,7 @@ TEST_F(ASTCppTests, GenerateNewClass)
     EXPECT_EQ(myClass->GetParentLexer(), myFile);
 }
 
-TEST_F(ASTCppTests, GenerateNewClassAndPutToStream)
+TEST_F(ASTCppTests, BuildNewSimpleTree)
 {
     auto stream = Ast::ContentStream::Create();
     ASSERT_TRUE(stream);
@@ -854,10 +855,25 @@ TEST_F(ASTCppTests, GenerateNewClassAndPutToStream)
 
     auto myClass = Ast::Cpp::ClassLexer::Create(stream);
     ASSERT_TRUE(myClass);
-    Ast::BaseLexerModifier classModifier(myClass);
+    ASSERT_TRUE(myClass->GetLexerType() == Ast::Cpp::ClassLexer::typeName);
+
+    Ast::Cpp::ClassLexerModifier classModifier(myClass);
     classModifier.SetLexerName("MyClass");
+    classModifier.AddField({ "int", "age", Ast::Cpp::ClassLexer::AccessSpecifier::Private });
+    classModifier.AddField({ "std::string", "name", Ast::Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
 
     EXPECT_EQ("MyClass", myClass->GetLexerName());
+    ASSERT_EQ(2, myClass->GetFields().size());
+
+    EXPECT_EQ("int", myClass->GetFields()[0].type);
+    EXPECT_EQ("age", myClass->GetFields()[0].name);
+    EXPECT_EQ("", myClass->GetFields()[0].value);
+    EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[0].accessSpecifier);
+
+    EXPECT_EQ("std::string", myClass->GetFields()[1].type);
+    EXPECT_EQ("name", myClass->GetFields()[1].name);
+    EXPECT_EQ("\"Mark\"", myClass->GetFields()[1].value);
+    EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[1].accessSpecifier);
 
     myClass->TryToSetParent(myFile);
 
@@ -865,4 +881,60 @@ TEST_F(ASTCppTests, GenerateNewClassAndPutToStream)
 
     Ast::LogCollector logCollector;
     Ast::ASTFileTree astFileTree(myFile);
+    EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+    EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+
+    auto found = astFileTree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("MyClass");
+    ASSERT_TRUE(found);
+    ASSERT_EQ(2, found->GetFields().size());
+}
+
+TEST_F(ASTCppTests, BuildNewTree)
+{
+    auto stream = Ast::ContentStream::Create();
+    ASSERT_TRUE(stream);
+
+    auto myFile = Ast::FileLexer::Create(stream);
+    ASSERT_TRUE(myFile);
+    Ast::FileLexerModifier fileModifier(myFile);
+    fileModifier.SetFileName("smth.cpp");
+    fileModifier.SetPragmaOnce();
+
+    EXPECT_EQ("smth.cpp", myFile->GetFileName());
+    EXPECT_TRUE(myFile->HasPragmaOnce());
+
+    auto myClass = Ast::Cpp::ClassLexer::Create(stream);
+    ASSERT_TRUE(myClass);
+    ASSERT_TRUE(myClass->GetLexerType() == Ast::Cpp::ClassLexer::typeName);
+
+    Ast::Cpp::ClassLexerModifier classModifier(myClass);
+    classModifier.SetLexerName("MyClass");
+    classModifier.AddField({ "int", "age", Ast::Cpp::ClassLexer::AccessSpecifier::Private });
+    classModifier.AddField({ "std::string", "name", Ast::Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+
+    EXPECT_EQ("MyClass", myClass->GetLexerName());
+    ASSERT_EQ(2, myClass->GetFields().size());
+
+    EXPECT_EQ("int", myClass->GetFields()[0].type);
+    EXPECT_EQ("age", myClass->GetFields()[0].name);
+    EXPECT_EQ("", myClass->GetFields()[0].value);
+    EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[0].accessSpecifier);
+
+    EXPECT_EQ("std::string", myClass->GetFields()[1].type);
+    EXPECT_EQ("name", myClass->GetFields()[1].name);
+    EXPECT_EQ("\"Mark\"", myClass->GetFields()[1].value);
+    EXPECT_EQ(Ast::Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[1].accessSpecifier);
+
+    myClass->TryToSetParent(myFile);
+
+    EXPECT_EQ(myClass->GetParentLexer(), myFile);
+
+    Ast::LogCollector logCollector;
+    Ast::ASTFileTree astFileTree(myFile);
+    EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
+    EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
+
+    auto found = astFileTree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("MyClass");
+    ASSERT_TRUE(found);
+    ASSERT_EQ(2, found->GetFields().size());
 }

@@ -20,45 +20,34 @@
 
 #pragma once
 
-#include "ILexerModifier.h"
-#include "../Lexers/BaseLexer.h"
+#include "AstCpp/Lexers/ClassLexer.h"
+#include "BaseLexerModifier.h"
 
-namespace Ast
+namespace Ast::Cpp
 {
 
-    template<IsLexerOrBase Lexer = BaseLexer>
-    class BaseLexerModifier : public ILexerModifier<Lexer>
+    template<IsClassLexerBase Lexer = ClassLexer>
+    class ClassLexerModifier : public BaseLexerModifier<Lexer>
     {
     public:
-        AST_CLASS(BaseLexerModifier<Lexer>);
+        AST_CLASS(ClassLexerModifier<Lexer>);
 
-        BaseLexerModifier() = default;
-        BaseLexerModifier(const Lexer::Ptr& object) : ILexerModifier<Lexer>(object)
+        ClassLexerModifier() = default;
+        explicit ClassLexerModifier(const typename Lexer::Ptr& object) : BaseLexerModifier<Lexer>(object)
         {
         }
 
-        void SetLexerName(const String& name)
+        bool AddField(const typename Lexer::Field& field)
         {
             if (!Verify(this->IsValid()))
             {
-                return;
-            }
-            this->_object->_lexerName = name;
-        }
-
-    protected:
-        Lexer* GetLexer()
-        {
-            if (!self && this->_object)
-            {
-                self = dynamic_cast<Lexer*>(this->_object.get());
+                return false;
             }
 
-            return self;
-        }
+            this->GetLexer()->_fields.push_back(field);
 
-    private:
-        Lexer* self = nullptr;
+            return true;
+        }
     };
 
-} // namespace Ast
+} // namespace Ast::Cpp
