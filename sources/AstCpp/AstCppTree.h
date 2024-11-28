@@ -20,53 +20,23 @@
 
 #pragma once
 
-#include "Ast/Lexers/BaseLexer.h"
-
-namespace Ast
-{
-    class ContentStream;
-} // namespace Ast
+#include "Ast/ASTFileTree.h"
+#include "FileParser.h"
 
 namespace Ast::Cpp
 {
-    class EnumClassLexer final : public BaseLexer
+
+    class Tree final : public ASTFileTree
     {
     public:
-        AST_CLASS(EnumClassLexer)
+        explicit Tree(const ContentStream::Ptr& reader) : ASTFileTree(reader) {}
+        explicit Tree(const FileLexer::Ptr& fileLexer) : ASTFileTree(fileLexer) {}
+        ~Tree() override = default;
 
-        struct Constant
+        void Parse(LogCollector& logCollector)
         {
-            String name;
-            std::optional<unsigned long long> value;
-        };
-
-    public:
-        inline static const auto typeName = "enum class"_atom;
-
-        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
-        {
-            return { new EnumClassLexer(fileReader) };
+            ParseUsing<FileParser>(logCollector);
         }
-
-        ~EnumClassLexer() override = default;
-
-        [[nodiscard]] const String& GetType() const noexcept { return _type; }
-        [[nodiscard]] const std::vector<Constant>& GetConstants() const noexcept { return _constants; }
-
-        [[nodiscard]] TextSourceT GetTextSource() const override;
-
-    protected:
-        explicit EnumClassLexer(const ContentStream::Ptr& fileReader);
-
-        bool DoValidate(LogCollector& logCollector) override;
-        bool DoValidateScope(LogCollector& logCollector) override;
-
-    private:
-        bool RecognizeConstants(LogCollector& logCollector);
-
-    private:
-        String _type = "int"_atom;
-        std::vector<Constant> _constants;
     };
 
 } // namespace Ast::Cpp

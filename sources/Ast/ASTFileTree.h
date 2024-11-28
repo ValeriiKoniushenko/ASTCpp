@@ -24,11 +24,12 @@
 #include "Lexers/FileLexer.h"
 #include "Readers/ContentStream.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
+#include "Utils/ITextSourceReader.h"
 
 namespace Ast
 {
 
-    class ASTFileTree : public virtual ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<ASTFileTree>
+    class ASTFileTree : public virtual ::Utils::CopyableAndMoveable, public ITextSourceReader, public boost::intrusive_ref_counter<ASTFileTree>
     {
     public:
         AST_CLASS(ASTFileTree)
@@ -84,6 +85,8 @@ namespace Ast
         void ParseFrom(const FileLexer::Ptr& fileLexer);
 
         [[nodiscard]] ContentStream::Ptr GetReader() const { return _fileReader; }
+
+        [[nodiscard]] TextSourceT GetTextSource() const override;
 
         // ===========================================================
         // ================== WORKING WITH LEXERS ====================

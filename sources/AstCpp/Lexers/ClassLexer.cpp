@@ -29,9 +29,10 @@
 namespace Ast::Cpp
 {
 
-    BaseLexer::TextSource ClassLexer::GetTextSource() const
+    ITextSourceReader::TextSourceT ClassLexer::GetTextSource() const
     {
-        BaseLexer::TextSource textSource;
+        return {};
+        /*BaseLexer::TextSource textSource;
 
         String templateSource;
         if (_isTemplate)
@@ -53,7 +54,7 @@ namespace Ast::Cpp
 
         textSource.source = String::Format("{}class", templateSource);
 
-        return textSource;
+        return textSource;*/
     }
 
     ClassLexer::ClassLexer(const ContentStream::Ptr& fileReader)

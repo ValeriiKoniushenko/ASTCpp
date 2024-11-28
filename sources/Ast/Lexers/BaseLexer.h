@@ -23,6 +23,7 @@
 #include "../CommonTypes.h"
 #include "../Readers/ContentStream.h"
 #include "../Readers/Token.h"
+#include "Ast/Utils/ITextSourceReader.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
 #include <boost/smart_ptr/intrusive_ptr.hpp>
@@ -61,16 +62,10 @@ namespace Ast
      * boost::intrusive_ptr<SomeDerivedLexer> lexer = new SomeDerivedLexer;
      * @endcode
      */
-    class BaseLexer : public virtual ::Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<BaseLexer>
+    class BaseLexer : public virtual ::Utils::CopyableAndMoveable, public ITextSourceReader, public boost::intrusive_ref_counter<BaseLexer>
     {
     public:
         AST_CLASS(BaseLexer)
-
-        struct TextSource final
-        {
-            String source;
-            String::IteratorT writableSpace;
-        };
 
         struct LineToken final
         {
@@ -203,8 +198,6 @@ namespace Ast
         [[nodiscard]] TokenReader GetTokenReader() const noexcept { return _token; }
         [[nodiscard]] std::optional<Marker> GetMark() const noexcept { return _marking; }
         [[nodiscard]] bool IsMarked() const noexcept { return _marking.has_value(); }
-
-        [[nodiscard]] virtual TextSource GetTextSource() const = 0;
 
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;

@@ -20,12 +20,12 @@
 
 #define CORE_DEBUG
 
-#include "Ast/ASTFileTree.h"
 #include "Ast/LogCollector.h"
 #include "Ast/Modifiers/BaseLexerModifier.h"
 #include "Ast/Modifiers/ClassLexerModifier.h"
 #include "Ast/Modifiers/FileLexerModifier.h"
 #include "Ast/Readers/ContentStream.h"
+#include "AstCpp/AstCppTree.h"
 #include "AstCpp/FileParser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 #include "AstCpp/Rules/ClassRules.h"
@@ -184,17 +184,17 @@ namespace Ast
 
     public:
         ~ASTCppTests() override = default;
-        Ast::ASTFileTree getTree() const
+        Ast::Cpp::Tree getTree() const
         {
-            static const Ast::ASTFileTree _tree = []()
+            static const Ast::Cpp::Tree _tree = []()
             {
                 Ast::LogCollector logCollector;
                 auto reader = Ast::ContentStream::Create();
                 reader->Read(ASTCppTests::content);
                 reader->ApplyFilters<Ast::Cpp::CommentFilter>();
 
-                Ast::ASTFileTree tree(reader);
-                tree.ParseUsing<Ast::Cpp::FileParser>(logCollector);
+                Ast::Cpp::Tree tree(reader);
+                tree.Parse(logCollector);
 
                 Verify(!logCollector.HasAny<Ast::LogCollector::LogType::Error>(), "Impossible to build a correct AST. Try to recheck your code & source code above");
 
@@ -880,7 +880,7 @@ TEST_F(ASTCppTests, BuildNewSimpleTree)
     EXPECT_EQ(myClass->GetParentLexer(), myFile);
 
     Ast::LogCollector logCollector;
-    Ast::ASTFileTree astFileTree(myFile);
+    Ast::Cpp::Tree astFileTree(myFile);
     EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
     EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
 
@@ -930,11 +930,14 @@ TEST_F(ASTCppTests, BuildNewTree)
     EXPECT_EQ(myClass->GetParentLexer(), myFile);
 
     Ast::LogCollector logCollector;
-    Ast::ASTFileTree astFileTree(myFile);
+    Ast::Cpp::Tree astFileTree(myFile);
     EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Error>());
     EXPECT_FALSE(logCollector.HasAny<Ast::LogCollector::LogType::Warning>());
 
     auto found = astFileTree.FindFirstByNameAs<Ast::Cpp::ClassLexer>("MyClass");
     ASSERT_TRUE(found);
     ASSERT_EQ(2, found->GetFields().size());
+
+    std::stringstream ss;
+    ss << astFileTree.GetTextSource().c_str();
 }

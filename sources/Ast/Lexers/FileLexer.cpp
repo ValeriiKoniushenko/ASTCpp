@@ -20,7 +20,9 @@
 
 #include "FileLexer.h"
 
+#include "Ast/ASTFileTree.h"
 #include "Ast/Readers/FileReader.h"
+#include "AstCpp/AstCppTree.h"
 
 namespace Ast
 {
@@ -45,9 +47,13 @@ namespace Ast
         return true;
     }
 
-    BaseLexer::TextSource FileLexer::GetTextSource() const
+    ITextSourceReader::TextSourceT FileLexer::GetTextSource() const
     {
-        return {};
+        LogCollector logCollector;
+        Cpp::Tree tree(this->_reader);
+        tree.Parse(logCollector);
+
+        tree return {};
     }
 
 } // namespace Ast

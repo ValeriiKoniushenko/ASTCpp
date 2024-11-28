@@ -27,7 +27,7 @@
 namespace Ast::Cpp
 {
 
-    BaseLexer::TextSource EnumClassLexer::GetTextSource() const
+    ITextSourceReader::TextSourceT EnumClassLexer::GetTextSource() const
     {
         return {};
     }

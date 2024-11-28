@@ -18,32 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "ASTFileTree.h"
+#pragma once
+#include "Ast/CommonTypes.h"
 
 namespace Ast
 {
 
-    ASTFileTree::ASTFileTree(const ContentStream::Ptr& reader)
-        : _fileLexer{ FileLexer::Create(reader) },
-          _fileReader{ reader }
+    struct ITextSourceReader
     {
-    }
+        ITextSourceReader() = default;
+        virtual ~ITextSourceReader() = default;
 
-    ASTFileTree::ASTFileTree(const FileLexer::Ptr& fileLexer)
-        : _fileLexer{ fileLexer },
-          _fileReader{ fileLexer->GetReader() }
-    {
-    }
+        using TextSourceT = String;
 
-    void ASTFileTree::ParseFrom(const FileLexer::Ptr& fileLexer)
-    {
-        _fileLexer = fileLexer;
-        _fileReader = fileLexer->GetReader();
-    }
-
-    ITextSourceReader::TextSourceT ASTFileTree::GetTextSource() const
-    {
-        return _fileLexer->GetTextSource();
-    }
+        [[nodiscard]] virtual TextSourceT GetTextSource() const = 0;
+    };
 
 } // namespace Ast
