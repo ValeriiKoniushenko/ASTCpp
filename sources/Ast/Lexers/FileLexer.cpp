@@ -53,7 +53,7 @@ namespace Ast
         Cpp::Tree tree(this->_reader);
         tree.Parse(logCollector);
 
-        tree return {};
+        return {};
     }
 
 } // namespace Ast
