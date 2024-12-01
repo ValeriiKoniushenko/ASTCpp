@@ -184,8 +184,7 @@ TEST(ASTTests, SimpleParse)
 {
     using namespace Ast;
 
-    Cpp::Parser parser{ ContentStream(content) };
-    Cpp::Tree tree = parser.GenerateTree();
+    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -196,6 +195,4 @@ TEST(ASTTests, SimpleParse)
     ASSERT_TRUE(found);
     EXPECT_EQ(found->GetLexerName(), "Internal");
     ASSERT_TRUE(found->HasParent());
-
-    int i = 1;
 }
