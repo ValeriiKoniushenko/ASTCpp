@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "FileParser.h"
 #include "Lexers/FileLexer.h"
+#include "Parser.h"
 #include "Readers/ContentStream.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 #include "Utils/ITextSourceReader.h"
@@ -50,17 +50,17 @@ namespace Ast
         explicit ASTFileTree(const FileLexer::Ptr& fileLexer);
         ~ASTFileTree() override = default;
 
-        template<IsFileParser Parser>
+        template<IsFileParser ParserT>
         void ParseUsing(LogCollector& logCollector)
         {
-            if (!Verify(!!_fileReader, "File reader was nullptr"))
+            if (!Verify(!!_contentStream, "File reader was nullptr"))
             {
                 logCollector.AddLog({ "File reader was nullptr", LogCollector::LogType::Error });
                 return;
             }
 
-            Parser parser;
-            parser.Parse(_fileReader, logCollector);
+            ParserT parser;
+            parser.Parse(_contentStream);
 
             parser.IterateOverLexers(
                 [&](BaseLexer* lexer)
@@ -84,7 +84,7 @@ namespace Ast
 
         void ParseFrom(const FileLexer::Ptr& fileLexer);
 
-        [[nodiscard]] ContentStream::Ptr GetReader() const { return _fileReader; }
+        [[nodiscard]] ContentStream::Ptr GetReader() const { return _contentStream; }
 
         [[nodiscard]] TextSourceT GetTextSource() const override;
 
@@ -242,7 +242,7 @@ namespace Ast
 
     private:
         FileLexer::Ptr _fileLexer;
-        ContentStream::Ptr _fileReader;
+        ContentStream::Ptr _contentStream;
     };
 
 } // namespace Ast

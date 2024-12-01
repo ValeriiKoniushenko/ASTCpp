@@ -25,13 +25,13 @@
 #include "Ast/Modifiers/ClassLexerModifier.h"
 #include "Ast/Modifiers/FileLexerModifier.h"
 #include "Ast/Readers/ContentStream.h"
-#include "AstCpp/AstCppTree.h"
-#include "AstCpp/FileParser.h"
+#include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 #include "AstCpp/Rules/ClassRules.h"
 #include "AstCpp/Rules/CommonRules.h"
 #include "AstCpp/Rules/EnumClassRules.h"
 #include "AstCpp/Rules/NamespaceRules.h"
+#include "AstCpp/Tree.h"
 
 #include <gtest/gtest.h>
 
@@ -184,11 +184,18 @@ TEST(ASTTests, SimpleParse)
 {
     using namespace Ast;
 
-    LogCollector logCollector;
+    Cpp::Parser parser{ ContentStream(content) };
+    Cpp::Tree tree = parser.GenerateTree();
 
-    Cpp::Tree tree(reader);
-    tree.Parse(logCollector);
+    auto found = tree.FindIf(
+        [](BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Internal";
+        });
 
-    Verify(!logCollector.HasAny<Ast::LogCollector::LogType::Error>(),
-           "Impossible to build a correct AST. Try to recheck your code & source code above");
+    ASSERT_TRUE(found);
+    EXPECT_EQ(found->GetLexerName(), "Internal");
+    ASSERT_TRUE(found->HasParent());
+
+    int i = 1;
 }

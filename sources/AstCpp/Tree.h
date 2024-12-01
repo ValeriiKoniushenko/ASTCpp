@@ -18,32 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "ASTFileTree.h"
+#pragma once
 
-namespace Ast
+#include "Ast/ASTFileTree.h"
+
+namespace Ast::Cpp
 {
 
-    ASTFileTree::ASTFileTree(const ContentStream::Ptr& reader)
-        : _fileLexer{ FileLexer::Create(reader) },
-          _contentStream{ reader }
+    class Tree final : public ASTFileTree
     {
-    }
+    public:
+        explicit Tree(const ContentStream::Ptr& reader) : ASTFileTree(reader) {}
+        explicit Tree(const FileLexer::Ptr& fileLexer) : ASTFileTree(fileLexer) {}
+        ~Tree() override = default;
 
-    ASTFileTree::ASTFileTree(const FileLexer::Ptr& fileLexer)
-        : _fileLexer{ fileLexer },
-          _contentStream{ fileLexer->GetReader() }
-    {
-    }
+        void Parse(LogCollector& logCollector);
+    };
 
-    void ASTFileTree::ParseFrom(const FileLexer::Ptr& fileLexer)
-    {
-        _fileLexer = fileLexer;
-        _contentStream = fileLexer->GetReader();
-    }
-
-    ITextSourceReader::TextSourceT ASTFileTree::GetTextSource() const
-    {
-        return _fileLexer->GetTextSource();
-    }
-
-} // namespace Ast
+} // namespace Ast::Cpp

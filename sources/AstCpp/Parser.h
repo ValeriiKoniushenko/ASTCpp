@@ -20,11 +20,12 @@
 
 #pragma once
 
-#include "Ast/FileParser.h"
+#include "Ast/Parser.h"
 #include "Ast/Readers/BaseTokenReader.h"
 #include "Lexers/ClassLexer.h"
 #include "Lexers/EnumClassLexer.h"
 #include "Lexers/NamespaceLexer.h"
+#include "Tree.h"
 
 #include <vector>
 
@@ -36,17 +37,22 @@ namespace Ast
 namespace Ast::Cpp
 {
 
-    class FileParser final : public Ast::FileParser
+    class Parser final : public Ast::Parser
     {
     public:
         template<class T>
         using Container = std::vector<boost::intrusive_ptr<T>>;
 
     public:
-        FileParser() = default;
-        ~FileParser() override = default;
+        Parser() = default;
+        explicit Parser(ContentStream& stream);
+        explicit Parser(ContentStream&& stream);
+        ~Parser() override = default;
 
-        bool Parse(const ContentStream::Ptr& file, LogCollector& logCollector) override;
+        void Parse(const ContentStream::Ptr& file) override;
+        [[nodiscard]] const LogCollector& GetLogCollector() const;
+        [[nodiscard]] Ast::Cpp::Tree GenerateTree();
+
         void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) override;
 
     protected:
@@ -75,6 +81,8 @@ namespace Ast::Cpp
         Container<ClassLexer> _classLexers;
         Container<NamespaceLexer> _namespaceLexers;
         Container<EnumClassLexer> _enumClassLexers;
+        LogCollector _logCollector;
+        ContentStream::Ptr _contentStream;
     };
 
 } // namespace Ast::Cpp

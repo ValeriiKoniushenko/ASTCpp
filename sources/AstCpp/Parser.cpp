@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "AstCpp/FileParser.h"
+#include "AstCpp/Parser.h"
 
 #include "Readers/ClassReader.h"
 #include "Readers/EnumClassReader.h"
@@ -29,21 +29,44 @@
 namespace Ast::Cpp
 {
 
-    bool FileParser::Parse(const ContentStream::Ptr& file, LogCollector& logCollector)
+    Parser::Parser(ContentStream& stream)
     {
-        RawParse(file, logCollector);
-        BindScopes(logCollector);
-        return true;
+        Parse(&stream);
     }
 
-    void FileParser::RawParse(const ContentStream::Ptr& reader, LogCollector& logCollector)
+    Parser::Parser(ContentStream&& stream)
+    {
+        _contentStream = ContentStream::Ptr(new ContentStream{ std::move(stream) });
+        Parse(_contentStream);
+    }
+
+    void Parser::Parse(const ContentStream::Ptr& stream)
+    {
+        _contentStream = stream;
+        RawParse(stream, _logCollector);
+        BindScopes(_logCollector);
+    }
+
+    const LogCollector& Parser::GetLogCollector() const
+    {
+        return _logCollector;
+    }
+
+    Tree Parser::GenerateTree()
+    {
+        Tree tree(_contentStream);
+        tree.Parse(_logCollector);
+        return tree;
+    }
+
+    void Parser::RawParse(const ContentStream::Ptr& reader, LogCollector& logCollector)
     {
         ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, reader, logCollector);
         ReadAs<ClassLexer, ClassReader>(_classLexers, reader, logCollector);
         ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, reader, logCollector);
     }
 
-    void FileParser::BindScopes(LogCollector& logCollector)
+    void Parser::BindScopes(LogCollector& logCollector)
     {
         BaseLexer* lexer = BindScopesForLexer(nullptr, logCollector);
         while ((lexer = FindNextLexer(lexer)))
@@ -51,21 +74,11 @@ namespace Ast::Cpp
             lexer = BindScopesForLexer(lexer, logCollector);
         }
 
-        String path;
-        if (const auto filePath = GetFilePath())
-        {
-            path = filePath->string();
-        }
-        else
-        {
-            path = String("none");
-        }
-
-        logCollector.AddLog(
-            { String::Format("Successfully was build binding between lexers at file: '{}'", path.c_str()), LogCollector::LogType::Success });
+        logCollector.AddLog({ String::Format("Successfully was build binding between lexers at file: '{}'", _contentStream->GetFilePath().c_str()),
+                              LogCollector::LogType::Success });
     }
 
-    BaseLexer* FileParser::BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector)
+    BaseLexer* Parser::BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector)
     {
         const auto startChildsCount = prevLexer ? prevLexer->GetChildLexers().size() : 0;
         IterateOverLexers(
@@ -109,7 +122,7 @@ namespace Ast::Cpp
         return prevLexer;
     }
 
-    BaseLexer* FileParser::FindNextLexer(const BaseLexer* prevLexer)
+    BaseLexer* Parser::FindNextLexer(const BaseLexer* prevLexer)
     {
         if (!prevLexer)
         {
@@ -167,7 +180,7 @@ namespace Ast::Cpp
         return nearestLexer;
     }
 
-    void FileParser::IterateOverLexers(std::function<bool(BaseLexer*)>&& callback)
+    void Parser::IterateOverLexers(std::function<bool(BaseLexer*)>&& callback)
     {
         if (!callback)
         {

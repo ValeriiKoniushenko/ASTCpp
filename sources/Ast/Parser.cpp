@@ -18,25 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "Parser.h"
+#include "Readers/ContentStream.h"
+#include "Readers/FileReader.h"
 
-#include "Ast/ASTFileTree.h"
-#include "FileParser.h"
-
-namespace Ast::Cpp
+namespace Ast
 {
 
-    class Tree final : public ASTFileTree
+    /*
+    std::optional<std::filesystem::path> Parser::GetFilePath()
     {
-    public:
-        explicit Tree(const ContentStream::Ptr& reader) : ASTFileTree(reader) {}
-        explicit Tree(const FileLexer::Ptr& fileLexer) : ASTFileTree(fileLexer) {}
-        ~Tree() override = default;
+        std::optional<std::filesystem::path> path;
+        IterateOverLexers(
+            [&](BaseLexer* lexer)
+            {
+                if (Verify(lexer))
+                {
+                    const auto reader = lexer->GetReader();
+                    if (Verify(!!reader))
+                    {
+                        if (const auto r = boost::dynamic_pointer_cast<const FileReader>(reader))
+                        {
+                            path = r->GetPathToFile().string();
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            });
 
-        void Parse(LogCollector& logCollector)
-        {
-            ParseUsing<FileParser>(logCollector);
-        }
-    };
-
-} // namespace Ast::Cpp
+        return path;
+    }
+*/
+} // namespace Ast

@@ -22,7 +22,7 @@
 
 #include "Ast/ASTFileTree.h"
 #include "Ast/Readers/FileReader.h"
-#include "AstCpp/AstCppTree.h"
+#include "AstCpp/Tree.h"
 
 namespace Ast
 {

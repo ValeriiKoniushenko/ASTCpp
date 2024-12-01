@@ -27,19 +27,16 @@
 
 namespace Ast
 {
-    class FileParser : Utils::CopyableAndMoveable
+    class Parser : Utils::CopyableAndMoveable
     {
     public:
-        FileParser() = default;
-        ~FileParser() override = default;
+        Parser() = default;
+        ~Parser() override = default;
 
-        virtual bool Parse(const ContentStream::Ptr& content, LogCollector& logCollector) = 0;
+        virtual void Parse(const ContentStream::Ptr& content) = 0;
         virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
-
-        // TODO: add 'const'
-        [[nodiscard]] std::optional<std::filesystem::path> GetFilePath();
     };
 
     template<class T>
-    concept IsFileParser = std::derived_from<T, FileParser>;
+    concept IsFileParser = std::derived_from<T, Parser>;
 } // namespace Ast

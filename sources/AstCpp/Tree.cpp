@@ -18,35 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "FileParser.h"
+#pragma once
 
-#include "Readers/ContentStream.h"
-#include "Readers/FileReader.h"
+#include "Tree.h"
+#include "Parser.h"
 
-namespace Ast
+namespace Ast::Cpp
 {
 
-    std::optional<std::filesystem::path> FileParser::GetFilePath()
+    void Tree::Parse(LogCollector& logCollector)
     {
-        std::optional<std::filesystem::path> path;
-        IterateOverLexers(
-            [&](BaseLexer* lexer)
-            {
-                if (Verify(lexer))
-                {
-                    const auto reader = lexer->GetReader();
-                    if (Verify(!!reader))
-                    {
-                        if (const auto r = boost::dynamic_pointer_cast<const FileReader>(reader))
-                        {
-                            path = r->GetPathToFile().string();
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            });
-
-        return path;
+        ParseUsing<Ast::Cpp::Parser>(logCollector);
     }
-} // namespace Ast
+
+} // namespace Ast::Cpp

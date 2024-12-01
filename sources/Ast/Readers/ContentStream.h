@@ -45,15 +45,20 @@ namespace Ast
     public:
         AST_CLASS(ContentStream)
 
+        ContentStream() = default;
+
+        template<IsContentFilter... Filter>
+        explicit ContentStream(const String::CharT* data)
+        {
+            Read(data);
+            ApplyFilters<Filter...>();
+            _content.ShrinkToFit();
+        }
+
         ~ContentStream() override = default;
 
         bool Read(const String::CharT* content);
         [[nodiscard]] const String& Data() const noexcept;
-
-        [[nodiscard]] static Ptr Create()
-        {
-            return { new ContentStream() };
-        }
 
         template<IsContentFilter... Filter>
         void ApplyFilters()
@@ -61,9 +66,9 @@ namespace Ast
             (Filter{}.MakeTransform(_content), ...);
         }
 
-    protected:
-        ContentStream() = default;
+        [[nodiscard]] virtual String GetFilePath() const { return "None"_atom; }
 
+    protected:
         String _content;
     };
 
