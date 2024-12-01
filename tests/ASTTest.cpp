@@ -196,3 +196,710 @@ TEST(ASTTests, SimpleParse)
     EXPECT_EQ(found->GetLexerName(), "Internal");
     ASSERT_TRUE(found->HasParent());
 }
+
+TEST(ASTTests, ParentsChecking)
+{
+    using namespace Ast;
+    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+    auto found = tree.FindIf(
+        [](BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Internal";
+        });
+
+    ASSERT_TRUE(found);
+    EXPECT_EQ(found->GetLexerName(), "Internal");
+
+    {
+        // parent checking
+        ASSERT_TRUE(found->HasParent());
+        auto parent = found->GetParentLexer();
+        ASSERT_TRUE(parent);
+        EXPECT_EQ(parent->GetLexerName(), "GlobalClass");
+    }
+
+    {
+        // parent checking
+        ASSERT_TRUE(found->GetParentLexer()->HasParent());
+        auto parent = found->GetParentLexer()->GetParentLexer();
+        ASSERT_TRUE(parent);
+        EXPECT_EQ(parent->GetLexerName(), "none"); // none == {some_file_name}
+    }
+}
+
+TEST(ASTTests, DetailedLexerClassChecking)
+{
+    using namespace Ast;
+    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+    auto found = tree.FindIf(
+        [](BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Internal";
+        });
+
+    ASSERT_TRUE(found);
+    EXPECT_EQ(found->GetLexerName(), "Internal");
+    EXPECT_FALSE(found->HasChildLexers());
+    EXPECT_TRUE(found->GetReader());
+    EXPECT_TRUE(found->GetOpenScope().has_value());
+    EXPECT_TRUE(found->GetCloseScope().has_value());
+    EXPECT_EQ(found->GetLexerType(), Cpp::ClassLexer::typeName);
+    EXPECT_TRUE(found->IsTypeOf<Cpp::ClassLexer>());
+
+    {
+        auto foundNamespace = found->CastTo<Cpp::NamespaceLexer>();
+        ASSERT_FALSE(foundNamespace);
+    }
+
+    {
+        auto foundClass = found->CastTo<Cpp::ClassLexer>();
+        ASSERT_TRUE(foundClass);
+        EXPECT_FALSE(foundClass->IsFinal());
+        EXPECT_FALSE(foundClass->HasClassParents());
+        ASSERT_TRUE(foundClass->HasFields());
+        EXPECT_EQ(1, foundClass->GetFields().size());
+
+        const auto field = foundClass->GetFields().front();
+        EXPECT_FALSE(field.isConst);
+        EXPECT_FALSE(field.isConstexpr);
+        EXPECT_FALSE(field.isConstinit);
+        EXPECT_FALSE(field.isStatic);
+        EXPECT_EQ("i", field.name);
+        EXPECT_EQ("int", field.type);
+        EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, field.accessSpecifier);
+    }
+}
+
+TEST(ASTTests, DetailedBiggerLexerClassChecking)
+{
+    using namespace Ast;
+    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+    auto found = tree.FindIf(
+        [](BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "GlobalClass";
+        });
+
+    ASSERT_TRUE(found);
+    ASSERT_EQ(found->GetLexerName(), "GlobalClass");
+    ASSERT_TRUE(found->HasChildLexers());
+
+    {
+        auto lexer = found->CastTo<Cpp::ClassLexer>();
+        ASSERT_TRUE(lexer);
+        EXPECT_FALSE(lexer->IsFinal());
+        EXPECT_TRUE(lexer->HasClassParents());
+        ASSERT_TRUE(lexer->HasFields());
+        EXPECT_EQ(6, lexer->GetFields().size());
+
+        // field #1
+        {
+            const auto field = lexer->GetFields()[0];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("publicA", field.name);
+            EXPECT_EQ("int", field.type);
+            EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Public, field.accessSpecifier);
+        }
+
+        // field #2
+        {
+            const auto field = lexer->GetFields()[1];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("publicStr", field.name);
+            EXPECT_EQ("std::string", field.type);
+            EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Public, field.accessSpecifier);
+        }
+
+        // field #3
+        {
+            const auto field = lexer->GetFields()[2];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_TRUE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("protectedA", field.name);
+            EXPECT_EQ("int", field.type);
+            EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Protected, field.accessSpecifier);
+        }
+
+        // field #4
+        {
+            const auto field = lexer->GetFields()[3];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("protectedStr", field.name);
+            EXPECT_EQ("std::string", field.type);
+            EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Protected, field.accessSpecifier);
+        }
+
+        // field #5
+        {
+            const auto field = lexer->GetFields()[4];
+            EXPECT_TRUE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("privateA", field.name);
+            EXPECT_EQ("int", field.type);
+            EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, field.accessSpecifier);
+        }
+
+        // field #6
+        {
+            const auto field = lexer->GetFields()[5];
+            EXPECT_FALSE(field.isConst);
+            EXPECT_FALSE(field.isConstexpr);
+            EXPECT_FALSE(field.isConstinit);
+            EXPECT_FALSE(field.isStatic);
+            EXPECT_EQ("privateStr", field.name);
+            EXPECT_EQ("std::string", field.type);
+            EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, field.accessSpecifier);
+        }
+
+        auto parents = lexer->GetClassParents();
+        ASSERT_EQ(4, parents.size());
+        // parent #1
+        {
+            auto parent = parents[0];
+            EXPECT_EQ(Cpp::ClassLexer::InheritanceType::Public, parent.type);
+            EXPECT_EQ("std::base_string<char, std::char_traits<char>, std::allocator<char>>", parent.name);
+        }
+
+        // parent #2
+        {
+            auto parent = parents[1];
+            EXPECT_EQ(Cpp::ClassLexer::InheritanceType::Private, parent.type);
+            EXPECT_EQ("SomeInterface<char>", parent.name);
+        }
+
+        // parent #3
+        {
+            auto parent = parents[2];
+            EXPECT_EQ(Cpp::ClassLexer::InheritanceType::Public, parent.type);
+            EXPECT_EQ("ElseOne", parent.name);
+        }
+
+        // parent #4
+        {
+            auto parent = parents[3];
+            EXPECT_EQ(Cpp::ClassLexer::InheritanceType::Protected, parent.type);
+            EXPECT_EQ("SomeInterface222<char>", parent.name);
+        }
+    }
+}
+
+TEST(ASTTests, ScopeChecking)
+{
+    using namespace Ast;
+    Cpp::ClassLexer::Ptr lexer;
+
+    {
+        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        auto found = tree.FindIf(
+            [](BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Internal";
+            });
+
+        ASSERT_TRUE(found);
+        lexer = found->CastTo<Cpp::ClassLexer>();
+        ASSERT_TRUE(lexer);
+    }
+
+    ASSERT_TRUE(lexer);
+    EXPECT_EQ(lexer->GetLexerName(), "Internal");
+    ASSERT_TRUE(lexer->HasParent());
+}
+
+TEST(ASTTests, GetRootLexer)
+{
+    using namespace Ast;
+    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+    auto found = tree.FindIf(
+        [](BaseLexer* lexer)
+        {
+            return lexer->GetLexerName() == "Internal";
+        });
+
+    ASSERT_TRUE(found);
+    const auto root = found->GetRootLexer();
+    ASSERT_TRUE(root);
+    EXPECT_EQ("none", root->GetLexerName());
+}
+
+TEST(ASTTests, LexerConstAndNonConstMiscTests)
+{
+    using namespace Ast;
+    {
+        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        int lexersCount = 0;
+        tree.ForEach(
+            [&lexersCount](BaseLexer* lexer, auto)
+            {
+                ++lexersCount;
+                return true;
+            });
+
+        EXPECT_GT(lexersCount, 0);
+    }
+
+    {
+        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        int lexersCount = 0;
+        tree.ForEach(
+            [&lexersCount](const BaseLexer* lexer, auto)
+            {
+                ++lexersCount;
+                return true;
+            });
+
+        EXPECT_GT(lexersCount, 0);
+    }
+
+    {
+        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        const auto found = tree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Internal";
+            });
+
+        ASSERT_TRUE(found);
+    }
+
+    {
+        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        const auto found = tree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Internal";
+            });
+
+        ASSERT_TRUE(found);
+    }
+
+    {
+        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        const auto found = tree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "GlobalClass";
+            });
+
+        ASSERT_TRUE(found);
+        EXPECT_GT(found->GetChildLexers().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Cpp::NamespaceLexer>().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Cpp::EnumClassLexer>().size(), 0);
+    }
+
+    {
+        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        const auto found = tree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "GlobalClass";
+            });
+
+        ASSERT_TRUE(found);
+        EXPECT_GT(found->GetChildLexers().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Cpp::NamespaceLexer>().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Cpp::EnumClassLexer>().size(), 0);
+    }
+
+    {
+        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        const auto found = tree.FindIfAs<Cpp::ClassLexer>(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "GlobalClass";
+            });
+
+        ASSERT_TRUE(found);
+        EXPECT_EQ(Cpp::ClassLexer::typeName, found->GetLexerType());
+        EXPECT_GT(found->GetChildLexers().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Cpp::NamespaceLexer>().size(), 0);
+        EXPECT_EQ(found->GetChildLexers<Cpp::EnumClassLexer>().size(), 0);
+    }
+}
+
+TEST(ASTTests, LexerConstAndNonConstMiscTests2)
+{
+    using namespace Ast;
+
+    {
+        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        const auto found = tree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Ast2::Utils";
+            });
+
+        ASSERT_TRUE(found);
+        for (auto&& child : found->GetChildLexers<Cpp::ClassLexer>())
+        {
+            EXPECT_TRUE(child->IsTypeOf<Cpp::ClassLexer>());
+        }
+        for (auto&& child : found->GetChildLexers<Cpp::NamespaceLexer>())
+        {
+            EXPECT_TRUE(child->IsTypeOf<Cpp::NamespaceLexer>());
+        }
+    }
+
+    {
+        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+        const auto found = tree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Reader";
+            });
+
+        ASSERT_TRUE(found);
+        EXPECT_EQ("Ast2::Utils::Reader", found->GetFullPath().first);
+    }
+}
+
+TEST(ASTTests, TryToGetLexerByXXX)
+{
+    using namespace Ast;
+    {
+        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        auto found = tree.FindFirstByName<Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+    }
+
+    {
+        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        auto found = tree.FindFirstByName<Cpp::ClassLexer>("1111111111111111");
+        ASSERT_FALSE(found);
+    }
+
+    {
+        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const auto found = tree.FindFirstByName<Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+    }
+    {
+        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+    }
+
+    {
+        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+    }
+}
+
+TEST(ASTTests, CheckRulesForClass)
+{
+    {
+        using namespace Ast;
+        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("Vec2");
+        ASSERT_TRUE(found);
+        LogCollector logCollector;
+        found->IsCorrespondingToRule(Cpp::NameRule(R"([A-Z]\w+)"), logCollector);
+    }
+}
+
+TEST(ASTTests, Marks)
+{
+    using namespace Ast;
+    const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+    {
+        const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
+        ASSERT_TRUE(found);
+        EXPECT_FALSE(found->IsTemplate());
+        ASSERT_TRUE(found->IsMarked());
+        EXPECT_EQ("CLASS", found->GetMark()->rule);
+        EXPECT_EQ("Smth", found->GetMark()->params.front());
+    }
+
+    {
+        const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("Vec2");
+        ASSERT_TRUE(found);
+        EXPECT_TRUE(found->IsTemplate());
+        ASSERT_TRUE(found->IsMarked());
+        EXPECT_EQ("CLASS", found->GetMark()->rule);
+        EXPECT_EQ("Smth1", found->GetMark()->params.front());
+        EXPECT_EQ("Smth2", found->GetMark()->params.back());
+    }
+
+    {
+        const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("PrivateVec2");
+        ASSERT_TRUE(found);
+        EXPECT_TRUE(found->IsTemplate());
+        ASSERT_TRUE(found->IsMarked());
+        EXPECT_EQ("CLASS", found->GetMark()->rule);
+        EXPECT_EQ("Smth1", found->GetMark()->params.front());
+        EXPECT_EQ("Smth2", found->GetMark()->params.back());
+    }
+}
+
+TEST(ASTTests, ApplyClassRule)
+{
+    using namespace Ast;
+    const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+    const auto foundClass = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
+    ASSERT_TRUE(foundClass);
+
+    LogCollector logCollector;
+    ASSERT_TRUE(foundClass->IsCorrespondingToRule(Cpp::Class::BaseRule{}, logCollector));
+
+    {
+        Cpp::NameRule nameRule(R"(([A-Z_]\w*)+)");
+        nameRule.OverrideLogType(LogCollector::LogType::Warning);
+        EXPECT_TRUE(foundClass->IsCorrespondingToRule(nameRule, logCollector));
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Cpp::NameRule rule(R"(([a-z_]\w*)+)");
+        rule.OverrideLogType(LogCollector::LogType::Warning);
+        EXPECT_FALSE(foundClass->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_TRUE(logCollector.HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Cpp::LineCountRule rule(1);
+        rule.OverrideLogType(LogCollector::LogType::Warning);
+        EXPECT_FALSE(foundClass->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_TRUE(logCollector.HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Cpp::LineCountRule rule(300);
+        rule.OverrideLogType(LogCollector::LogType::Warning);
+        EXPECT_TRUE(foundClass->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+}
+
+TEST(ASTTests, ApplyEnumClassRule)
+{
+    using namespace Ast;
+    const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+    const auto found = tree.FindFirstByNameAs<Cpp::EnumClassLexer>("EType");
+    ASSERT_TRUE(found);
+
+    LogCollector logCollector;
+    ASSERT_TRUE(found->IsCorrespondingToRule(Cpp::EnumClass::BaseRule{}, logCollector));
+
+    {
+        Cpp::NameRule nameRule(R"(([A-Z_]\w*)+)");
+        nameRule.OverrideLogType(LogCollector::LogType::Warning);
+        EXPECT_TRUE(found->IsCorrespondingToRule(nameRule, logCollector));
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Cpp::NameRule rule(R"(([a-z_]\w*)+)");
+        rule.OverrideLogType(LogCollector::LogType::Warning);
+        EXPECT_FALSE(found->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_TRUE(logCollector.HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+}
+
+TEST(ASTTests, ApplyNamespaceRule)
+{
+    using namespace Ast;
+    const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+
+    const auto found = tree.FindFirstByNameAs<Cpp::NamespaceLexer>("Ast");
+    ASSERT_TRUE(found);
+
+    LogCollector logCollector;
+    ASSERT_TRUE(found->IsCorrespondingToRule(Cpp::Namespace::BaseRule{}, logCollector));
+
+    {
+        Cpp::NameRule nameRule(R"(([A-Z_]\w*)+)");
+        nameRule.OverrideLogType(LogCollector::LogType::Warning);
+        EXPECT_TRUE(found->IsCorrespondingToRule(nameRule, logCollector));
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+
+    {
+        Cpp::NameRule rule(R"(([a-z_]\w*)+)");
+        rule.OverrideLogType(LogCollector::LogType::Warning);
+        EXPECT_FALSE(found->IsCorrespondingToRule(rule, logCollector));
+        EXPECT_TRUE(logCollector.HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+        logCollector.ClearLogs();
+    }
+}
+
+TEST(ASTTests, GenerateNewClass)
+{
+    using namespace Ast;
+
+    auto stream = ContentStream::Create();
+    ASSERT_TRUE(stream);
+
+    auto myFile = FileLexer::Create(stream);
+    ASSERT_TRUE(myFile);
+    FileLexerModifier fileModifier(myFile);
+    fileModifier.SetFileName("smth.cpp");
+    fileModifier.SetPragmaOnce();
+
+    EXPECT_EQ("smth.cpp", myFile->GetFileName());
+    EXPECT_TRUE(myFile->HasPragmaOnce());
+
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    ASSERT_TRUE(myClass);
+    BaseLexerModifier classModifier(myClass);
+    classModifier.SetLexerName("MyClass");
+
+    EXPECT_EQ("MyClass", myClass->GetLexerName());
+
+    myClass->TryToSetParent(myFile);
+
+    EXPECT_EQ(myClass->GetParentLexer(), myFile);
+}
+
+TEST(ASTTests, BuildNewSimpleTree)
+{
+    using namespace Ast;
+    auto stream = ContentStream::Create();
+    ASSERT_TRUE(stream);
+
+    auto myFile = FileLexer::Create(stream);
+    ASSERT_TRUE(myFile);
+    FileLexerModifier fileModifier(myFile);
+    fileModifier.SetFileName("smth.cpp");
+    fileModifier.SetPragmaOnce();
+
+    EXPECT_EQ("smth.cpp", myFile->GetFileName());
+    EXPECT_TRUE(myFile->HasPragmaOnce());
+
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    ASSERT_TRUE(myClass);
+    ASSERT_TRUE(myClass->GetLexerType() == Cpp::ClassLexer::typeName);
+
+    Cpp::ClassLexerModifier classModifier(myClass);
+    classModifier.SetLexerName("MyClass");
+    classModifier.AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    classModifier.AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+
+    EXPECT_EQ("MyClass", myClass->GetLexerName());
+    ASSERT_EQ(2, myClass->GetFields().size());
+
+    EXPECT_EQ("int", myClass->GetFields()[0].type);
+    EXPECT_EQ("age", myClass->GetFields()[0].name);
+    EXPECT_EQ("", myClass->GetFields()[0].value);
+    EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[0].accessSpecifier);
+
+    EXPECT_EQ("std::string", myClass->GetFields()[1].type);
+    EXPECT_EQ("name", myClass->GetFields()[1].name);
+    EXPECT_EQ("\"Mark\"", myClass->GetFields()[1].value);
+    EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[1].accessSpecifier);
+
+    myClass->TryToSetParent(myFile);
+
+    EXPECT_EQ(myClass->GetParentLexer(), myFile);
+
+    Cpp::Tree astFileTree(myFile);
+    LogCollector logCollector;
+    EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+    EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
+
+    auto found = astFileTree.FindFirstByNameAs<Cpp::ClassLexer>("MyClass");
+    ASSERT_TRUE(found);
+    ASSERT_EQ(2, found->GetFields().size());
+}
+
+TEST(ASTTests, BuildNewTree)
+{
+    using namespace Ast;
+
+    auto stream = ContentStream::Create();
+    ASSERT_TRUE(stream);
+
+    auto myFile = FileLexer::Create(stream);
+    ASSERT_TRUE(myFile);
+    FileLexerModifier fileModifier(myFile);
+    fileModifier.SetFileName("smth.cpp");
+    fileModifier.SetPragmaOnce();
+
+    EXPECT_EQ("smth.cpp", myFile->GetFileName());
+    EXPECT_TRUE(myFile->HasPragmaOnce());
+
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    ASSERT_TRUE(myClass);
+    ASSERT_TRUE(myClass->GetLexerType() == Cpp::ClassLexer::typeName);
+
+    Cpp::ClassLexerModifier classModifier(myClass);
+    classModifier.SetLexerName("MyClass");
+    classModifier.AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    classModifier.AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+
+    EXPECT_EQ("MyClass", myClass->GetLexerName());
+    ASSERT_EQ(2, myClass->GetFields().size());
+
+    EXPECT_EQ("int", myClass->GetFields()[0].type);
+    EXPECT_EQ("age", myClass->GetFields()[0].name);
+    EXPECT_EQ("", myClass->GetFields()[0].value);
+    EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[0].accessSpecifier);
+
+    EXPECT_EQ("std::string", myClass->GetFields()[1].type);
+    EXPECT_EQ("name", myClass->GetFields()[1].name);
+    EXPECT_EQ("\"Mark\"", myClass->GetFields()[1].value);
+    EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[1].accessSpecifier);
+
+    myClass->TryToSetParent(myFile);
+
+    EXPECT_EQ(myClass->GetParentLexer(), myFile);
+
+    using namespace Ast;
+    Cpp::Tree astFileTree(myFile);
+
+    LogCollector logCollector;
+    EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
+    EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
+
+    auto found = astFileTree.FindFirstByNameAs<Cpp::ClassLexer>("MyClass");
+    ASSERT_TRUE(found);
+    ASSERT_EQ(2, found->GetFields().size());
+
+    std::stringstream ss;
+    ss << astFileTree.GetTextSource().c_str();
+}

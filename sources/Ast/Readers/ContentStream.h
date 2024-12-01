@@ -68,6 +68,8 @@ namespace Ast
 
         [[nodiscard]] virtual String GetFilePath() const { return "None"_atom; }
 
+        [[nodiscard]] static Ptr Create() { return boost::intrusive_ptr<ContentStream>(new ContentStream()); }
+
     protected:
         String _content;
     };
