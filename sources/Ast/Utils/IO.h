@@ -20,15 +20,36 @@
 
 #pragma once
 
-#include "Ast/ASTFileTree.h"
+#include "Ast/Tree.h"
 
 #include <ostream>
 
 namespace Ast
 {
 
-    void Print(const Ast::ASTFileTree& tree);
+    template<IsLexer RootLexerT>
+    std::ostream& Print(std::ostream& stream, const Tree<RootLexerT>& tree)
+    {
+        tree.ForEach(
+            [&](const BaseLexer* lexer, Tree<RootLexerT>::Params params)
+            {
+                stream << "> ";
+                for (int i = 0; i < params.nesting; ++i)
+                {
+                    stream << "\t";
+                }
+                stream << lexer->GetLexerName().c_str() << std::endl;
+
+                return true;
+            });
+
+        return stream;
+    }
 
 } // namespace Ast
 
-std::ostream& operator<<(std::ostream& stream, const Ast::ASTFileTree& tree);
+template<Ast::IsLexer RootLexerT>
+std::ostream& operator<<(std::ostream& stream, const Ast::Tree<RootLexerT>& tree)
+{
+    return Ast::Print<RootLexerT>(stream, tree);
+}

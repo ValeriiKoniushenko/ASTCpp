@@ -25,13 +25,13 @@
 #include "Ast/Modifiers/ClassLexerModifier.h"
 #include "Ast/Modifiers/FileLexerModifier.h"
 #include "Ast/Readers/ContentStream.h"
+#include "Ast/Tree.h"
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 #include "AstCpp/Rules/ClassRules.h"
 #include "AstCpp/Rules/CommonRules.h"
 #include "AstCpp/Rules/EnumClassRules.h"
 #include "AstCpp/Rules/NamespaceRules.h"
-#include "AstCpp/Tree.h"
 
 #include <gtest/gtest.h>
 
@@ -184,7 +184,7 @@ TEST(ASTTests, SimpleParse)
 {
     using namespace Ast;
 
-    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+    Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -200,7 +200,7 @@ TEST(ASTTests, SimpleParse)
 TEST(ASTTests, ParentsChecking)
 {
     using namespace Ast;
-    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+    Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -231,7 +231,7 @@ TEST(ASTTests, ParentsChecking)
 TEST(ASTTests, DetailedLexerClassChecking)
 {
     using namespace Ast;
-    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+    Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -275,7 +275,7 @@ TEST(ASTTests, DetailedLexerClassChecking)
 TEST(ASTTests, DetailedBiggerLexerClassChecking)
 {
     using namespace Ast;
-    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+    Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -405,7 +405,7 @@ TEST(ASTTests, ScopeChecking)
     Cpp::ClassLexer::Ptr lexer;
 
     {
-        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         auto found = tree.FindIf(
             [](BaseLexer* lexer)
@@ -426,7 +426,7 @@ TEST(ASTTests, ScopeChecking)
 TEST(ASTTests, GetRootLexer)
 {
     using namespace Ast;
-    Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+    Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -444,7 +444,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 {
     using namespace Ast;
     {
-        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         int lexersCount = 0;
         tree.ForEach(
@@ -458,7 +458,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         int lexersCount = 0;
         tree.ForEach(
@@ -472,7 +472,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -484,7 +484,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -496,7 +496,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -511,7 +511,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -526,7 +526,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         const auto found = tree.FindIfAs<Cpp::ClassLexer>(
             [](const BaseLexer* lexer)
@@ -547,7 +547,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
     using namespace Ast;
 
     {
-        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -567,7 +567,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
     }
 
     {
-        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -576,7 +576,7 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
             });
 
         ASSERT_TRUE(found);
-        EXPECT_EQ("Ast2::Utils::Reader", found->GetFullPath().first);
+        EXPECT_EQ("Ast::Ast2::Utils::Reader", found->GetFullPath().first);
     }
 }
 
@@ -584,30 +584,30 @@ TEST(ASTTests, TryToGetLexerByXXX)
 {
     using namespace Ast;
     {
-        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
         auto found = tree.FindFirstByName<Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
 
     {
-        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
         auto found = tree.FindFirstByName<Cpp::ClassLexer>("1111111111111111");
         ASSERT_FALSE(found);
     }
 
     {
-        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
         const auto found = tree.FindFirstByName<Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
     {
-        Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
         auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
 
     {
-        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
         const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
@@ -617,7 +617,7 @@ TEST(ASTTests, CheckRulesForClass)
 {
     {
         using namespace Ast;
-        const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
         const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("Vec2");
         ASSERT_TRUE(found);
         LogCollector logCollector;
@@ -628,7 +628,7 @@ TEST(ASTTests, CheckRulesForClass)
 TEST(ASTTests, Marks)
 {
     using namespace Ast;
-    const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
     {
         const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
@@ -663,7 +663,7 @@ TEST(ASTTests, Marks)
 TEST(ASTTests, ApplyClassRule)
 {
     using namespace Ast;
-    const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
     const auto foundClass = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
     ASSERT_TRUE(foundClass);
@@ -711,7 +711,7 @@ TEST(ASTTests, ApplyClassRule)
 TEST(ASTTests, ApplyEnumClassRule)
 {
     using namespace Ast;
-    const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
     const auto found = tree.FindFirstByNameAs<Cpp::EnumClassLexer>("EType");
     ASSERT_TRUE(found);
@@ -741,7 +741,7 @@ TEST(ASTTests, ApplyEnumClassRule)
 TEST(ASTTests, ApplyNamespaceRule)
 {
     using namespace Ast;
-    const Cpp::Tree tree = Cpp::Parser{ ContentStream(content) }.GenerateTree();
+    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
     const auto found = tree.FindFirstByNameAs<Cpp::NamespaceLexer>("Ast");
     ASSERT_TRUE(found);
@@ -837,7 +837,7 @@ TEST(ASTTests, BuildNewSimpleTree)
 
     EXPECT_EQ(myClass->GetParentLexer(), myFile);
 
-    Cpp::Tree astFileTree(myFile);
+    Tree astFileTree(myFile);
     LogCollector logCollector;
     EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
     EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
@@ -847,59 +847,12 @@ TEST(ASTTests, BuildNewSimpleTree)
     ASSERT_EQ(2, found->GetFields().size());
 }
 
-TEST(ASTTests, BuildNewTree)
+TEST(ASTTests, CreateTreeFromClass)
 {
     using namespace Ast;
 
-    auto stream = ContentStream::Create();
-    ASSERT_TRUE(stream);
+    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
-    auto myFile = FileLexer::Create(stream);
-    ASSERT_TRUE(myFile);
-    FileLexerModifier fileModifier(myFile);
-    fileModifier.SetFileName("smth.cpp");
-    fileModifier.SetPragmaOnce();
-
-    EXPECT_EQ("smth.cpp", myFile->GetFileName());
-    EXPECT_TRUE(myFile->HasPragmaOnce());
-
-    auto myClass = Cpp::ClassLexer::Create(stream);
-    ASSERT_TRUE(myClass);
-    ASSERT_TRUE(myClass->GetLexerType() == Cpp::ClassLexer::typeName);
-
-    Cpp::ClassLexerModifier classModifier(myClass);
-    classModifier.SetLexerName("MyClass");
-    classModifier.AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
-    classModifier.AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
-
-    EXPECT_EQ("MyClass", myClass->GetLexerName());
-    ASSERT_EQ(2, myClass->GetFields().size());
-
-    EXPECT_EQ("int", myClass->GetFields()[0].type);
-    EXPECT_EQ("age", myClass->GetFields()[0].name);
-    EXPECT_EQ("", myClass->GetFields()[0].value);
-    EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[0].accessSpecifier);
-
-    EXPECT_EQ("std::string", myClass->GetFields()[1].type);
-    EXPECT_EQ("name", myClass->GetFields()[1].name);
-    EXPECT_EQ("\"Mark\"", myClass->GetFields()[1].value);
-    EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[1].accessSpecifier);
-
-    myClass->TryToSetParent(myFile);
-
-    EXPECT_EQ(myClass->GetParentLexer(), myFile);
-
-    using namespace Ast;
-    Cpp::Tree astFileTree(myFile);
-
-    LogCollector logCollector;
-    EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
-    EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
-
-    auto found = astFileTree.FindFirstByNameAs<Cpp::ClassLexer>("MyClass");
+    const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("Reader");
     ASSERT_TRUE(found);
-    ASSERT_EQ(2, found->GetFields().size());
-
-    std::stringstream ss;
-    ss << astFileTree.GetTextSource().c_str();
 }

@@ -283,5 +283,8 @@ namespace Ast
 
         template<IsLexerOrBase>
         friend class BaseLexerModifier;
+
+        template<IsLexerOrBase>
+        friend class Tree;
     };
 } // namespace Ast

@@ -38,10 +38,7 @@ namespace Ast
         bool DoValidate(LogCollector& logCollector) override;
         [[nodiscard]] bool HasPragmaOnce() const noexcept { return _hasPragmaOnce; }
 
-        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
-        {
-            return { new FileLexer(fileReader) };
-        }
+        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& stream) { return { new FileLexer(stream) }; }
 
         [[nodiscard]] String GetFileName() const
         {

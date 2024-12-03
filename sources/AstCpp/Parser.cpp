@@ -20,6 +20,7 @@
 
 #include "AstCpp/Parser.h"
 
+#include "Ast/Tree.h"
 #include "Readers/ClassReader.h"
 #include "Readers/EnumClassReader.h"
 #include "Readers/NamespaceReader.h"
@@ -50,13 +51,6 @@ namespace Ast::Cpp
     const LogCollector& Parser::GetLogCollector() const
     {
         return _logCollector;
-    }
-
-    Tree Parser::GenerateTree()
-    {
-        Tree tree(_contentStream);
-        tree.Parse(_logCollector);
-        return tree;
     }
 
     void Parser::RawParse(const ContentStream::Ptr& reader, LogCollector& logCollector)

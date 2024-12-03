@@ -29,10 +29,11 @@
 namespace Ast
 {
 
-    class ASTFileTree : public virtual ::Utils::CopyableAndMoveable, public ITextSourceReader, public boost::intrusive_ref_counter<ASTFileTree>
+    template<IsLexerOrBase RootLexerT = FileLexer>
+    class Tree : public virtual ::Utils::CopyableAndMoveable, public ITextSourceReader, public boost::intrusive_ref_counter<Tree<RootLexerT>>
     {
     public:
-        AST_CLASS(ASTFileTree)
+        AST_CLASS(Tree)
 
         struct Params
         {
@@ -46,11 +47,30 @@ namespace Ast
         using FindFunctionT = std::function<bool(std::conditional_t<IsConst, const BaseLexer*, BaseLexer*>)>;
 
     public:
-        explicit ASTFileTree(const ContentStream::Ptr& reader);
-        explicit ASTFileTree(const FileLexer::Ptr& fileLexer);
-        ~ASTFileTree() override = default;
+        explicit Tree(const ContentStream::Ptr& reader)
+            : _rootLexer{ RootLexerT::Create(reader) },
+              _contentStream{ reader }
+        {
+        }
 
-        template<IsFileParser ParserT>
+        explicit Tree(const FileLexer::Ptr& fileLexer)
+            : _rootLexer{ fileLexer },
+              _contentStream{ fileLexer->GetReader() }
+        {
+        }
+
+        ~Tree() override = default;
+
+        template<IsParser ParserT>
+        [[nodiscard]] static Tree<RootLexerT> From(const ParserT& parser)
+        {
+            Tree<RootLexerT> tree(parser.GetContentStream());
+            LogCollector logCollector;
+            tree.template ParseUsing<ParserT>(logCollector);
+            return tree;
+        }
+
+        template<IsParser ParserT>
         void ParseUsing(LogCollector& logCollector)
         {
             if (!Verify(!!_contentStream, "File reader was nullptr"))
@@ -73,20 +93,18 @@ namespace Ast
 
                     if (!lexer->HasParent())
                     {
-                        _fileLexer->ForceSetAsChild(lexer);
+                        _rootLexer->ForceSetAsChild(lexer);
                     }
 
                     return true;
                 });
 
-            _fileLexer->DoValidate(logCollector);
+            _rootLexer->DoValidate(logCollector);
         }
-
-        void ParseFrom(const FileLexer::Ptr& fileLexer);
 
         [[nodiscard]] ContentStream::Ptr GetReader() const { return _contentStream; }
 
-        [[nodiscard]] TextSourceT GetTextSource() const override;
+        [[nodiscard]] TextSourceT GetTextSource() const override { return _rootLexer->GetTextSource(); }
 
         // ===========================================================
         // ================== WORKING WITH LEXERS ====================
@@ -96,14 +114,14 @@ namespace Ast
         void ForEach(ForEachFunctionT<IsConst>&& callback)
         {
             Params params;
-            ForEachImpl<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), _fileLexer.get(), params);
+            ForEachImpl<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), _rootLexer.get(), params);
         }
 
         template<IsLexer Lexer = void>
         void ForEach(ForEachFunctionT<true>&& callback) const
         {
             Params params;
-            ForEachImpl<Lexer, true>(std::forward<ForEachFunctionT<true>>(callback), _fileLexer.get(), params);
+            ForEachImpl<Lexer, true>(std::forward<ForEachFunctionT<true>>(callback), _rootLexer.get(), params);
         }
 
         template<IsLexer Lexer = void>
@@ -241,8 +259,10 @@ namespace Ast
         }
 
     private:
-        FileLexer::Ptr _fileLexer;
+        typename RootLexerT::Ptr _rootLexer;
         ContentStream::Ptr _contentStream;
     };
+
+    using BaseTree = Tree<FileLexer>;
 
 } // namespace Ast

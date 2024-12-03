@@ -25,7 +25,6 @@
 #include "Lexers/ClassLexer.h"
 #include "Lexers/EnumClassLexer.h"
 #include "Lexers/NamespaceLexer.h"
-#include "Tree.h"
 
 #include <vector>
 
@@ -51,9 +50,9 @@ namespace Ast::Cpp
 
         void Parse(const ContentStream::Ptr& file) override;
         [[nodiscard]] const LogCollector& GetLogCollector() const;
-        [[nodiscard]] Ast::Cpp::Tree GenerateTree();
 
         void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) override;
+        [[nodiscard]] ContentStream::Ptr GetContentStream() const { return _contentStream; }
 
     protected:
         template<IsLexer Lexer, IsReader ReaderT>

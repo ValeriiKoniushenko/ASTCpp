@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Ast/ASTFileTree.h"
 #include "Ast/Readers/FileReader.h"
+#include "Ast/Tree.h"
 #include "Ast/Utils/IO.h"
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
@@ -61,7 +61,7 @@ int main()
     if (fileReader->ReadFromFile("D:\\Workspace\\test.cpp"))
     {
         fileReader->ApplyFilters<Ast::Cpp::CommentFilter>();
-        Ast::ASTFileTree tree(fileReader);
+        Ast::Tree tree(fileReader);
         tree.ParseUsing<Ast::Cpp::Parser>(logCollector);
 
         std::cout << tree << std::endl;

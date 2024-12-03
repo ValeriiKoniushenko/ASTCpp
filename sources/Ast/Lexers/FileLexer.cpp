@@ -20,9 +20,8 @@
 
 #include "FileLexer.h"
 
-#include "Ast/ASTFileTree.h"
 #include "Ast/Readers/FileReader.h"
-#include "AstCpp/Tree.h"
+#include "Ast/Tree.h"
 
 namespace Ast
 {
@@ -50,8 +49,8 @@ namespace Ast
     ITextSourceReader::TextSourceT FileLexer::GetTextSource() const
     {
         LogCollector logCollector;
-        Cpp::Tree tree(this->_reader);
-        tree.Parse(logCollector);
+        Tree tree(this->_reader);
+        // tree.P(logCollector);
 
         return {};
     }

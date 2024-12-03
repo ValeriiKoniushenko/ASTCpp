@@ -38,5 +38,5 @@ namespace Ast
     };
 
     template<class T>
-    concept IsFileParser = std::derived_from<T, Parser>;
+    concept IsParser = std::derived_from<T, Parser>;
 } // namespace Ast
