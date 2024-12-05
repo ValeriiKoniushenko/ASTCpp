@@ -158,6 +158,20 @@ namespace Ast
         _childLexers.clear();
     }
 
+    String BaseLexer::GetTextSource() const
+    {
+        TextSourceT source;
+
+        this->GenerateTextSource(source);
+
+        for (const auto& lexer : _childLexers)
+        {
+            lexer->GenerateTextSource(source);
+        }
+
+        return source.source;
+    }
+
     BaseLexer::BaseLexer(const ContentStream::Ptr& reader, const String& type)
         : _reader{ reader },
           _lexerType{ type }

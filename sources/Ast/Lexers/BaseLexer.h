@@ -199,11 +199,15 @@ namespace Ast
         [[nodiscard]] std::optional<Marker> GetMark() const noexcept { return _marking; }
         [[nodiscard]] bool IsMarked() const noexcept { return _marking.has_value(); }
 
+        [[nodiscard]] String GetTextSource() const override;
+
     protected:
         virtual bool DoValidate(LogCollector& logCollector) = 0;
         virtual bool DoValidateScope(LogCollector& logCollector) { return true; }
         virtual bool DoMarkingValidate(LogCollector& logCollector) { return true; }
         virtual bool DoPostValidate(LogCollector& logCollector) { return true; }
+
+        virtual void GenerateTextSource(TextSourceT& source) const = 0;
 
         BaseLexer(const ContentStream::Ptr& reader, const String& type);
 

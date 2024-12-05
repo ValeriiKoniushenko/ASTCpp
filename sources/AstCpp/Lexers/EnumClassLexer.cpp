@@ -27,9 +27,8 @@
 namespace Ast::Cpp
 {
 
-    ITextSourceReader::TextSourceT EnumClassLexer::GetTextSource() const
+    void EnumClassLexer::GenerateTextSource(TextSourceT& source) const
     {
-        return {};
     }
 
     EnumClassLexer::EnumClassLexer(const ContentStream::Ptr& fileReader)

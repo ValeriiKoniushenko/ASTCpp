@@ -26,6 +26,16 @@
 namespace Ast
 {
 
+    void FileLexer::GenerateTextSource(TextSourceT& source) const
+    {
+        if (_hasPragmaOnce)
+        {
+            source.source += "#pragma once" + Code::Endl() + Code::Endl();
+        }
+
+        source.carets["write-point"_atom] = source.source.Size();
+    }
+
     FileLexer::FileLexer(const ContentStream::Ptr& fileReader)
         : BaseLexer(fileReader, typeName)
     {
@@ -44,15 +54,6 @@ namespace Ast
         }
 
         return true;
-    }
-
-    ITextSourceReader::TextSourceT FileLexer::GetTextSource() const
-    {
-        LogCollector logCollector;
-        Tree tree(this->_reader);
-        // tree.P(logCollector);
-
-        return {};
     }
 
 } // namespace Ast

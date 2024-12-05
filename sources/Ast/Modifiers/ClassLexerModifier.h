@@ -37,14 +37,26 @@ namespace Ast::Cpp
         {
         }
 
-        bool AddField(const typename Lexer::Field& field)
+        bool AddField(typename Lexer::Field field)
         {
             if (!Verify(this->IsValid()))
             {
                 return false;
             }
 
-            this->GetLexer()->_fields.push_back(field);
+            this->GetLexer()->_fields.push_back(std::move(field));
+
+            return true;
+        }
+
+        bool AddParent(typename Lexer::ParentUnit parent)
+        {
+            if (!Verify(this->IsValid()))
+            {
+                return false;
+            }
+
+            this->GetLexer()->_parents.push_back(std::move(parent));
 
             return true;
         }

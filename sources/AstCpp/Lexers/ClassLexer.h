@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Ast/Lexers/BaseLexer.h"
+#include "Core/Enum.h"
 
 namespace Ast
 {
@@ -38,33 +39,37 @@ namespace Ast::Cpp
     {
     public:
         AST_CLASS(ClassLexer)
+        inline static const String marker = "CLASS";
 
-        enum class InheritanceType
-        {
-            Public,
-            Private,
-            Protected
-        };
+        CreateEnum(InheritanceType, int, Public, Protected, Private);
 
-        struct TemplateUnit
+        // TODO: change it to the lexer
+        struct TemplateUnit : public ITextSourceReader
         {
+            [[nodiscard]] String GetTextSource() const override { return expression; }
+
             String expression;
         };
 
-        struct ParentUnit
+        // TODO: change it to the lexer
+        struct ParentUnit : public ITextSourceReader
         {
+            ParentUnit() = default;
+            explicit ParentUnit(const String& name)
+                : type{ InheritanceType::Public },
+                  name{ name }
+            {
+            }
+            [[nodiscard]] String GetTextSource() const override { return String(type.ToStr()).ToLowerCase() + " " + name; }
+
             InheritanceType type = InheritanceType::Private;
             String name;
         };
 
-        enum class AccessSpecifier
-        {
-            Public,
-            Protected,
-            Private
-        };
+        CreateEnum(AccessSpecifier, int, Public, Protected, Private);
 
-        struct Field
+        // TODO: change it to the lexer
+        struct Field : public ITextSourceReader
         {
             Field() = default;
             Field(const String& type, const String& name, AccessSpecifier accessSpecifier, const String& value = ""_atom)
@@ -75,10 +80,15 @@ namespace Ast::Cpp
             {
             }
 
+            [[nodiscard]] String GetTextSource() const override;
+
             bool isConst = false;
             bool isConstexpr = false;
             bool isConstinit = false;
             bool isStatic = false;
+            // Now, this field will not read from a file, but possible to set for writing back
+            bool isInline = false;
+
             String name;
             String type;
             String value;
@@ -90,10 +100,7 @@ namespace Ast::Cpp
 
         ~ClassLexer() override = default;
 
-        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
-        {
-            return { new ClassLexer(fileReader) };
-        }
+        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader) { return { new ClassLexer(fileReader) }; }
 
         [[nodiscard]] const std::vector<ParentUnit>& GetClassParents() const noexcept { return _parents; }
         [[nodiscard]] bool HasClassParents() const noexcept { return _parents.size(); }
@@ -101,7 +108,8 @@ namespace Ast::Cpp
         [[nodiscard]] bool HasFields() const noexcept { return _fields.size(); }
         [[nodiscard]] bool IsFinal() const noexcept { return _hasFinal; }
         [[nodiscard]] bool IsTemplate() const noexcept { return _isTemplate; }
-        [[nodiscard]] TextSourceT GetTextSource() const override;
+
+        void GenerateTextSource(TextSourceT& source) const override;
 
     protected:
         explicit ClassLexer(const ContentStream::Ptr& fileReader);
@@ -115,6 +123,8 @@ namespace Ast::Cpp
         void TryToFindTemplate(LogCollector& logCollector);
         void RecognizeFields(LogCollector& logCollector);
         void RemoveNestedScopes(String& body);
+
+        void IterateOverChilds(AccessSpecifier accessSpecifier, std::function<void(const ITextSourceReader&)>&& callback) const;
 
     private:
         bool _hasFinal = false;

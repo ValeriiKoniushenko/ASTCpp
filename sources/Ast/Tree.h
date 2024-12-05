@@ -53,9 +53,9 @@ namespace Ast
         {
         }
 
-        explicit Tree(const FileLexer::Ptr& fileLexer)
-            : _rootLexer{ fileLexer },
-              _contentStream{ fileLexer->GetReader() }
+        explicit Tree(const BaseLexer::Ptr& lexer)
+            : _rootLexer{ lexer },
+              _contentStream{ lexer->GetReader() }
         {
         }
 
@@ -104,7 +104,7 @@ namespace Ast
 
         [[nodiscard]] ContentStream::Ptr GetReader() const { return _contentStream; }
 
-        [[nodiscard]] TextSourceT GetTextSource() const override { return _rootLexer->GetTextSource(); }
+        [[nodiscard]] String GetTextSource() const override { return _rootLexer->GetTextSource(); }
 
         // ===========================================================
         // ================== WORKING WITH LEXERS ====================
@@ -259,7 +259,7 @@ namespace Ast
         }
 
     private:
-        typename RootLexerT::Ptr _rootLexer;
+        BaseLexer::Ptr _rootLexer;
         ContentStream::Ptr _contentStream;
     };
 

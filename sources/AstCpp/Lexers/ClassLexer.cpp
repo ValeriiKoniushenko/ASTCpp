@@ -29,10 +29,10 @@
 namespace Ast::Cpp
 {
 
-    ITextSourceReader::TextSourceT ClassLexer::GetTextSource() const
+    /*ITextSourceReader::TextSourceT ClassLexer::GetTextSource() const
     {
         return {};
-        /*BaseLexer::TextSource textSource;
+        BaseLexer::TextSource textSource;
 
         String templateSource;
         if (_isTemplate)
@@ -54,7 +54,101 @@ namespace Ast::Cpp
 
         textSource.source = String::Format("{}class", templateSource);
 
-        return textSource;*/
+        return textSource;
+    }*/
+
+    String ClassLexer::Field::GetTextSource() const
+    {
+        String source;
+        if (isInline)
+        {
+            source += "inline ";
+        }
+        if (isStatic)
+        {
+            source += "static ";
+        }
+        if (isConstinit)
+        {
+            source += "constinit ";
+        }
+        else if (isConstexpr)
+        {
+            source += "constexpr ";
+        }
+        else if (isConst)
+        {
+            source += "const ";
+        }
+
+        source += type;
+        source += " "_atom;
+        source += name;
+        source += " = ";
+        source += value.IsEmpty() ? "{}" : value;
+        source += ";";
+
+        return source;
+    }
+
+    void ClassLexer::GenerateTextSource(TextSourceT& source) const
+    {
+        uint32_t pos = 0;
+
+        if (auto i = source.carets.find("write-point"_atom); i != source.carets.end())
+        {
+            pos = i->second;
+        }
+
+        // =========== template ==============
+        String classSource;
+        if (_isTemplate)
+        {
+            String tmp;
+            for (const auto& unit : _templateUnits)
+            {
+                tmp += unit.expression;
+                tmp += ", ";
+            }
+            tmp.TrimEnd(' ').TrimEnd(',');
+            classSource += "template<" + tmp + ">" + Code::Endl();
+        }
+
+        // =========== class head ==============
+        classSource += "class " + _lexerName;
+        if (_hasFinal)
+        {
+            classSource += " final";
+        }
+
+        // parents
+        if (!_parents.empty())
+        {
+            classSource += " : " + Code::Endl();
+            for (const auto& p : _parents)
+            {
+                classSource += Code::Tab(3) + p.GetTextSource() + "," + Code::Endl();
+            }
+            classSource.TrimEnd('\n').TrimEnd(',');
+        }
+
+        // =========== class body ==============
+        classSource += Code::Endl();
+        classSource += "{" + Code::Endl();
+
+        // public
+        classSource += "public:" + Code::Endl();
+        IterateOverChilds(AccessSpecifier::Public,
+                          [&classSource, &source](const ITextSourceReader& unit)
+                          {
+                              source.carets["write-point"_atom] = source.source.Size();
+                              classSource += Code::Tab() + unit.GetTextSource() + Code::Endl();
+                          });
+
+        classSource += "};" + Code::Endl();
+
+        source.source.Insert(pos, classSource.c_str());
+        source.carets["write-point"_atom] = source.source.Size();
     }
 
     ClassLexer::ClassLexer(const ContentStream::Ptr& fileReader)
@@ -143,7 +237,11 @@ namespace Ast::Cpp
 
                 parentStr.Trim(' ');
                 parentStr.ShrinkToFit();
-                _parents.emplace_back(type, std::move(parentStr));
+
+                ParentUnit parent;
+                parent.name = std::move(parentStr);
+                parent.type = type;
+                _parents.push_back(std::move(parent));
             }
         }
 
@@ -203,7 +301,7 @@ namespace Ast::Cpp
             {
                 --begin;
             }
-            const auto marker = "CLASS"_atom;
+
             begin -= marker.Size();
             if (begin >= _reader->Data().c_str())
             {
@@ -274,11 +372,15 @@ namespace Ast::Cpp
                     if (string[i] == ',')
                     {
                         tmp.Trim(',').Trim(' ');
-                        _templateUnits.push_back({ std::move(tmp) });
+                        TemplateUnit templateUnit;
+                        templateUnit.expression = std::move(tmp);
+                        _templateUnits.push_back(std::move(templateUnit));
                     }
                 }
             }
-            _templateUnits.push_back({ std::move(tmp) });
+            TemplateUnit templateUnit;
+            templateUnit.expression = std::move(tmp);
+            _templateUnits.push_back(std::move(templateUnit));
         }
     }
 
@@ -397,6 +499,30 @@ namespace Ast::Cpp
             {
                 body.Erase(opened - body.c_str(), closed - body.c_str());
             }
+        }
+    }
+
+    void ClassLexer::IterateOverChilds(AccessSpecifier accessSpecifier, std::function<void(const ITextSourceReader&)>&& callback) const
+    {
+        if (!callback)
+        {
+            return;
+        }
+
+        std::vector<const ITextSourceReader*> children;
+        for (const auto& unit : _fields)
+        {
+            children.push_back(&unit);
+        }
+
+        for (const auto& unit : _childLexers)
+        {
+            children.push_back(unit.get());
+        }
+
+        for (const auto* unit : children)
+        {
+            callback(*unit);
         }
     }
 

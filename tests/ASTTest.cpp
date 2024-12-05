@@ -33,6 +33,7 @@
 #include "AstCpp/Rules/EnumClassRules.h"
 #include "AstCpp/Rules/NamespaceRules.h"
 
+#include <fstream>
 #include <gtest/gtest.h>
 
 namespace
@@ -838,9 +839,6 @@ TEST(ASTTests, BuildNewSimpleTree)
     EXPECT_EQ(myClass->GetParentLexer(), myFile);
 
     Tree astFileTree(myFile);
-    LogCollector logCollector;
-    EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
-    EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
 
     auto found = astFileTree.FindFirstByNameAs<Cpp::ClassLexer>("MyClass");
     ASSERT_TRUE(found);
@@ -850,9 +848,24 @@ TEST(ASTTests, BuildNewSimpleTree)
 TEST(ASTTests, CreateTreeFromClass)
 {
     using namespace Ast;
+    auto stream = ContentStream::Create();
 
-    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
+    auto myFile = FileLexer::Create(stream);
+    FileLexerModifier fileModifier(myFile);
+    fileModifier.SetFileName("smth.cpp");
+    fileModifier.SetPragmaOnce();
 
-    const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("Reader");
-    ASSERT_TRUE(found);
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    Cpp::ClassLexerModifier classModifier(myClass);
+    classModifier.SetLexerName("MyClass");
+    classModifier.AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    classModifier.AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    classModifier.AddParent(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
+    classModifier.AddParent(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
+    myClass->TryToSetParent(myFile);
+
+    Tree tree(myFile);
+    auto source = tree.GetTextSource();
+    std::ofstream file("MyClass.generated.cpp");
+    file << source.c_str();
 }

@@ -19,19 +19,104 @@
 // SOFTWARE.
 
 #pragma once
+
 #include "Ast/CommonTypes.h"
+#include "Utils/CopyableAndMoveableBehaviour.h"
+
+#include <map>
 
 namespace Ast
 {
+    class TextSourceConfig : public Core::Singleton<TextSourceConfig, ::Utils::NotCopyableAndNotMoveable>
+    {
+    public:
+        enum class EndLineType
+        {
+            CR,  // \r
+            LF,  // \n
+            CRLF // \r\n
+        };
+
+        struct CodeStyle
+        {
+            int8_t indentWidth = 4;
+            EndLineType endLineType = EndLineType::LF;
+            bool isUseTab = true;
+        };
+
+    public:
+        [[nodiscard]] CodeStyle GetCodeStyle() const { return _codeStyle; }
+        void SetCodeStyle(const CodeStyle& codeStyle) { _codeStyle = codeStyle; }
+
+        void SetEndLineType(EndLineType type) noexcept { _codeStyle.endLineType = type; }
+        [[nodiscard]] EndLineType GetEndLineType() const noexcept { return _codeStyle.endLineType; }
+        [[nodiscard]] const String& GetEndLine() const
+        {
+            static const auto cr = "\r"_atom;
+            static const auto lf = "\n"_atom;
+            static const auto crlf = "\r\n"_atom;
+
+            if (_codeStyle.endLineType == EndLineType::CR)
+            {
+                return cr;
+            }
+            if (_codeStyle.endLineType == EndLineType::LF)
+            {
+                return lf;
+            }
+            return crlf;
+        }
+
+        void SetUseTab(bool isUse) noexcept { _codeStyle.isUseTab = isUse; }
+        [[nodiscard]] bool IsUseTab() const noexcept { return _codeStyle.isUseTab; }
+        [[nodiscard]] String GetTab(const int8_t count = 1) const
+        {
+            String indents;
+
+            if (_codeStyle.isUseTab)
+            {
+                for (auto i = 0; i < count; ++i)
+                {
+                    indents += "\t";
+                }
+            }
+            else
+            {
+                for (auto i = 0; i < _codeStyle.indentWidth * count; ++i)
+                {
+                    indents += " ";
+                }
+            }
+
+            return indents;
+        }
+
+    protected:
+        TextSourceConfig() = default;
+        friend Singleton;
+
+    private:
+        CodeStyle _codeStyle;
+    };
 
     struct ITextSourceReader
     {
         ITextSourceReader() = default;
         virtual ~ITextSourceReader() = default;
 
-        using TextSourceT = String;
+        struct TextSourceT
+        {
+            String source;
+            std::map<String, uint32_t> carets;
+        };
 
-        [[nodiscard]] virtual TextSourceT GetTextSource() const = 0;
+        [[nodiscard]] virtual String GetTextSource() const = 0;
+
+        struct Code
+        {
+            [[nodiscard]] static String Endl() { return TextSourceConfig::Instance().GetEndLine(); }
+            [[nodiscard]] static String Tab(const int8_t count = 1) { return TextSourceConfig::Instance().GetTab(count); }
+        };
     };
 
 } // namespace Ast

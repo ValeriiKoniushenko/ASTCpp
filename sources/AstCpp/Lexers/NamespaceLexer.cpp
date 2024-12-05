@@ -27,9 +27,8 @@
 namespace Ast::Cpp
 {
 
-    ITextSourceReader::TextSourceT NamespaceLexer::GetTextSource() const
+    void NamespaceLexer::GenerateTextSource(TextSourceT& source) const
     {
-        return {};
     }
 
     NamespaceLexer::NamespaceLexer(const ContentStream::Ptr& fileReader)

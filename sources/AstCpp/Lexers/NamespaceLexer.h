@@ -45,7 +45,7 @@ namespace Ast::Cpp
 
         [[nodiscard]] const std::vector<String>& GetNameList() { return _nameList; }
 
-        [[nodiscard]] TextSourceT GetTextSource() const override;
+        void GenerateTextSource(TextSourceT& source) const override;
 
     protected:
         explicit NamespaceLexer(const ContentStream::Ptr& fileReader);

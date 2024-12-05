@@ -45,7 +45,7 @@ namespace Ast
             return _lexerName;
         }
 
-        [[nodiscard]] TextSourceT GetTextSource() const override;
+        void GenerateTextSource(TextSourceT& source) const override;
 
     private:
         explicit FileLexer(const ContentStream::Ptr& fileReader);
