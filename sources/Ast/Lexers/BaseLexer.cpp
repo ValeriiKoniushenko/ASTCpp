@@ -89,7 +89,7 @@ namespace Ast
 
     void BaseLexer::TryToSetParent(const Ptr& parent)
     {
-        parent->TryToSetAsChild(this);
+        parent->ForceSetAsChild(this);
     }
 
     void BaseLexer::TryToSetAsChild(const Ptr& child)

@@ -36,14 +36,13 @@ namespace Ast
         ~FileLexer() override = default;
 
         bool DoValidate(LogCollector& logCollector) override;
-        [[nodiscard]] bool HasPragmaOnce() const noexcept { return _hasPragmaOnce; }
-
         [[nodiscard]] static Ptr Create(const ContentStream::Ptr& stream) { return { new FileLexer(stream) }; }
 
-        [[nodiscard]] String GetFileName() const
-        {
-            return _lexerName;
-        }
+        void SetPragmaOnce(bool value = true) { _hasPragmaOnce = value; }
+        [[nodiscard]] bool HasPragmaOnce() const noexcept { return _hasPragmaOnce; }
+
+        void SetFileName(const String& name) { SetLexerName(name); }
+        [[nodiscard]] String GetFileName() const { return _lexerName; }
 
         void GenerateTextSource(TextSourceT& source) const override;
 

@@ -21,9 +21,6 @@
 #define CORE_DEBUG
 
 #include "Ast/LogCollector.h"
-#include "Ast/Modifiers/BaseLexerModifier.h"
-#include "Ast/Modifiers/ClassLexerModifier.h"
-#include "Ast/Modifiers/FileLexerModifier.h"
 #include "Ast/Readers/ContentStream.h"
 #include "Ast/Tree.h"
 #include "AstCpp/Parser.h"
@@ -778,9 +775,8 @@ TEST(ASTTests, GenerateNewClass)
 
     auto myFile = FileLexer::Create(stream);
     ASSERT_TRUE(myFile);
-    FileLexerModifier fileModifier(myFile);
-    fileModifier.SetFileName("smth.cpp");
-    fileModifier.SetPragmaOnce();
+    myFile->SetFileName("smth.cpp");
+    myFile->SetPragmaOnce();
 
     EXPECT_EQ("smth.cpp", myFile->GetFileName());
     EXPECT_TRUE(myFile->HasPragmaOnce());
@@ -804,9 +800,8 @@ TEST(ASTTests, BuildNewSimpleTree)
 
     auto myFile = FileLexer::Create(stream);
     ASSERT_TRUE(myFile);
-    FileLexerModifier fileModifier(myFile);
-    fileModifier.SetFileName("smth.cpp");
-    fileModifier.SetPragmaOnce();
+    myFile->SetFileName("smth.cpp");
+    myFile->SetPragmaOnce();
 
     EXPECT_EQ("smth.cpp", myFile->GetFileName());
     EXPECT_TRUE(myFile->HasPragmaOnce());
@@ -849,9 +844,8 @@ TEST(ASTTests, CreateTreeFromClass)
     auto stream = ContentStream::Create();
 
     auto myFile = FileLexer::Create(stream);
-    FileLexerModifier fileModifier(myFile);
-    fileModifier.SetFileName("smth.cpp");
-    fileModifier.SetPragmaOnce();
+    myFile->SetFileName("smth.cpp");
+    myFile->SetPragmaOnce();
 
     auto myClass = Cpp::ClassLexer::Create(stream);
     myClass->SetLexerName("MyClass");
@@ -886,9 +880,8 @@ TEST(ASTTests, CreateDifficultTreeFromClass)
     auto stream = ContentStream::Create();
 
     auto myFile = FileLexer::Create(stream);
-    FileLexerModifier fileModifier(myFile);
-    fileModifier.SetFileName("smth.cpp");
-    fileModifier.SetPragmaOnce();
+    myFile->SetFileName("smth.cpp");
+    myFile->SetPragmaOnce();
 
     auto myClass = Cpp::ClassLexer::Create(stream);
     myClass->SetLexerName("MyClass");
