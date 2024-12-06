@@ -866,6 +866,19 @@ TEST(ASTTests, CreateTreeFromClass)
 
     Tree tree(myFile);
     auto source = tree.GetTextSource();
-    std::ofstream file("MyClass.generated.cpp");
-    file << source.c_str();
+    {
+        const Cpp::Parser parser{ ContentStream(source.c_str()) };
+
+        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Error>());
+        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Warning>());
+
+        const Tree newTree = BaseTree::From(parser);
+        auto found = newTree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "MyClass";
+            });
+        ASSERT_TRUE(found);
+        EXPECT_EQ("MyClass", found->GetLexerName());
+    }
 }
