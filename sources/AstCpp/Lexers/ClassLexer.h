@@ -120,22 +120,22 @@ namespace Ast::Cpp
         [[nodiscard]] std::vector<TemplateUnit>& GetTemplate() { return _templateUnits; }
         [[nodiscard]] const std::vector<TemplateUnit>& GetTemplate() const { return _templateUnits; }
         [[nodiscard]] bool HasTemplate() const noexcept { return _templateUnits.size(); }
-        [[nodiscard]] bool AddTemplate(TemplateUnit template_);
+        bool AddTemplate(TemplateUnit template_);
 
         [[nodiscard]] std::vector<ParentUnit>& GetClassParents() { return _parents; }
         [[nodiscard]] const std::vector<ParentUnit>& GetClassParents() const { return _parents; }
         [[nodiscard]] bool HasClassParents() const noexcept { return _parents.size(); }
-        [[nodiscard]] bool AddClassParents(ParentUnit parent);
+        bool AddClassParents(ParentUnit parent);
 
         [[nodiscard]] std::vector<Field>& GetFields() { return _fields; }
         [[nodiscard]] const std::vector<Field>& GetFields() const { return _fields; }
         [[nodiscard]] bool HasFields() const noexcept { return _fields.size(); }
-        [[nodiscard]] bool AddField(Field field);
+        bool AddField(Field field);
 
         [[nodiscard]] std::vector<Method>& GetMethods() { return _methods; }
         [[nodiscard]] const std::vector<Method>& GetMethods() const { return _methods; }
         [[nodiscard]] bool HasMethods() const noexcept { return _methods.size(); }
-        [[nodiscard]] bool AddMethod(Method method);
+        bool AddMethod(Method method);
 
         void GenerateTextSource(TextSourceT& source) const override;
 

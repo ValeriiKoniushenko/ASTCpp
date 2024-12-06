@@ -131,7 +131,9 @@ namespace Ast
 
         [[nodiscard]] bool WasModified() const noexcept { return _modifierParams.wasModified; }
 
+        void SetLexerName(const String& name) { _lexerName = name; }
         [[nodiscard]] String GetLexerName() const noexcept { return _lexerName; }
+
         [[nodiscard]] String GetLexerType() const noexcept { return _lexerType; }
 
         // ================================================================

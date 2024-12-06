@@ -787,8 +787,7 @@ TEST(ASTTests, GenerateNewClass)
 
     auto myClass = Cpp::ClassLexer::Create(stream);
     ASSERT_TRUE(myClass);
-    BaseLexerModifier classModifier(myClass);
-    classModifier.SetLexerName("MyClass");
+    myClass->SetLexerName("MyClass");
 
     EXPECT_EQ("MyClass", myClass->GetLexerName());
 
@@ -816,10 +815,9 @@ TEST(ASTTests, BuildNewSimpleTree)
     ASSERT_TRUE(myClass);
     ASSERT_TRUE(myClass->GetLexerType() == Cpp::ClassLexer::typeName);
 
-    Cpp::ClassLexerModifier classModifier(myClass);
-    classModifier.SetLexerName("MyClass");
-    classModifier.AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
-    classModifier.AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    myClass->SetLexerName("MyClass");
+    myClass->AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
 
     EXPECT_EQ("MyClass", myClass->GetLexerName());
     ASSERT_EQ(2, myClass->GetFields().size());
@@ -856,12 +854,11 @@ TEST(ASTTests, CreateTreeFromClass)
     fileModifier.SetPragmaOnce();
 
     auto myClass = Cpp::ClassLexer::Create(stream);
-    Cpp::ClassLexerModifier classModifier(myClass);
-    classModifier.SetLexerName("MyClass");
-    classModifier.AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
-    classModifier.AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
-    classModifier.AddParent(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
-    classModifier.AddParent(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
+    myClass->SetLexerName("MyClass");
+    myClass->AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
     myClass->TryToSetParent(myFile);
 
     Tree tree(myFile);
@@ -894,12 +891,11 @@ TEST(ASTTests, CreateDifficultTreeFromClass)
     fileModifier.SetPragmaOnce();
 
     auto myClass = Cpp::ClassLexer::Create(stream);
-    Cpp::ClassLexerModifier classModifier(myClass);
-    classModifier.SetLexerName("MyClass");
-    classModifier.AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
-    classModifier.AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
-    classModifier.AddParent(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
-    classModifier.AddParent(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
+    myClass->SetLexerName("MyClass");
+    myClass->AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
     myClass->TryToSetParent(myFile);
 
     Tree tree(myFile);
