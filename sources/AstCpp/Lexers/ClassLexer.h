@@ -95,6 +95,15 @@ namespace Ast::Cpp
             AccessSpecifier accessSpecifier = AccessSpecifier::Private;
         };
 
+        struct Method : public ITextSourceReader
+        {
+            [[nodiscard]] String GetTextSource() const override;
+
+            String comment;
+            String header;
+            String body;
+        };
+
     public:
         inline static const auto typeName = "class"_atom;
 
@@ -102,12 +111,31 @@ namespace Ast::Cpp
 
         [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader) { return { new ClassLexer(fileReader) }; }
 
-        [[nodiscard]] const std::vector<ParentUnit>& GetClassParents() const noexcept { return _parents; }
-        [[nodiscard]] bool HasClassParents() const noexcept { return _parents.size(); }
-        [[nodiscard]] const std::vector<Field>& GetFields() const noexcept { return _fields; }
-        [[nodiscard]] bool HasFields() const noexcept { return _fields.size(); }
         [[nodiscard]] bool IsFinal() const noexcept { return _hasFinal; }
+        void SetFinal(bool value = true) noexcept { _hasFinal = value; }
+
         [[nodiscard]] bool IsTemplate() const noexcept { return _isTemplate; }
+        void SetHasTemplate(bool value = true) noexcept { _isTemplate = value; }
+
+        [[nodiscard]] std::vector<TemplateUnit>& GetTemplate() { return _templateUnits; }
+        [[nodiscard]] const std::vector<TemplateUnit>& GetTemplate() const { return _templateUnits; }
+        [[nodiscard]] bool HasTemplate() const noexcept { return _templateUnits.size(); }
+        [[nodiscard]] bool AddTemplate(TemplateUnit template_);
+
+        [[nodiscard]] std::vector<ParentUnit>& GetClassParents() { return _parents; }
+        [[nodiscard]] const std::vector<ParentUnit>& GetClassParents() const { return _parents; }
+        [[nodiscard]] bool HasClassParents() const noexcept { return _parents.size(); }
+        [[nodiscard]] bool AddClassParents(ParentUnit parent);
+
+        [[nodiscard]] std::vector<Field>& GetFields() { return _fields; }
+        [[nodiscard]] const std::vector<Field>& GetFields() const { return _fields; }
+        [[nodiscard]] bool HasFields() const noexcept { return _fields.size(); }
+        [[nodiscard]] bool AddField(Field field);
+
+        [[nodiscard]] std::vector<Method>& GetMethods() { return _methods; }
+        [[nodiscard]] const std::vector<Method>& GetMethods() const { return _methods; }
+        [[nodiscard]] bool HasMethods() const noexcept { return _methods.size(); }
+        [[nodiscard]] bool AddMethod(Method method);
 
         void GenerateTextSource(TextSourceT& source) const override;
 
@@ -132,6 +160,7 @@ namespace Ast::Cpp
         std::vector<TemplateUnit> _templateUnits;
         std::vector<ParentUnit> _parents;
         std::vector<Field> _fields;
+        std::vector<Method> _methods;
 
         template<IsClassLexerBase>
         friend class ClassLexerModifier;

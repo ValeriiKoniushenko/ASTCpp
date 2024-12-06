@@ -91,6 +91,59 @@ namespace Ast::Cpp
         return source;
     }
 
+    String ClassLexer::Method::GetTextSource() const
+    {
+        return comment + Code::Endl() + header + Code::Endl() + "{" + Code::Endl() + body + Code::Endl() + "}";
+    }
+
+    bool ClassLexer::AddTemplate(TemplateUnit template_)
+    {
+        if (!Verify(IsValid()))
+        {
+            return false;
+        }
+
+        _templateUnits.push_back(std::move(template_));
+
+        return true;
+    }
+
+    bool ClassLexer::AddClassParents(ParentUnit parent)
+    {
+        if (!Verify(IsValid()))
+        {
+            return false;
+        }
+
+        _parents.push_back(std::move(parent));
+
+        return true;
+    }
+
+    bool ClassLexer::AddField(Field field)
+    {
+        if (!Verify(IsValid()))
+        {
+            return false;
+        }
+
+        _fields.push_back(std::move(field));
+
+        return true;
+    }
+
+    bool ClassLexer::AddMethod(Method method)
+    {
+        if (!Verify(IsValid()))
+        {
+            return false;
+        }
+
+        _methods.push_back(std::move(method));
+
+        return true;
+    }
+
     void ClassLexer::GenerateTextSource(TextSourceT& source) const
     {
         uint32_t pos = 0;

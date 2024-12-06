@@ -882,3 +882,41 @@ TEST(ASTTests, CreateTreeFromClass)
         EXPECT_EQ("MyClass", found->GetLexerName());
     }
 }
+
+TEST(ASTTests, CreateDifficultTreeFromClass)
+{
+    using namespace Ast;
+    auto stream = ContentStream::Create();
+
+    auto myFile = FileLexer::Create(stream);
+    FileLexerModifier fileModifier(myFile);
+    fileModifier.SetFileName("smth.cpp");
+    fileModifier.SetPragmaOnce();
+
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    Cpp::ClassLexerModifier classModifier(myClass);
+    classModifier.SetLexerName("MyClass");
+    classModifier.AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    classModifier.AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    classModifier.AddParent(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
+    classModifier.AddParent(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
+    myClass->TryToSetParent(myFile);
+
+    Tree tree(myFile);
+    auto source = tree.GetTextSource();
+    {
+        const Cpp::Parser parser{ ContentStream(source.c_str()) };
+
+        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Error>());
+        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Warning>());
+
+        const Tree newTree = BaseTree::From(parser);
+        auto found = newTree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "MyClass";
+            });
+        ASSERT_TRUE(found);
+        EXPECT_EQ("MyClass", found->GetLexerName());
+    }
+}

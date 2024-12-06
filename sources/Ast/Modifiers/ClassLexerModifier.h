@@ -60,6 +60,18 @@ namespace Ast::Cpp
 
             return true;
         }
+
+        bool AddMethod(typename Lexer::Method method)
+        {
+            if (!Verify(this->IsValid()))
+            {
+                return false;
+            }
+
+            this->GetLexer()->_methods.push_back(std::move(method));
+
+            return true;
+        }
     };
 
 } // namespace Ast::Cpp
