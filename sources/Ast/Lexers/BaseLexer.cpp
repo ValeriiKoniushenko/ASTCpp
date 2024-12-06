@@ -89,6 +89,11 @@ namespace Ast
 
     void BaseLexer::TryToSetParent(const Ptr& parent)
     {
+        parent->TryToSetAsChild(this);
+    }
+
+    void BaseLexer::ForceSetParent(const Ptr& parent)
+    {
         parent->ForceSetAsChild(this);
     }
 
@@ -132,8 +137,15 @@ namespace Ast
 
     bool BaseLexer::IsContainLexer(const BaseLexer* other, bool isInItsScope /* = false*/) const
     {
-        if (Verify(other) && Verify(_closeScope.has_value()) && Verify(_openScope.has_value()) && Verify(other->_closeScope.has_value()) &&
-            Verify(other->_openScope.has_value()))
+        const bool isValidOther = Verify(other, "BaseLexer 'other' is nullptr");
+        const bool hasOpenedScope = Verify(_closeScope.has_value(), "This Lexer doesn't have a close scope(it should be bound to the source code)");
+        const bool hasClosedScope = Verify(_openScope.has_value(), "This Lexer doesn't have an open scope(it should be bound to the source code)");
+        const bool hasOpenedScopeOther =
+            Verify(other->_closeScope.has_value(), "An 'other' Lexer doesn't have a close scope(it should be bound to the source code)");
+        const bool hasClosedScopeOther =
+            Verify(other->_openScope.has_value(), "An 'other' Lexer doesn't have an open scope(it should be bound to the source code)");
+
+        if (isValidOther && hasOpenedScope && hasClosedScope && hasOpenedScopeOther && hasClosedScopeOther)
         {
             if (_openScope->string < other->_openScope->string && _closeScope->string > other->_closeScope->string)
             {

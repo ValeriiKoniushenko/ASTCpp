@@ -787,7 +787,7 @@ TEST(ASTTests, GenerateNewClass)
 
     EXPECT_EQ("MyClass", myClass->GetLexerName());
 
-    myClass->TryToSetParent(myFile);
+    myClass->ForceSetParent(myFile);
 
     EXPECT_EQ(myClass->GetParentLexer(), myFile);
 }
@@ -827,7 +827,7 @@ TEST(ASTTests, BuildNewSimpleTree)
     EXPECT_EQ("\"Mark\"", myClass->GetFields()[1].value);
     EXPECT_EQ(Cpp::ClassLexer::AccessSpecifier::Private, myClass->GetFields()[1].accessSpecifier);
 
-    myClass->TryToSetParent(myFile);
+    myClass->ForceSetParent(myFile);
 
     EXPECT_EQ(myClass->GetParentLexer(), myFile);
 
@@ -853,7 +853,7 @@ TEST(ASTTests, CreateTreeFromClass)
     myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
     myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
     myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
-    myClass->TryToSetParent(myFile);
+    myClass->ForceSetParent(myFile);
 
     Tree tree(myFile);
     auto source = tree.GetTextSource();
@@ -889,7 +889,7 @@ TEST(ASTTests, CreateDifficultTreeFromClass)
     myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
     myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
     myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
-    myClass->TryToSetParent(myFile);
+    myClass->ForceSetParent(myFile);
 
     Tree tree(myFile);
     auto source = tree.GetTextSource();

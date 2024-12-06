@@ -179,6 +179,7 @@ namespace Ast
         [[nodiscard]] std::pair<String, std::vector<Ptr>> GetFullPath() { return GetFullPathImpl(this); }
 
         void TryToSetParent(const Ptr& parent);
+        void ForceSetParent(const Ptr& parent);
         void TryToSetAsChild(const Ptr& child);
         void ForceSetAsChild(const Ptr& child);
         [[nodiscard]] bool IsContainLexer(const BaseLexer* other, bool isInItsScope = false) const;
