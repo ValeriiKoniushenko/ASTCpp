@@ -1,12 +1,22 @@
 @echo off
-wget "https://github.com/boostorg/boost/releases/download/boost-1.86.0/boost-1.86.0-b2-nodocs.zip" -O boost.zip
-unzip boost.zip -d ../dependencies/
-rm boost.zip
 
-cd ../dependencies/boost-1.86.0/ || (echo "Can't find boost directory" && exit 1)
-find . -type f -name '*.bat' -exec chmod +x {} \;
+cd ../dependencies/ || (echo Folder "dependencies" not found && pause && exit 1)
 
-./bootstrap.bat
+if not exist boost-1.86.0 (
+    curl -L --output boost.zip "https://github.com/boostorg/boost/releases/download/boost-1.86.0/boost-1.86.0-cmake.zip"
+    tar -xf boost.zip
+    del boost.zip
+)
 
-chmod +x ./b2
-./b2 header
+cd boost-1.86.0/ || (echo Can't find the unzipped boost directory && pause && exit 1)
+
+set defaultPath=%cd%
+
+bootstrap.bat && (
+    cd %defaultPath%
+    b2 variant=release debug-symbols=on link=static || (echo Was met some error while running of boost "b2" && pause && exit 1)
+) || (
+    echo Was met some error while running of "bootstrap.bat" && pause && exit 1
+)
+
+exit 0
