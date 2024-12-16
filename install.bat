@@ -1,5 +1,7 @@
 @echo off
 
+cd %~dp0
+
 where python
 if %ERRORLEVEL% NEQ 0 echo Error: python wasn't found. Install it(https://www.python.org/downloads/^) and try again. && pause && exit 1
 
