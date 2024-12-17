@@ -444,9 +444,9 @@ namespace Ast::Cpp
 
         RemoveNestedScopes(body);
 
-        const auto publics = body.FindRegex(R"(^\s*public\s*\:)", 0, std::regex_constants::match_default, std::regex::multiline);
-        const auto protecteds = body.FindRegex(R"(^\s*protected\s*\:)", 0, std::regex_constants::match_default, std::regex::multiline);
-        const auto privates = body.FindRegex(R"(^\s*private\s*\:)", 0, std::regex_constants::match_default, std::regex::multiline);
+        const auto publics = body.FindRegex(R"(^\s*public\s*\:)", 0, std::regex_constants::match_default);
+        const auto protecteds = body.FindRegex(R"(^\s*protected\s*\:)", 0, std::regex_constants::match_default);
+        const auto privates = body.FindRegex(R"(^\s*private\s*\:)", 0, std::regex_constants::match_default);
 
         body.IterateRegex(R"(^\s*((static\s+)|(constexpr\s+)|(const\s+)|(constinit\s+))*[\w:]+(\<.*\>)?\s+\w+(((\s*=).*)|(;)))",
                           [&](const String::StdRegexMatchResults& field)
@@ -506,7 +506,7 @@ namespace Ast::Cpp
                                   return true;
                               }
 
-                              long long minDistance = std::numeric_limits<long long>::max();
+                              long long minDistance = (std::numeric_limits<long long>::max)();
                               AccessSpecifier accessSpecifier = AccessSpecifier::Private;
                               for (auto&& token : publics)
                               {
@@ -540,7 +540,7 @@ namespace Ast::Cpp
                               _fields.push_back(std::move(tempField));
 
                               return true;
-                          }, 0, std::regex_constants::match_default, std::regex::multiline);
+                          }, 0, std::regex_constants::match_default);
     }
 
     void ClassLexer::RemoveNestedScopes(String& body)

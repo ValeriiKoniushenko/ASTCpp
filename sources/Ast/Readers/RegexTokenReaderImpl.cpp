@@ -80,7 +80,7 @@ namespace Ast
 
                 return false;
             },
-            offset, std::regex_constants::match_default, std::regex::multiline);
+            offset, std::regex_constants::match_default);
 
         if (!wasFoundAtLeastOneToken)
         {
