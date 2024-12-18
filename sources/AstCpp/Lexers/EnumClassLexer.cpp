@@ -27,8 +27,96 @@
 namespace Ast::Cpp
 {
 
+    EnumClassLexer::Constant EnumClassLexer::GetConstant(const String& name) const
+    {
+        auto found = std::find_if(_constants.cbegin(), _constants.cend(), [&name](const Constant& a)
+        {
+            return a.name == name;
+        });
+
+        if (found != _constants.cend())
+        {
+            return *found;
+        }
+
+        return {};
+    }
+
+    EnumClassLexer::Constant EnumClassLexer::GetConstant(unsigned long long value) const
+    {
+        auto found = std::find_if(_constants.cbegin(), _constants.cend(), [value](const Constant& a)
+        {
+            return a.value.value_or(~0ull) == value;
+        });
+
+        if (found != _constants.cend())
+        {
+            return *found;
+        }
+
+        return {};
+    }
+
+    bool EnumClassLexer::AddConstant(const String& name, std::optional<unsigned long long> value)
+    {
+        if (!value.has_value())
+        {
+            auto max = std::max_element(_constants.cbegin(), _constants.cend(), [](const Constant& a, const Constant& b)
+            {
+                return a.value.value_or(0) < b.value.value_or(0);
+            });
+
+            if (max != _constants.cend())
+            {
+                value = max->value.value_or(0) + 1;
+            }
+            else
+            {
+                value = 0;
+            }
+        }
+
+        if (!Verify(std::find_if(_constants.cbegin(), _constants.cend(), [&value](const Constant& a)
+            {
+                return a.value.has_value() ? a.value.value_or(0) == value.value() : false;
+            }) == _constants.cend(), "Impossible to add new enum class constant, because such value already exists"))
+        {
+            return false;
+        }
+
+        if (!Verify(std::find_if(_constants.cbegin(), _constants.cend(), [&name](const Constant& a)
+            {
+                return a.name == name;
+            }) == _constants.cend(), "Impossible to add new enum class constant, because such name of the constant already exists"))
+        {
+            return false;
+        }
+
+        _constants.emplace_back(name, std::move(value));
+        return true;
+    }
+
     void EnumClassLexer::GenerateTextSource(TextSourceT& source) const
     {
+        uint32_t pos = 0;
+
+        if (auto i = source.carets.find("write-point"_atom); i != source.carets.end())
+        {
+            pos = i->second;
+        }
+
+        String enumSource = "enum class " + GetLexerName() + " : " + _type + Code::Endl() + "{" + Code::Endl();
+        for (const auto& constant : _constants)
+        {
+            if (Verify(constant.value.has_value()))
+            {
+                enumSource += Code::Tab() + constant.name + " = " + String::MakeFrom(constant.value.value_or(0)) + Code::Endl();
+            }
+        }
+        enumSource += "};" + Code::Endl();
+
+        source.source.Insert(pos, enumSource.c_str());
+        source.carets["write-point"_atom] = source.source.Size();
     }
 
     EnumClassLexer::EnumClassLexer(const ContentStream::Ptr& fileReader)

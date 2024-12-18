@@ -52,6 +52,10 @@ namespace Ast::Cpp
 
         [[nodiscard]] const String& GetType() const noexcept { return _type; }
         [[nodiscard]] const std::vector<Constant>& GetConstants() const noexcept { return _constants; }
+        [[nodiscard]] Constant GetConstant(const String& name) const;
+        [[nodiscard]] Constant GetConstant(unsigned long long value) const;
+
+        bool AddConstant(const String& name, std::optional<unsigned long long> value = {});
 
         void GenerateTextSource(TextSourceT& source) const override;
 
@@ -66,6 +70,7 @@ namespace Ast::Cpp
 
     private:
         String _type = "int"_atom;
+        // TODO: change std::vector to another data structure
         std::vector<Constant> _constants;
     };
 

@@ -906,6 +906,40 @@ TEST(ASTTests, CreateDifficultTreeFromClass)
                 return lexer->GetLexerName() == "MyClass";
             });
         ASSERT_TRUE(found);
-        EXPECT_EQ("MyClass", found->GetLexerName());
+        ASSERT_EQ("MyClass", found->GetLexerName());
+        std::cout << source.c_str() << std::endl;
     }
+}
+
+TEST(ASTTests, CreateTreeWithAllSupportedLexers)
+{
+    using namespace Ast;
+    auto stream = ContentStream::Create();
+
+    auto myFile = FileLexer::Create(stream);
+    myFile->SetFileName("smth.cpp");
+    myFile->SetPragmaOnce();
+
+    auto myEnum = Cpp::EnumClassLexer::Create(stream);
+    myEnum->SetLexerName("MyEnum");
+    ASSERT_TRUE(myEnum->AddConstant("Hello"));
+    ASSERT_TRUE(myEnum->AddConstant("World"));
+    ASSERT_TRUE(myEnum->AddConstant("World1", 333));
+    ASSERT_EQ(3, myEnum->GetConstants().size());
+
+    EXPECT_EQ(0, myEnum->GetConstant("Hello").value.value());
+    EXPECT_EQ("World", myEnum->GetConstant(1).name);
+
+    myEnum->ForceSetParent(myFile);
+
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    myClass->SetLexerName("MyClass");
+    myClass->AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
+    myClass->ForceSetParent(myFile);
+
+    std::cout << Tree(myFile).GetTextSource().c_str() << std::endl;
+
 }
