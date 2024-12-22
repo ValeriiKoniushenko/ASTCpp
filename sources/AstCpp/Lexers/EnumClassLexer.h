@@ -34,8 +34,16 @@ namespace Ast::Cpp
     public:
         AST_CLASS(EnumClassLexer)
 
-        struct Constant
+        struct Constant : public ITextSourceReader
         {
+            [[nodiscard]] String GetTextSource() override;
+
+            Constant() = default;
+            Constant(String name, std::optional<unsigned long long> value) :
+                name{std::move(name)}, value{std::move(value)}
+            {
+            }
+
             String name;
             std::optional<unsigned long long> value;
         };
@@ -57,7 +65,7 @@ namespace Ast::Cpp
 
         bool AddConstant(const String& name, std::optional<unsigned long long> value = {});
 
-        void GenerateTextSource(TextSourceT& source) const override;
+        bool GenerateTextSource(TextSourceT& source) override;
 
     protected:
         explicit EnumClassLexer(const ContentStream::Ptr& fileReader);

@@ -27,6 +27,17 @@
 namespace Ast::Cpp
 {
 
+    String EnumClassLexer::Constant::GetTextSource()
+    {
+        String source = name;
+        if (value)
+        {
+            source += " = " + String::MakeFrom(value.value());
+        }
+
+        return source;
+    }
+
     EnumClassLexer::Constant EnumClassLexer::GetConstant(const String& name) const
     {
         auto found = std::find_if(_constants.cbegin(), _constants.cend(), [&name](const Constant& a)
@@ -92,12 +103,17 @@ namespace Ast::Cpp
             return false;
         }
 
-        _constants.emplace_back(name, std::move(value));
+        _constants.emplace_back(Constant{name, std::move(value) });
         return true;
     }
 
-    void EnumClassLexer::GenerateTextSource(TextSourceT& source) const
+    bool EnumClassLexer::GenerateTextSource(TextSourceT& source)
     {
+        if (!ITextSourceReader::GenerateTextSource(source))
+        {
+            return false;
+        }
+
         uint32_t pos = 0;
 
         if (auto i = source.carets.find("write-point"_atom); i != source.carets.end())
@@ -106,17 +122,18 @@ namespace Ast::Cpp
         }
 
         String enumSource = "enum class " + GetLexerName() + " : " + _type + Code::Endl() + "{" + Code::Endl();
-        for (const auto& constant : _constants)
+        for (auto& constant : _constants)
         {
-            if (Verify(constant.value.has_value()))
-            {
-                enumSource += Code::Tab() + constant.name + " = " + String::MakeFrom(constant.value.value_or(0)) + Code::Endl();
-            }
+            enumSource += Code::Tab() + constant.GetTextSource() + "," + Code::Endl();
         }
-        enumSource += "};" + Code::Endl();
+        enumSource.TrimEnd('\r').TrimEnd('\n').TrimEnd('\r').TrimEnd(',');
+
+        enumSource += Code::Endl() + "};" + Code::Endl();
 
         source.source.Insert(pos, enumSource.c_str());
         source.carets["write-point"_atom] = source.source.Size();
+
+        return true;
     }
 
     EnumClassLexer::EnumClassLexer(const ContentStream::Ptr& fileReader)
