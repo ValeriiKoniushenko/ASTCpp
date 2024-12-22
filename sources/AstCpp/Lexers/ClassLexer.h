@@ -46,7 +46,7 @@ namespace Ast::Cpp
         // TODO: change it to the lexer
         struct TemplateUnit : public ITextSourceReader
         {
-            [[nodiscard]] String GetTextSource() const override { return expression; }
+            [[nodiscard]] String GetTextSource() override { return expression; }
 
             String expression;
         };
@@ -60,7 +60,7 @@ namespace Ast::Cpp
                   name{ name }
             {
             }
-            [[nodiscard]] String GetTextSource() const override { return String(type.ToStr()).ToLowerCase() + " " + name; }
+            [[nodiscard]] String GetTextSource() override { return String(type.ToStr()).ToLowerCase() + " " + name; }
 
             InheritanceType type = InheritanceType::Private;
             String name;
@@ -80,7 +80,7 @@ namespace Ast::Cpp
             {
             }
 
-            [[nodiscard]] String GetTextSource() const override;
+            [[nodiscard]] String GetTextSource() override;
 
             bool isConst = false;
             bool isConstexpr = false;
@@ -97,7 +97,7 @@ namespace Ast::Cpp
 
         struct Method : public ITextSourceReader
         {
-            [[nodiscard]] String GetTextSource() const override;
+            [[nodiscard]] String GetTextSource() override;
 
             String comment;
             String header;
@@ -137,7 +137,7 @@ namespace Ast::Cpp
         [[nodiscard]] bool HasMethods() const noexcept { return _methods.size(); }
         bool AddMethod(Method method);
 
-        void GenerateTextSource(TextSourceT& source) const override;
+        bool GenerateTextSource(TextSourceT& source) override;
 
     protected:
         explicit ClassLexer(const ContentStream::Ptr& fileReader);
@@ -152,7 +152,7 @@ namespace Ast::Cpp
         void RecognizeFields(LogCollector& logCollector);
         void RemoveNestedScopes(String& body);
 
-        void IterateOverChilds(AccessSpecifier accessSpecifier, std::function<void(const ITextSourceReader&)>&& callback) const;
+        void IterateOverChilds(AccessSpecifier accessSpecifier, std::function<void(ITextSourceReader&)>&& callback);
 
     private:
         bool _hasFinal = false;

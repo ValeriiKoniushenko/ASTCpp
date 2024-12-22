@@ -29,7 +29,7 @@
 namespace Ast::Cpp
 {
 
-    /*ITextSourceReader::TextSourceT ClassLexer::GetTextSource() const
+    /*ITextSourceReader::TextSourceT ClassLexer::GetTextSource()
     {
         return {};
         BaseLexer::TextSource textSource;
@@ -57,7 +57,7 @@ namespace Ast::Cpp
         return textSource;
     }*/
 
-    String ClassLexer::Field::GetTextSource() const
+    String ClassLexer::Field::GetTextSource()
     {
         String source;
         if (isInline)
@@ -91,7 +91,7 @@ namespace Ast::Cpp
         return source;
     }
 
-    String ClassLexer::Method::GetTextSource() const
+    String ClassLexer::Method::GetTextSource()
     {
         return comment + Code::Endl() + header + Code::Endl() + "{" + Code::Endl() + body + Code::Endl() + "}";
     }
@@ -144,8 +144,13 @@ namespace Ast::Cpp
         return true;
     }
 
-    void ClassLexer::GenerateTextSource(TextSourceT& source) const
+    bool ClassLexer::GenerateTextSource(TextSourceT& source)
     {
+        if (!ITextSourceReader::GenerateTextSource(source))
+        {
+            return false;
+        }
+
         uint32_t pos = 0;
 
         if (auto i = source.carets.find("write-point"_atom); i != source.carets.end())
@@ -178,7 +183,7 @@ namespace Ast::Cpp
         if (!_parents.empty())
         {
             classSource += " : " + Code::Endl();
-            for (const auto& p : _parents)
+            for (auto& p : _parents)
             {
                 classSource += Code::Tab(3) + p.GetTextSource() + "," + Code::Endl();
             }
@@ -192,7 +197,7 @@ namespace Ast::Cpp
         // public
         classSource += "public:" + Code::Endl();
         IterateOverChilds(AccessSpecifier::Public,
-                          [&classSource, &source](const ITextSourceReader& unit)
+                          [&classSource, &source](ITextSourceReader& unit)
                           {
                               source.carets["write-point"_atom] = source.source.Size();
                               classSource += Code::Tab() + unit.GetTextSource() + Code::Endl();
@@ -202,6 +207,8 @@ namespace Ast::Cpp
 
         source.source.Insert(pos, classSource.c_str());
         source.carets["write-point"_atom] = source.source.Size();
+
+        return true;
     }
 
     ClassLexer::ClassLexer(const ContentStream::Ptr& fileReader)
@@ -555,25 +562,25 @@ namespace Ast::Cpp
         }
     }
 
-    void ClassLexer::IterateOverChilds(AccessSpecifier accessSpecifier, std::function<void(const ITextSourceReader&)>&& callback) const
+    void ClassLexer::IterateOverChilds(AccessSpecifier accessSpecifier, std::function<void(ITextSourceReader&)>&& callback)
     {
         if (!callback)
         {
             return;
         }
 
-        std::vector<const ITextSourceReader*> children;
-        for (const auto& unit : _fields)
+        std::vector<ITextSourceReader*> children;
+        for (auto& unit : _fields)
         {
             children.push_back(&unit);
         }
 
-        for (const auto& unit : _childLexers)
+        for (auto& unit : _childLexers)
         {
             children.push_back(unit.get());
         }
 
-        for (const auto* unit : children)
+        for (auto* unit : children)
         {
             callback(*unit);
         }
