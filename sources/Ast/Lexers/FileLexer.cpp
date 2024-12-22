@@ -26,14 +26,19 @@
 namespace Ast
 {
 
-    void FileLexer::GenerateTextSource(TextSourceT& source) const
+    bool FileLexer::GenerateTextSource(TextSourceT& source)
     {
+        if (!ITextSourceReader::GenerateTextSource(source))
+        {
+            return false;
+        }
         if (_hasPragmaOnce)
         {
             source.source += "#pragma once" + Code::Endl() + Code::Endl();
         }
 
         source.carets["write-point"_atom] = source.source.Size();
+        return true;
     }
 
     FileLexer::FileLexer(const ContentStream::Ptr& fileReader)

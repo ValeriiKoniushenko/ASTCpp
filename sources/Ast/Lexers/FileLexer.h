@@ -44,7 +44,7 @@ namespace Ast
         void SetFileName(const String& name) { SetLexerName(name); }
         [[nodiscard]] String GetFileName() const { return _lexerName; }
 
-        void GenerateTextSource(TextSourceT& source) const override;
+        bool GenerateTextSource(TextSourceT& source) override;
 
     private:
         explicit FileLexer(const ContentStream::Ptr& fileReader);
