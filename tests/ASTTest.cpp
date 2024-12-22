@@ -911,7 +911,7 @@ TEST(ASTTests, CreateDifficultTreeFromClass)
     }
 }
 
-TEST(ASTTests, CreateTreeWithAllSupportedLexers)
+TEST(ASTTests, CreateTreeWithEnumClass)
 {
     using namespace Ast;
     auto stream = ContentStream::Create();
@@ -940,6 +940,196 @@ TEST(ASTTests, CreateTreeWithAllSupportedLexers)
     myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
     myClass->ForceSetParent(myFile);
 
-    std::cout << Tree(myFile).GetTextSource().c_str() << std::endl;
+    Tree tree(myFile);
+    auto source = tree.GetTextSource();
+    {
+        const Cpp::Parser parser{ ContentStream(source.c_str()) };
 
+        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Error>());
+        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Warning>());
+
+        const Tree newTree = BaseTree::From(parser);
+        auto found = newTree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "MyEnum";
+            });
+        ASSERT_TRUE(found);
+        ASSERT_EQ("MyEnum", found->GetLexerName());
+        std::cout << source.c_str() << std::endl;
+    }
+}
+
+TEST(ASTTests, CreateTreeWithEnumClassAndNamespaceLexer)
+{
+    using namespace Ast;
+    auto stream = ContentStream::Create();
+
+    auto myFile = FileLexer::Create(stream);
+    myFile->SetFileName("smth.cpp");
+    myFile->SetPragmaOnce();
+
+    auto myNamespace = Cpp::NamespaceLexer::Create(stream);
+    myNamespace->SetNamespace("Some::Ns");
+    myNamespace->ForceSetParent(myFile);
+
+    auto myEnum = Cpp::EnumClassLexer::Create(stream);
+    myEnum->SetLexerName("MyEnum");
+    ASSERT_TRUE(myEnum->AddConstant("Hello"));
+    ASSERT_TRUE(myEnum->AddConstant("World"));
+    ASSERT_TRUE(myEnum->AddConstant("World1", 333));
+    ASSERT_EQ(3, myEnum->GetConstants().size());
+
+    EXPECT_EQ(0, myEnum->GetConstant("Hello").value.value());
+    EXPECT_EQ("World", myEnum->GetConstant(1).name);
+
+    myEnum->ForceSetParent(myNamespace);
+
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    myClass->SetLexerName("MyClass");
+    myClass->AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
+    myClass->ForceSetParent(myNamespace);
+
+    Tree tree(myFile);
+    auto source = tree.GetTextSource();
+    {
+        const Cpp::Parser parser{ ContentStream(source.c_str()) };
+
+        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Error>());
+        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Warning>());
+
+        const Tree newTree = BaseTree::From(parser);
+        auto found = newTree.FindIf(
+            [](const BaseLexer* lexer)
+            {
+                return lexer->GetLexerName() == "Some::Ns";
+            });
+        ASSERT_TRUE(found);
+        ASSERT_EQ("Some::Ns", found->GetLexerName());
+        std::cout << source.c_str() << std::endl;
+    }
+}
+
+TEST(ASTTests, GenerateNewClassAndFlushToStream)
+{
+    using namespace Ast;
+    auto stream = ContentStream::Create();
+
+    auto myFile = FileLexer::Create(stream);
+    myFile->SetFileName("smth.cpp");
+    myFile->SetPragmaOnce();
+
+    auto myNamespace = Cpp::NamespaceLexer::Create(stream);
+    myNamespace->SetNamespace("Some::Ns");
+    myNamespace->ForceSetParent(myFile);
+
+    auto myEnum = Cpp::EnumClassLexer::Create(stream);
+    myEnum->SetLexerName("MyEnum");
+    ASSERT_TRUE(myEnum->AddConstant("Hello"));
+    ASSERT_TRUE(myEnum->AddConstant("World"));
+    ASSERT_TRUE(myEnum->AddConstant("World1", 333));
+    ASSERT_EQ(3, myEnum->GetConstants().size());
+
+    EXPECT_EQ(0, myEnum->GetConstant("Hello").value.value());
+    EXPECT_EQ("World", myEnum->GetConstant(1).name);
+
+    myEnum->ForceSetParent(myNamespace);
+
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    myClass->SetLexerName("MyClass");
+    myClass->AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
+    myClass->ForceSetParent(myNamespace);
+
+    Tree tree(myFile);
+    tree.FlushToStream();
+}
+
+TEST(ASTTests, GenerateNewClassAndFlushToFileStream)
+{
+    using namespace Ast;
+    auto stream = FileContentStream::Create();
+    stream->SetFilePath("smth.cpp");
+
+    auto myFile = FileLexer::Create(stream);
+    myFile->SetFileName("smth.cpp");
+    myFile->SetPragmaOnce();
+
+    auto myNamespace = Cpp::NamespaceLexer::Create(stream);
+    myNamespace->SetNamespace("Some::Ns");
+    myNamespace->ForceSetParent(myFile);
+
+    auto myEnum = Cpp::EnumClassLexer::Create(stream);
+    myEnum->SetLexerName("MyEnum");
+    ASSERT_TRUE(myEnum->AddConstant("Hello"));
+    ASSERT_TRUE(myEnum->AddConstant("World"));
+    ASSERT_TRUE(myEnum->AddConstant("World1", 333));
+    ASSERT_EQ(3, myEnum->GetConstants().size());
+
+    EXPECT_EQ(0, myEnum->GetConstant("Hello").value.value());
+    EXPECT_EQ("World", myEnum->GetConstant(1).name);
+
+    myEnum->ForceSetParent(myNamespace);
+
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    myClass->SetLexerName("MyClass");
+    myClass->AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
+    myClass->ForceSetParent(myNamespace);
+
+    Tree tree(myFile);
+    tree.FlushToStream();
+}
+
+TEST(ASTTests, GenerateNewDifficultTreeAndFlushToFileStream)
+{
+    using namespace Ast;
+    auto stream = ContentStream::Create();
+
+    auto myFile = FileLexer::Create(stream);
+    myFile->SetFileName("smth.cpp");
+    myFile->SetPragmaOnce();
+
+    auto myNamespace = Cpp::NamespaceLexer::Create(stream);
+    myNamespace->SetNamespace("Some::Ns");
+    myNamespace->ForceSetParent(myFile);
+
+    auto myEnum = Cpp::EnumClassLexer::Create(stream);
+    myEnum->SetLexerName("MyEnum");
+    ASSERT_TRUE(myEnum->AddConstant("Hello"));
+    ASSERT_TRUE(myEnum->AddConstant("World"));
+    ASSERT_TRUE(myEnum->AddConstant("World1", 333));
+    ASSERT_EQ(3, myEnum->GetConstants().size());
+
+    EXPECT_EQ(0, myEnum->GetConstant("Hello").value.value());
+    EXPECT_EQ("World", myEnum->GetConstant(1).name);
+
+    myEnum->ForceSetParent(myNamespace);
+
+    auto myClass = Cpp::ClassLexer::Create(stream);
+    myClass->SetLexerName("MyClass");
+    myClass->AddField({ "int", "age", Cpp::ClassLexer::AccessSpecifier::Private });
+    myClass->AddField({ "std::string", "name", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit1"));
+    myClass->AddClassParents(Cpp::ClassLexer::ParentUnit("SomeParentUnit2"));
+    myClass->ForceSetParent(myNamespace);
+
+    auto myClass2 = Cpp::ClassLexer::Create(stream);
+    myClass2->SetLexerName("myClass2");
+    myClass2->AddField({ "float", "smth", Cpp::ClassLexer::AccessSpecifier::Private, "123.312f" });
+    myClass2->AddField({ "std::vector<int>", "smthelse", Cpp::ClassLexer::AccessSpecifier::Private, "\"Mark\"" });
+    myClass2->AddClassParents(Cpp::ClassLexer::ParentUnit("SSSS"));
+    myClass2->ForceSetParent(myClass);
+
+    Tree tree(myFile);
+    tree.FlushToStream();
+
+    std::cout << stream->Data().c_str() << std::endl;
 }
