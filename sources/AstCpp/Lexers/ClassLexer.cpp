@@ -203,6 +203,27 @@ namespace Ast::Cpp
                               classSource += Code::Tab() + unit.GetTextSource() + Code::Endl();
                           });
 
+        // protected
+        classSource += Code::Endl();
+        classSource += "protected:" + Code::Endl();
+        IterateOverChilds(AccessSpecifier::Protected,
+                          [&classSource, &source](ITextSourceReader& unit)
+                          {
+                              source.carets["write-point"_atom] = source.source.Size();
+                              classSource += Code::Tab() + unit.GetTextSource() + Code::Endl();
+                          });
+
+        // private
+        classSource += Code::Endl();
+        classSource += "private:" + Code::Endl();
+        IterateOverChilds(AccessSpecifier::Private,
+                          [&classSource, &source](ITextSourceReader& unit)
+                          {
+                              source.carets["write-point"_atom] = source.source.Size();
+                              classSource += Code::Tab() + unit.GetTextSource() + Code::Endl();
+                          });
+
+
         classSource += "};" + Code::Endl();
 
         source.source.Insert(pos, classSource.c_str());
