@@ -19,21 +19,54 @@
 // SOFTWARE.
 
 #include "ContentStream.h"
+
 #include "Utils/Functions.h"
 
 namespace Ast
 {
 
-    bool ContentStream::Read(const String::CharT* content)
+    bool ContentStream::Put(String content)
+    {
+        _content = std::move(content);
+        _content.shrink_to_fit();
+        if (!_content.IsEmpty())
+        {
+            OnPut();
+        }
+        return !_content.IsEmpty();
+    }
+
+    bool ContentStream::Put(const String::CharT* content)
     {
         _content = String(content);
         _content.shrink_to_fit();
+        if (!_content.IsEmpty())
+        {
+            OnPut();
+        }
         return !_content.IsEmpty();
     }
 
     const String& ContentStream::Data() const noexcept
     {
         return _content;
+    }
+
+    void FileContentStream::ReadFromFile(const std::filesystem::path& path)
+    {
+        _path = path;
+        _content = Utils::GetTextFileContentAs<String>(path);
+    }
+
+    void FileContentStream::OnPut()
+    {
+        std::ofstream out(_path);
+        if (!Verify(out.is_open()))
+        {
+            return;
+        }
+
+        out.write(_content.c_str(), _content.Size() * sizeof(String::CharT));
     }
 
 } // namespace Ast

@@ -25,6 +25,7 @@
 
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include <filesystem>
 
 namespace Ast
 {
@@ -50,20 +51,21 @@ namespace Ast
         template<IsContentFilter... Filter>
         explicit ContentStream(const String::CharT* data)
         {
-            Read(data);
+            Put(data);
             ApplyFilters<Filter...>();
-            _content.ShrinkToFit();
         }
 
         ~ContentStream() override = default;
 
-        bool Read(const String::CharT* content);
+        bool Put(String content);
+        bool Put(const String::CharT* content);
         [[nodiscard]] const String& Data() const noexcept;
 
         template<IsContentFilter... Filter>
         void ApplyFilters()
         {
             (Filter{}.MakeTransform(_content), ...);
+            _content.ShrinkToFit();
         }
 
         [[nodiscard]] virtual String GetFilePath() const { return "None"_atom; }
@@ -71,7 +73,43 @@ namespace Ast
         [[nodiscard]] static Ptr Create() { return boost::intrusive_ptr<ContentStream>(new ContentStream()); }
 
     protected:
+        virtual void OnPut() {}
+
+    protected:
         String _content;
+    };
+
+    class FileContentStream : public ContentStream
+    {
+    public:
+        AST_CLASS(FileContentStream)
+
+        FileContentStream() = default;
+
+        template<IsContentFilter... Filter>
+        explicit FileContentStream(const std::filesystem::path& path)
+        {
+            ReadFromFile(path);
+        }
+
+        void SetFilePath(const std::filesystem::path& path)
+        {
+            _path = path;
+        }
+
+        void ReadFromFile(const std::filesystem::path& path);
+
+        ~FileContentStream() override = default;
+
+        [[nodiscard]] String GetFilePath() const override { return String(_path.string()); }
+
+        [[nodiscard]] static Ptr Create() { return boost::intrusive_ptr<FileContentStream>(new FileContentStream()); }
+
+    protected:
+        void OnPut() override;
+
+    protected:
+        std::filesystem::path _path;
     };
 
 } // namespace Ast
