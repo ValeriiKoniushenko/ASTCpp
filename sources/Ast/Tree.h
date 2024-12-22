@@ -61,6 +61,12 @@ namespace Ast
 
         ~Tree() override = default;
 
+        void FlushToStream()
+        {
+            auto source = GetTextSource();
+            _contentStream->Put(source);
+        }
+
         template<IsParser ParserT>
         [[nodiscard]] static Tree<RootLexerT> From(const ParserT& parser)
         {
@@ -104,7 +110,7 @@ namespace Ast
 
         [[nodiscard]] ContentStream::Ptr GetReader() const { return _contentStream; }
 
-        [[nodiscard]] String GetTextSource() const override { return _rootLexer->GetTextSource(); }
+        [[nodiscard]] String GetTextSource() override { return _rootLexer->GetTextSource(); }
 
         // ===========================================================
         // ================== WORKING WITH LEXERS ====================
