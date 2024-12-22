@@ -27,8 +27,44 @@
 namespace Ast::Cpp
 {
 
-    void NamespaceLexer::GenerateTextSource(TextSourceT& source) const
+    void NamespaceLexer::SetNamespace(const String& nameList)
     {
+        for (auto&& name : nameList.Split("::"_atom))
+        {
+            _nameList.push_back(std::move(name));
+        }
+
+        SetLexerName(nameList);
+    }
+
+    bool NamespaceLexer::GenerateTextSource(TextSourceT& source)
+    {
+        if (!ITextSourceReader::GenerateTextSource(source))
+        {
+            return false;
+        }
+
+        uint32_t pos = 0;
+
+        if (auto i = source.carets.find("write-point"_atom); i != source.carets.end())
+        {
+            pos = i->second;
+        }
+
+        String namespaceSource = "namespace " + GetLexerName() + Code::Endl() + "{" + Code::Endl();
+
+        for (auto& child : _childLexers)
+        {
+            source.carets["write-point"_atom] = source.source.Size();
+            namespaceSource += child->GetTextSource() + Code::Endl();
+        }
+
+        namespaceSource += "}" + Code::Endl();
+
+        source.source.Insert(pos, namespaceSource.c_str());
+        source.carets["write-point"_atom] = source.source.Size();
+
+        return true;
     }
 
     NamespaceLexer::NamespaceLexer(const ContentStream::Ptr& fileReader)

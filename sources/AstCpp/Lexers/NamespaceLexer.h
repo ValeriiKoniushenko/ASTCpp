@@ -43,9 +43,11 @@ namespace Ast::Cpp
 
         ~NamespaceLexer() override = default;
 
+        void SetNamespace(const String& nameList);
+
         [[nodiscard]] const std::vector<String>& GetNameList() { return _nameList; }
 
-        void GenerateTextSource(TextSourceT& source) const override;
+        bool GenerateTextSource(TextSourceT& source) override;
 
     protected:
         explicit NamespaceLexer(const ContentStream::Ptr& fileReader);
