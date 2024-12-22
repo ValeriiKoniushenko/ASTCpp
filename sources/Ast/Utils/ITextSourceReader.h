@@ -110,13 +110,31 @@ namespace Ast
             std::map<String, uint32_t> carets;
         };
 
-        [[nodiscard]] virtual String GetTextSource() const = 0;
+        [[nodiscard]] virtual String GetTextSource() = 0;
+        [[nodiscard]] bool TextSourceWasGenerated()
+        {
+            return _textSourceWasGenerated;
+        }
 
         struct Code
         {
             [[nodiscard]] static String Endl() { return TextSourceConfig::Instance().GetEndLine(); }
             [[nodiscard]] static String Tab(const int8_t count = 1) { return TextSourceConfig::Instance().GetTab(count); }
         };
+
+    protected:
+        virtual bool GenerateTextSource(TextSourceT& source)
+        {
+            if (_textSourceWasGenerated)
+            {
+                return false;
+            }
+
+            return _textSourceWasGenerated = true;
+        }
+
+    protected:
+        bool _textSourceWasGenerated = false;
     };
 
 } // namespace Ast
