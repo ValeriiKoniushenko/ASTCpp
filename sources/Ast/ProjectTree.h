@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "LogCollector.h"
 #include "Readers/ContentStream.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
@@ -33,8 +34,11 @@ namespace Ast
         class Unit : public Utils::NotCopyableButMoveable
         {
         public:
+            using Permission = std::filesystem::perms;
+
             enum class Type
             {
+                None,
                 File,
                 Folder,
                 Link
@@ -52,8 +56,9 @@ namespace Ast
             [[nodiscard]] FileContentStream GetFileContentStream() const { return _contentStream; }
 
         protected:
+            Permission _permission = Permission::none;
             std::filesystem::path _path;
-            Type _type = Type::File;
+            Type _type = Type::None;
             FileContentStream _contentStream;
         };
 
@@ -67,9 +72,14 @@ namespace Ast
         void SetTargetProject(const std::filesystem::path& path);
         [[nodiscard]] const std::filesystem::path& GetTargetProject() const noexcept { return _targetPath; }
 
+        bool Process();
+
+        [[nodiscard]] LogCollector& GetLogCollector() { return _logCollector; }
+
     protected:
         std::set<String> _fileExtensions;
         std::filesystem::path _targetPath;
+        LogCollector _logCollector;
     };
 
 } // namespace Ast

@@ -39,5 +39,6 @@ TEST(ASTProjectTest, ParseProjectTree)
     ProjectTree project;
     project.SetFileExtensions({"*.cpp", ".h"});
     project.SetTargetProject(projectPath);
-
+    project.Process();
+    
 }

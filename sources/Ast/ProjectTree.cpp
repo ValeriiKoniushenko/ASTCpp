@@ -45,4 +45,27 @@ namespace Ast
         }
     }
 
+    bool ProjectTree::Process()
+    {
+        if (_fileExtensions.empty())
+        {
+            _logCollector.AddLog({ "File reader was nullptr", LogCollector::LogType::Error });
+            return false;
+        }
+        if (_targetPath.empty())
+        {
+            _logCollector.AddLog({ "Target path is invalid", LogCollector::LogType::Error });
+            return false;
+        }
+
+        for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(_targetPath))
+        {
+            dirEntry.status()
+            std::cout << dirEntry << std::endl;
+        }
+
+
+        return true;
+    }
+
 } // namespace Ast
