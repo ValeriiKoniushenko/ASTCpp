@@ -176,6 +176,7 @@ namespace Ast
     }
 }
 )";
+
 } // namespace
 
 TEST(ASTTests, SimpleParse)
