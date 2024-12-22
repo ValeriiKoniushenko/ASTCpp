@@ -170,7 +170,7 @@ namespace Ast
         _childLexers.clear();
     }
 
-    String BaseLexer::GetTextSource() const
+    String BaseLexer::GetTextSource()
     {
         TextSourceT source;
 
