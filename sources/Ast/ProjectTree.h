@@ -55,11 +55,16 @@ namespace Ast
             [[nodiscard]] std::filesystem::path GetPath() const { return _path; }
             [[nodiscard]] FileContentStream GetFileContentStream() const { return _contentStream; }
 
+            [[nodiscard]] bool operator<(const Unit& rhs) const { return _path < rhs._path; }
+
         protected:
             Permission _permission = Permission::none;
             std::filesystem::path _path;
             Type _type = Type::None;
             FileContentStream _contentStream;
+
+            std::set<Unit> _childs;
+
         };
 
     public:
@@ -77,7 +82,13 @@ namespace Ast
         [[nodiscard]] LogCollector& GetLogCollector() { return _logCollector; }
 
     protected:
+        [[nodiscard]] bool IsValidExtension(const String& path) const;
+        void ProcessFile(const std::filesystem::path& folders, const std::filesystem::path& fullPath);
+        Unit& GetOrCreateUnit(const String& path);
+
+    protected:
         std::set<String> _fileExtensions;
+        std::set<Unit> _units;
         std::filesystem::path _targetPath;
         LogCollector _logCollector;
     };

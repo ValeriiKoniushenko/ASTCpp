@@ -58,14 +58,64 @@ namespace Ast
             return false;
         }
 
-        for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(_targetPath))
+        for (const auto& i : std::filesystem::recursive_directory_iterator(_targetPath))
         {
-            dirEntry.status()
-            std::cout << dirEntry << std::endl;
+            auto tmp = String(i.path().string());
+            if (!Verify(tmp.Find(_targetPath.string())))
+            {
+                continue;
+            }
+            if (std::filesystem::is_directory(i))
+            {
+                continue;
+            }
+            const auto targetPathSize = _targetPath.string().size();
+            tmp.SubStr(targetPathSize).TrimStart('\\');
+
+            if (Verify(!tmp.IsEmpty()))
+            {
+                auto newPath = std::filesystem::path(tmp.c_str());
+
+                if (IsValidExtension(String(newPath.extension().string())))
+                {
+                    ProcessFile(newPath.parent_path(), i.path());
+                }
+            }
         }
 
-
         return true;
+    }
+
+    bool ProjectTree::IsValidExtension(const String& ex) const
+    {
+        for (const auto& extension : _fileExtensions)
+        {
+            if (extension == ex)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void ProjectTree::ProcessFile(const std::filesystem::path& folders, const std::filesystem::path& fullPath)
+    {
+        const auto separator = String(static_cast<String::CharT>(std::filesystem::path::preferred_separator));
+
+        Unit* i = nullptr;
+        for (const auto& folder : String(folders.string()).Split(separator))
+        {
+            auto& unit = GetOrCreateUnit(folder);
+            if (i)
+            {
+                // si->AddChild();
+            }
+            else
+            {
+                i = &unit;
+            }
+        }
     }
 
 } // namespace Ast
