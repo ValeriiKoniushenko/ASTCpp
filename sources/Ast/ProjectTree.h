@@ -31,9 +31,12 @@ namespace Ast
     class ProjectTree : public Utils::NotCopyableButMoveable
     {
     public:
-        class Unit : public Utils::NotCopyableButMoveable
+
+        class Unit : public boost::intrusive_ref_counter<Unit>, public Utils::CopyableAndMoveable
         {
         public:
+            AST_CLASS(Unit);
+
             using Permission = std::filesystem::perms;
 
             enum class Type
@@ -56,15 +59,63 @@ namespace Ast
             [[nodiscard]] FileContentStream GetFileContentStream() const { return _contentStream; }
 
             [[nodiscard]] bool operator<(const Unit& rhs) const { return _path < rhs._path; }
+            [[nodiscard]] bool operator==(const Unit& rhs) const { return _path == rhs._path; }
+
+            template<class T>
+            void AddChild(T&& unit)
+            {
+                _AddChild(std::forward<T>(unit), false, false);
+            }
+
+            template<class T>
+            void ForceAddChild(T&& unit)
+            {
+                _AddChild(std::forward<T>(unit), true, true);
+            }
+
+            template<class T>
+            void TryToAddChild(T&& unit)
+            {
+                _AddChild(std::forward<T>(unit), false, true);
+            }
+
+            [[nodiscard]] const Ptr& GetParent() const noexcept { return _parent; }
+            [[nodiscard]] Ptr GetParent() { return _parent; }
+
+            [[nodiscard]] static Unit CreateFromPath(const std::filesystem::path& path);
+            [[nodiscard]] static Ptr CreatePtrFromPath(const std::filesystem::path& path);
 
         protected:
+            template<class T>
+            void _AddChild(T&& unit, const bool isForce, const bool isIgnoreAssert)
+            {
+                if (!isForce)
+                {
+                    auto found = std::find_if(_childs.cbegin(), _childs.cend(), [&unit](const Ptr& a)
+                    {
+                        return *a.get() == unit;
+                    });
+
+                    if (found != _childs.cend())
+                    {
+                        if (!isIgnoreAssert)
+                        {
+                            Assert(("Impossible to add already existing unit: " + unit.GetPath().string()).c_str());
+                        }
+                        return;
+                    }
+                }
+                unit._parent = this;
+                //_childs.emplace(Ptr(new Unit(std::move<T>(unit))));
+            }
+
             Permission _permission = Permission::none;
             std::filesystem::path _path;
             Type _type = Type::None;
             FileContentStream _contentStream;
 
-            std::set<Unit> _childs;
-
+            std::set<Ptr> _childs;
+            Ptr _parent;
         };
 
     public:
@@ -88,7 +139,7 @@ namespace Ast
 
     protected:
         std::set<String> _fileExtensions;
-        std::set<Unit> _units;
+        std::set<Unit::Ptr> _units;
         std::filesystem::path _targetPath;
         LogCollector _logCollector;
     };

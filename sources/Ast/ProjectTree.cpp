@@ -23,6 +23,33 @@
 namespace Ast
 {
 
+    ProjectTree::Unit ProjectTree::Unit::CreateFromPath(const std::filesystem::path& path)
+    {
+        Unit unit;
+        unit._path = path;
+        if (std::filesystem::is_directory(path))
+        {
+            unit._type = Type::Folder;
+        }
+        else if (std::filesystem::is_symlink(path))
+        {
+            unit._type = Type::Link;
+        }
+        else
+        {
+            unit._type = Type::File;
+        }
+
+        unit._permission = std::filesystem::status(path).permissions();
+
+        return unit;
+    }
+
+    ProjectTree::Unit::Ptr ProjectTree::Unit::CreatePtrFromPath(const std::filesystem::path& path)
+    {
+        return Ptr(new Unit(std::move(CreateFromPath(path))));
+    }
+
     void ProjectTree::SetFileExtensions(std::vector<String> extensions)
     {
         for (auto& extension : extensions)
@@ -109,13 +136,36 @@ namespace Ast
             auto& unit = GetOrCreateUnit(folder);
             if (i)
             {
-                // si->AddChild();
+                i->ForceAddChild(Unit::CreateFromPath(fullPath));
             }
             else
             {
                 i = &unit;
             }
         }
+    }
+
+    ProjectTree::Unit& ProjectTree::GetOrCreateUnit(const String& path)
+    {
+        auto found = std::ranges::find_if(std::as_const(_units),
+                                  [&path](const Unit::Ptr& a)
+                                  {
+                                      return a->GetPath().string().find(path.ToStringView());
+                                  });
+
+        if (found != std::ranges::end(_units))
+        {
+            return *found->get();
+        }
+
+        std::filesystem::path finalPath;
+        {
+            auto newPath = _targetPath.string() + static_cast<String::CharT>(std::filesystem::path::preferred_separator);
+            newPath += path.ToStringView();
+            finalPath = std::filesystem::path(newPath);
+        }
+
+        return *_units.emplace(Unit::CreatePtrFromPath(finalPath)).first->get();
     }
 
 } // namespace Ast
