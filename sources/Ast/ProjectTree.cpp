@@ -20,13 +20,52 @@
 
 #include "ProjectTree.h"
 
+#include "Utils/Functions.h"
+
 namespace Ast
 {
+
+    bool ProjectTree::Unit::IsExistsOnDisk() const
+    {
+        std::error_code ec;
+        return std::filesystem::exists(_path, ec);
+    }
+
+    bool ProjectTree::Unit::HasChild(const Unit& unit) const
+    {
+        auto found = std::find_if(_childs.cbegin(), _childs.cend(),
+                                  [&unit](const Ptr& a)
+                                  {
+                                      return *a.get() == unit;
+                                  });
+
+        return found != _childs.cend();
+    }
+
+    const ProjectTree::Unit::Ptr ProjectTree::Unit::FindChild(const Unit& unit) const
+    {
+        auto found = std::find_if(_childs.cbegin(), _childs.cend(),
+                                  [&unit](const Ptr& a)
+                                  {
+                                      return *a.get() == unit;
+                                  });
+
+        if (found != _childs.cend())
+            return *found;
+
+        return nullptr;
+    }
 
     ProjectTree::Unit ProjectTree::Unit::CreateFromPath(const std::filesystem::path& path)
     {
         Unit unit;
         unit._path = path;
+
+        if (!Verify(unit.IsExistsOnDisk()))
+        {
+            return {};
+        }
+
         if (std::filesystem::is_directory(path))
         {
             unit._type = Type::Folder;
@@ -37,6 +76,7 @@ namespace Ast
         }
         else
         {
+            unit._contentStream.ReadFromFile(path);
             unit._type = Type::File;
         }
 
@@ -48,6 +88,61 @@ namespace Ast
     ProjectTree::Unit::Ptr ProjectTree::Unit::CreatePtrFromPath(const std::filesystem::path& path)
     {
         return Ptr(new Unit(std::move(CreateFromPath(path))));
+    }
+
+    ProjectTree::Unit* ProjectTree::Unit::LinkSubFolder(const String& name)
+    {
+        if (!Verify(std::filesystem::exists(_path), "Invalid unit"))
+        {
+            return nullptr;
+        }
+
+        auto unit = Unit::Create();
+        unit->_path = _path / name.ToStringView();
+        unit->_type = Type::Folder;
+        unit->_parent = this;
+        unit->_permission = _permission;
+        if (unit->IsExistsOnDisk())
+        {
+            if (!Verify(!HasChild(*unit), "Such subfolder already exists"))
+            {
+                return nullptr;
+            }
+
+            return RawAddToChilds(std::move(unit));
+        }
+
+        return nullptr;
+    }
+
+    ProjectTree::Unit* ProjectTree::Unit::LinkSubFile(const String& name)
+    {
+        if (!Verify(std::filesystem::exists(_path), "Invalid unit"))
+        {
+            return nullptr;
+        }
+
+        auto unit = CreatePtrFromPath(_path.string() + static_cast<String::CharT>(std::filesystem::path::preferred_separator) + name.ToStdString());
+        if (!Verify(!!unit))
+        {
+            return nullptr;
+        }
+
+        unit->_parent = this;
+        if (!Verify(!HasChild(*unit), "Such file already exists"))
+        {
+            return nullptr;
+        }
+
+        return RawAddToChilds(std::move(unit));
+    }
+
+    ProjectTree::Unit* ProjectTree::Unit::RawAddToChilds(Ptr&& unit)
+    {
+        auto it = _childs.emplace(std::move(unit));
+        Assert(it.second, "Undefined error. Impossible to add new subfolder to the childs");
+
+        return it.second ? it.first->get() : nullptr;
     }
 
     void ProjectTree::SetFileExtensions(std::vector<String> extensions)
@@ -113,6 +208,31 @@ namespace Ast
         return true;
     }
 
+    bool ProjectTree::IsExistUnitByPath(const std::filesystem::path& path) const
+    {
+        return !!GetUnitByPath(path);
+    }
+
+    ProjectTree::Unit::Ptr ProjectTree::GetUnitByPath(const std::filesystem::path& path)
+    {
+        auto found = std::ranges::find_if(_units,
+                                     [&path](const Unit::Ptr& a)
+                                     {
+                                         return a->GetPath() == path;
+                                     });
+        return found != _units.end() ? *found : nullptr;
+    }
+
+    const ProjectTree::Unit::Ptr ProjectTree::GetUnitByPath(const std::filesystem::path& path) const
+    {
+        auto found = std::ranges::find_if(std::as_const(_units),
+                                 [&path](const Unit::Ptr& a)
+                                 {
+                                     return a->GetPath() == path;
+                                 });
+        return found != _units.cend() ? *found : nullptr;
+    }
+
     bool ProjectTree::IsValidExtension(const String& ex) const
     {
         for (const auto& extension : _fileExtensions)
@@ -128,44 +248,53 @@ namespace Ast
 
     void ProjectTree::ProcessFile(const std::filesystem::path& folders, const std::filesystem::path& fullPath)
     {
-        const auto separator = String(static_cast<String::CharT>(std::filesystem::path::preferred_separator));
+        static const auto separator = []
+        {
+            String temp;
+            temp += static_cast<String::CharT>(std::filesystem::path::preferred_separator);
+            return temp;
+        }();
 
         Unit* i = nullptr;
         for (const auto& folder : String(folders.string()).Split(separator))
         {
-            auto& unit = GetOrCreateUnit(folder);
             if (i)
             {
-                i->ForceAddChild(Unit::CreateFromPath(fullPath));
+                auto ptr = GetUnitByPath(i->GetPath() / folder.ToStringView());
+                if (!ptr)
+                {
+                    auto* newUnit = i->LinkSubFolder(folder);
+                    if (Verify(newUnit, "Impossible to create subfolder"))
+                    {
+                        i = newUnit;
+                    }
+                }
+                else
+                {
+                    i = ptr.get();
+                }
             }
             else
             {
-                i = &unit;
+                auto found = GetUnitByPath(_targetPath / folder.ToStringView());
+                if (found)
+                {
+                    i = found.get();
+                }
+                else
+                {
+                    auto it = _units.emplace(Unit::CreatePtrFromPath(_targetPath / folder.ToStringView()));
+                    if (Verify(it.second))
+                    {
+                        i = it.first->get();
+                    }
+                }
             }
         }
-    }
-
-    ProjectTree::Unit& ProjectTree::GetOrCreateUnit(const String& path)
-    {
-        auto found = std::ranges::find_if(std::as_const(_units),
-                                  [&path](const Unit::Ptr& a)
-                                  {
-                                      return a->GetPath().string().find(path.ToStringView());
-                                  });
-
-        if (found != std::ranges::end(_units))
+        if (Verify(i, "Undefined error. Unit is nullptr"))
         {
-            return *found->get();
+            i->LinkSubFile(String(fullPath.filename().string()));
         }
-
-        std::filesystem::path finalPath;
-        {
-            auto newPath = _targetPath.string() + static_cast<String::CharT>(std::filesystem::path::preferred_separator);
-            newPath += path.ToStringView();
-            finalPath = std::filesystem::path(newPath);
-        }
-
-        return *_units.emplace(Unit::CreatePtrFromPath(finalPath)).first->get();
     }
 
 } // namespace Ast

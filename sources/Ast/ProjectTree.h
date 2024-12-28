@@ -50,10 +50,13 @@ namespace Ast
             Unit() = default;
             ~Unit() override = default;
 
+            [[nodiscard]] static Ptr Create() { return Ptr(new Unit()); }
+
             [[nodiscard]] Type GetType() const { return _type; }
             [[nodiscard]] bool IsFile() const { return _type == Type::File; }
             [[nodiscard]] bool IsFolder() const { return _type == Type::Folder; }
             [[nodiscard]] bool IsLink() const { return _type == Type::Link; }
+            [[nodiscard]] bool IsExistsOnDisk() const;
 
             [[nodiscard]] std::filesystem::path GetPath() const { return _path; }
             [[nodiscard]] FileContentStream GetFileContentStream() const { return _contentStream; }
@@ -62,22 +65,25 @@ namespace Ast
             [[nodiscard]] bool operator==(const Unit& rhs) const { return _path == rhs._path; }
 
             template<class T>
-            void AddChild(T&& unit)
+            Unit* AddChild(T&& unit)
             {
-                _AddChild(std::forward<T>(unit), false, false);
+                return _AddChild(std::forward<T>(unit), false, false);
             }
 
             template<class T>
-            void ForceAddChild(T&& unit)
+            Unit* ForceAddChild(T&& unit)
             {
-                _AddChild(std::forward<T>(unit), true, true);
+                return _AddChild(std::forward<T>(unit), true, true);
             }
 
             template<class T>
-            void TryToAddChild(T&& unit)
+            Unit* TryToAddChild(T&& unit)
             {
-                _AddChild(std::forward<T>(unit), false, true);
+                return _AddChild(std::forward<T>(unit), false, true);
             }
+
+            [[nodiscard]] bool HasChild(const Unit& unit) const;
+            [[nodiscard]] const Ptr FindChild(const Unit& unit) const;
 
             [[nodiscard]] const Ptr& GetParent() const noexcept { return _parent; }
             [[nodiscard]] Ptr GetParent() { return _parent; }
@@ -85,30 +91,62 @@ namespace Ast
             [[nodiscard]] static Unit CreateFromPath(const std::filesystem::path& path);
             [[nodiscard]] static Ptr CreatePtrFromPath(const std::filesystem::path& path);
 
+            /** @brief a subfolder will be created based on logic(will be added to _childs) and will be
+             * validated in the real path.
+             * If the path will not valid - you will get an assert and the folder will not be created on the hard disk.
+             */
+            Unit* LinkSubFolder(const String& name);
+
+            /** @brief a file will be created based on logic(will be added to _childs) and will be
+             * validated in the real path.
+             * If the path will not valid - you will get an assert and the file will not be created on the hard disk.
+             */
+            Unit* LinkSubFile(const String& name);
+
         protected:
             template<class T>
-            void _AddChild(T&& unit, const bool isForce, const bool isIgnoreAssert)
+            T* _AddChild(T&& unit, const bool isForce, const bool isIgnoreAssert)
             {
                 if (!isForce)
                 {
-                    auto found = std::find_if(_childs.cbegin(), _childs.cend(), [&unit](const Ptr& a)
+                    if (HasChild(unit))
                     {
-                        return *a.get() == unit;
-                    });
-
-                    if (found != _childs.cend())
-                    {
-                        if (!isIgnoreAssert)
-                        {
-                            Assert(("Impossible to add already existing unit: " + unit.GetPath().string()).c_str());
-                        }
-                        return;
+                        Assert(isIgnoreAssert, ("Impossible to add already existing unit: " + unit.GetPath().string()).c_str());
+                        return nullptr;
                     }
                 }
+
                 unit._parent = this;
-                //_childs.emplace(Ptr(new Unit(std::move<T>(unit))));
+                auto it = _childs.emplace(Ptr(new Unit(std::move(unit))));
+
+                return it.second ? it.first->get() : nullptr;
             }
 
+            template<class T>
+            T* _AddChild(boost::intrusive_ptr<T>&& unit, const bool isForce, const bool isIgnoreAssert)
+            {
+                if (!Verify(!!unit, "Was passed nullptr unit"))
+                {
+                    return nullptr;
+                }
+
+                if (!isForce)
+                {
+                    if (HasChild(*unit))
+                    {
+                        Assert(isIgnoreAssert, ("Impossible to add already existing unit: " + unit->GetPath().string()).c_str());
+                        return nullptr;
+                    }
+                }
+
+                unit->_parent = this;
+                auto it = _childs.emplace(std::move(unit));
+
+                return it.second ? it.first->get() : nullptr;
+            }
+
+            Unit* RawAddToChilds(Ptr&& unit);
+        protected:
             Permission _permission = Permission::none;
             std::filesystem::path _path;
             Type _type = Type::None;
@@ -132,10 +170,13 @@ namespace Ast
 
         [[nodiscard]] LogCollector& GetLogCollector() { return _logCollector; }
 
+        [[nodiscard]] bool IsExistUnitByPath(const std::filesystem::path& path) const;
+        [[nodiscard]] Unit::Ptr GetUnitByPath(const std::filesystem::path& path);
+        [[nodiscard]] const Unit::Ptr GetUnitByPath(const std::filesystem::path& path) const;
+
     protected:
         [[nodiscard]] bool IsValidExtension(const String& path) const;
         void ProcessFile(const std::filesystem::path& folders, const std::filesystem::path& fullPath);
-        Unit& GetOrCreateUnit(const String& path);
 
     protected:
         std::set<String> _fileExtensions;

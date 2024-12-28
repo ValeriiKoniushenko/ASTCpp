@@ -56,6 +56,7 @@ namespace Ast
     {
         _path = path;
         _content = Utils::GetTextFileContentAs<String>(path);
+        _content.ShrinkToFit();
     }
 
     void FileContentStream::OnPut()
