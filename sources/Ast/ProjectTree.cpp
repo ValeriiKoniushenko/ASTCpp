@@ -286,10 +286,6 @@ namespace Ast
         {
             if (i)
             {
-                if (folder == "headers")
-                {
-                    int i = 1;
-                }
                 auto ptr = _root->GetUnitByPath(i->GetPath() / folder.ToStringView());
                 if (!ptr)
                 {
