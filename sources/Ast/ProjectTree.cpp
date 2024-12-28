@@ -22,6 +22,16 @@
 
 #include "Utils/Functions.h"
 
+namespace
+{
+    const auto separator = []
+    {
+        Ast::String temp;
+        temp += static_cast<Ast::String::CharT>(std::filesystem::path::preferred_separator);
+        return temp;
+    }();
+} // namespace
+
 namespace Ast
 {
 
@@ -88,6 +98,49 @@ namespace Ast
     ProjectTree::Unit::Ptr ProjectTree::Unit::CreatePtrFromPath(const std::filesystem::path& path)
     {
         return Ptr(new Unit(std::move(CreateFromPath(path))));
+    }
+
+    ProjectTree::Unit::Ptr ProjectTree::Unit::GetUnitByPath(const std::filesystem::path& path)
+    {
+        auto relative = std::filesystem::relative(path, _path);
+        if (relative.empty())
+        {
+            return nullptr;
+        }
+
+        const auto pathVector = Core::WStringAtom(relative.native().c_str()).ToASCII().Split(separator);
+        if (pathVector.empty())
+        {
+            return nullptr;
+        }
+
+        Unit* temp = this;
+
+        for (const auto& name : pathVector)
+        {
+            bool isFound = false;
+            for (const auto& child : temp->_childs)
+            {
+                if (child->GetPath().string() == (temp->_path / name.ToStringView()).string())
+                {
+                    temp = child.get();
+                    isFound = true;
+                    break;
+                }
+            }
+            if (!isFound)
+            {
+                temp = nullptr;
+                break;
+            }
+        }
+
+        return temp;
+    }
+
+    bool ProjectTree::Unit::IsExistUnitByPath(const std::filesystem::path& path)
+    {
+        return !!GetUnitByPath(path);
     }
 
     ProjectTree::Unit* ProjectTree::Unit::LinkSubFolder(const String& name)
@@ -163,7 +216,7 @@ namespace Ast
     {
         if (Verify(std::filesystem::exists(path), "Incorrect project path"))
         {
-            _targetPath = path;
+            _root = Unit::CreatePtrFromPath(path);
         }
     }
 
@@ -174,16 +227,16 @@ namespace Ast
             _logCollector.AddLog({ "File reader was nullptr", LogCollector::LogType::Error });
             return false;
         }
-        if (_targetPath.empty())
+        if (!_root)
         {
             _logCollector.AddLog({ "Target path is invalid", LogCollector::LogType::Error });
             return false;
         }
 
-        for (const auto& i : std::filesystem::recursive_directory_iterator(_targetPath))
+        for (const auto& i : std::filesystem::recursive_directory_iterator(_root->GetPath()))
         {
             auto tmp = String(i.path().string());
-            if (!Verify(tmp.Find(_targetPath.string())))
+            if (!Verify(tmp.Find(_root->GetPath().string())))
             {
                 continue;
             }
@@ -191,7 +244,7 @@ namespace Ast
             {
                 continue;
             }
-            const auto targetPathSize = _targetPath.string().size();
+            const auto targetPathSize = _root->GetPath().string().size();
             tmp.SubStr(targetPathSize).TrimStart('\\');
 
             if (Verify(!tmp.IsEmpty()))
@@ -206,31 +259,6 @@ namespace Ast
         }
 
         return true;
-    }
-
-    bool ProjectTree::IsExistUnitByPath(const std::filesystem::path& path) const
-    {
-        return !!GetUnitByPath(path);
-    }
-
-    ProjectTree::Unit::Ptr ProjectTree::GetUnitByPath(const std::filesystem::path& path)
-    {
-        auto found = std::ranges::find_if(_units,
-                                     [&path](const Unit::Ptr& a)
-                                     {
-                                         return a->GetPath() == path;
-                                     });
-        return found != _units.end() ? *found : nullptr;
-    }
-
-    const ProjectTree::Unit::Ptr ProjectTree::GetUnitByPath(const std::filesystem::path& path) const
-    {
-        auto found = std::ranges::find_if(std::as_const(_units),
-                                 [&path](const Unit::Ptr& a)
-                                 {
-                                     return a->GetPath() == path;
-                                 });
-        return found != _units.cend() ? *found : nullptr;
     }
 
     bool ProjectTree::IsValidExtension(const String& ex) const
@@ -248,19 +276,21 @@ namespace Ast
 
     void ProjectTree::ProcessFile(const std::filesystem::path& folders, const std::filesystem::path& fullPath)
     {
-        static const auto separator = []
+        if (!Verify(!!_root))
         {
-            String temp;
-            temp += static_cast<String::CharT>(std::filesystem::path::preferred_separator);
-            return temp;
-        }();
+            return;
+        }
 
         Unit* i = nullptr;
         for (const auto& folder : String(folders.string()).Split(separator))
         {
             if (i)
             {
-                auto ptr = GetUnitByPath(i->GetPath() / folder.ToStringView());
+                if (folder == "headers")
+                {
+                    int i = 1;
+                }
+                auto ptr = _root->GetUnitByPath(i->GetPath() / folder.ToStringView());
                 if (!ptr)
                 {
                     auto* newUnit = i->LinkSubFolder(folder);
@@ -276,17 +306,17 @@ namespace Ast
             }
             else
             {
-                auto found = GetUnitByPath(_targetPath / folder.ToStringView());
-                if (found)
+                const auto finalPath = _root->GetPath() / folder.ToStringView();
+                if (auto found = _root->GetUnitByPath(finalPath))
                 {
                     i = found.get();
                 }
                 else
                 {
-                    auto it = _units.emplace(Unit::CreatePtrFromPath(_targetPath / folder.ToStringView()));
-                    if (Verify(it.second))
+                    auto* newUnit = _root->TryToAddChild(Unit::CreateFromPath(finalPath));
+                    if (Verify(newUnit, "Impossible to create new unit"))
                     {
-                        i = it.first->get();
+                        i = newUnit;
                     }
                 }
             }

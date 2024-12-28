@@ -91,6 +91,9 @@ namespace Ast
             [[nodiscard]] static Unit CreateFromPath(const std::filesystem::path& path);
             [[nodiscard]] static Ptr CreatePtrFromPath(const std::filesystem::path& path);
 
+            [[nodiscard]] Ptr GetUnitByPath(const std::filesystem::path& path);
+            [[nodiscard]] bool IsExistUnitByPath(const std::filesystem::path& path);
+
             /** @brief a subfolder will be created based on logic(will be added to _childs) and will be
              * validated in the real path.
              * If the path will not valid - you will get an assert and the folder will not be created on the hard disk.
@@ -164,15 +167,11 @@ namespace Ast
         [[nodiscard]] const std::set<String>& GetFileExtensions() const { return _fileExtensions; };
 
         void SetTargetProject(const std::filesystem::path& path);
-        [[nodiscard]] const std::filesystem::path& GetTargetProject() const noexcept { return _targetPath; }
+        [[nodiscard]] std::filesystem::path GetTargetProject() const noexcept { return _root ? _root->GetPath() : std::filesystem::path(); }
 
         bool Process();
 
         [[nodiscard]] LogCollector& GetLogCollector() { return _logCollector; }
-
-        [[nodiscard]] bool IsExistUnitByPath(const std::filesystem::path& path) const;
-        [[nodiscard]] Unit::Ptr GetUnitByPath(const std::filesystem::path& path);
-        [[nodiscard]] const Unit::Ptr GetUnitByPath(const std::filesystem::path& path) const;
 
     protected:
         [[nodiscard]] bool IsValidExtension(const String& path) const;
@@ -180,8 +179,7 @@ namespace Ast
 
     protected:
         std::set<String> _fileExtensions;
-        std::set<Unit::Ptr> _units;
-        std::filesystem::path _targetPath;
+        Unit::Ptr _root;
         LogCollector _logCollector;
     };
 
