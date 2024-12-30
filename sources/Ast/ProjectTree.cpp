@@ -86,7 +86,15 @@ namespace Ast
         }
         else
         {
-            unit._contentStream.ReadFromFile(path);
+            if (Verify(!!(unit._contentStream = FileContentStream::Ptr(new FileContentStream()), "Impossible to allocate an object")))
+            {
+                Assert(unit._contentStream->ReadFromFile(path), "Can't read a file: "_dyn + String::MakeFrom(path));
+            }
+            if (Verify(!!(unit._tree = Tree<FileLexer>::Ptr(new Tree<FileLexer>(unit._contentStream)), "Impossible to allocate an object")))
+            {
+
+            }
+
             unit._type = Type::File;
         }
 
@@ -121,7 +129,7 @@ namespace Ast
             bool isFound = false;
             for (const auto& child : temp->_childs)
             {
-                if (child->GetPath().string() == (temp->_path / name.ToStringView()).string())
+                if (child->GetPath().string() == (temp->_path / name.ToStdStringView()).string())
                 {
                     temp = child.get();
                     isFound = true;
@@ -151,7 +159,7 @@ namespace Ast
         }
 
         auto unit = Unit::Create();
-        unit->_path = _path / name.ToStringView();
+        unit->_path = _path / name.ToStdStringView();
         unit->_type = Type::Folder;
         unit->_parent = this;
         unit->_permission = _permission;
@@ -286,7 +294,7 @@ namespace Ast
         {
             if (i)
             {
-                auto ptr = _root->GetUnitByPath(i->GetPath() / folder.ToStringView());
+                auto ptr = _root->GetUnitByPath(i->GetPath() / folder.ToStdStringView());
                 if (!ptr)
                 {
                     auto* newUnit = i->LinkSubFolder(folder);
@@ -302,7 +310,7 @@ namespace Ast
             }
             else
             {
-                const auto finalPath = _root->GetPath() / folder.ToStringView();
+                const auto finalPath = _root->GetPath() / folder.ToStdStringView();
                 if (auto found = _root->GetUnitByPath(finalPath))
                 {
                     i = found.get();

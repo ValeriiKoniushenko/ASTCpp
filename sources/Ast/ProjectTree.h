@@ -22,6 +22,7 @@
 
 #include "LogCollector.h"
 #include "Readers/ContentStream.h"
+#include "Tree.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
 #include <set>
@@ -59,7 +60,8 @@ namespace Ast
             [[nodiscard]] bool IsExistsOnDisk() const;
 
             [[nodiscard]] std::filesystem::path GetPath() const { return _path; }
-            [[nodiscard]] FileContentStream GetFileContentStream() const { return _contentStream; }
+            [[nodiscard]] const FileContentStream::Ptr& GetFileContentStream() const { return _contentStream; }
+            [[nodiscard]] FileContentStream::Ptr GetFileContentStream() { return _contentStream; }
 
             [[nodiscard]] bool operator<(const Unit& rhs) const { return _path < rhs._path; }
             [[nodiscard]] bool operator==(const Unit& rhs) const { return _path == rhs._path; }
@@ -153,7 +155,8 @@ namespace Ast
             Permission _permission = Permission::none;
             std::filesystem::path _path;
             Type _type = Type::None;
-            FileContentStream _contentStream;
+            Tree<FileLexer>::Ptr _tree;
+            FileContentStream::Ptr _contentStream;
 
             std::set<Ptr> _childs;
             Ptr _parent;

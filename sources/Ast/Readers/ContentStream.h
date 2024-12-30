@@ -97,11 +97,11 @@ namespace Ast
             _path = path;
         }
 
-        void ReadFromFile(const std::filesystem::path& path);
+        bool ReadFromFile(const std::filesystem::path& path);
 
         ~FileContentStream() override = default;
 
-        [[nodiscard]] String GetFilePath() const override { return String(_path.string()); }
+        [[nodiscard]] String GetFilePath() const override { return String::MakeFrom(_path); }
 
         [[nodiscard]] static Ptr Create() { return boost::intrusive_ptr<FileContentStream>(new FileContentStream()); }
 

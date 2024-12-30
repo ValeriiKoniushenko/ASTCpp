@@ -52,11 +52,16 @@ namespace Ast
         return _content;
     }
 
-    void FileContentStream::ReadFromFile(const std::filesystem::path& path)
+    bool FileContentStream::ReadFromFile(const std::filesystem::path& path)
     {
         _path = path;
         _content = Utils::GetTextFileContentAs<String>(path);
-        _content.ShrinkToFit();
+        if (!_content.IsEmpty())
+        {
+            _content.ShrinkToFit();
+        }
+
+        return !_content.IsEmpty();
     }
 
     void FileContentStream::OnPut()

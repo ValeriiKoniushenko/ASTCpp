@@ -70,7 +70,7 @@ namespace Ast::Cpp
     {
         if (const auto&& name = lexer->GetLexerName())
         {
-            if (name.RegexMatch(_regexNameRule.ToStringView()))
+            if (name.RegexMatch(_regexNameRule.ToStdStringView()))
             {
                 return true;
             }

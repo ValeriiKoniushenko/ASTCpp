@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "Core/String.h"
+#include "Core/StringHelper.h"
 
 #include <cstddef>
 
