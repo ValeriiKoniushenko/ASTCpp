@@ -213,6 +213,8 @@ namespace Ast
     public:
         ProjectTree() = default;
         ~ProjectTree() override = default;
+        ProjectTree(ProjectTree&&) = default;
+        ProjectTree& operator=(ProjectTree&&) = default;
 
         void SetFileExtensions(std::vector<String> extensions);
         [[nodiscard]] const std::set<String>& GetFileExtensions() const { return _fileExtensions; };

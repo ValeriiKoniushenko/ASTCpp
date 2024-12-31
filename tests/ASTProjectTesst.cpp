@@ -186,3 +186,22 @@ TEST(ASTProjectTest, simple_parse_project_tree)
 
     ASSERT_TRUE(error.IsEmpty()) << error.c_str();
 }
+
+TEST(ASTProjectTest, move_parse_project_tree)
+{
+    using namespace Ast;
+
+    ProjectTree project;
+    {
+        ProjectTree temp;
+        temp.SetFileExtensions({"*.cpp", ".h"});
+        temp.SetTargetProject(projectPath);
+        temp.Process();
+        temp.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
+        project = std::move(temp);
+    }
+
+    auto error = ValidateAllProjectTree(project);
+
+    ASSERT_TRUE(error.IsEmpty()) << error.c_str();
+}
