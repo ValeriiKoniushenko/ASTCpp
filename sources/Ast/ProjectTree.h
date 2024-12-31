@@ -225,8 +225,15 @@ namespace Ast
         // ==========================================================
         // ================== WORKING WITH UNITS ====================
         // ==========================================================
-        // [[nodiscard]] Unit::AdaptivePtr<true> GetUnitByPath(const std::filesystem::path& path) const;
-        // [[nodiscard]] Unit::AdaptivePtr<false> GetUnitByPath(const std::filesystem::path& path);
+        [[nodiscard]] Unit::AdaptivePtr<true> GetUnitByPath(const std::filesystem::path& path) const
+        {
+            return _root ? _root->GetUnitByPath(path) : nullptr;
+        }
+        [[nodiscard]] Unit::AdaptivePtr<false> GetUnitByPath(const std::filesystem::path& path)
+        {
+            return _root ? _root->GetUnitByPath(path) : nullptr;
+        }
+
         void ForEach(std::function<bool(const Unit*)>&& callback) const
         {
             if (_root)
