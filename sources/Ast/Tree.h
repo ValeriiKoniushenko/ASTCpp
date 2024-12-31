@@ -105,7 +105,10 @@ namespace Ast
                     return true;
                 });
 
-            _rootLexer->SetLexerName(_contentStream->GetFilePath());
+            if (_rootLexer->IsTypeOf<FileLexer>())
+            {
+                _rootLexer->SetLexerName(_contentStream->GetFilePath());
+            }
             _rootLexer->DoValidate(logCollector);
         }
 

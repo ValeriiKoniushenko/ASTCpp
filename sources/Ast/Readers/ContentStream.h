@@ -68,7 +68,7 @@ namespace Ast
             _content.ShrinkToFit();
         }
 
-        [[nodiscard]] virtual String GetFilePath() const { return "None"_atom; }
+        [[nodiscard]] virtual String GetFilePath() const { return "none"_atom; }
 
         [[nodiscard]] static Ptr Create() { return boost::intrusive_ptr<ContentStream>(new ContentStream()); }
 
