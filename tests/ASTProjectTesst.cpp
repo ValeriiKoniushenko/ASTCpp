@@ -57,6 +57,7 @@ TEST(ASTProjectTest, ParseProjectTree)
     auto tree = found->GetTree();
     ASSERT_TRUE(tree);
 
+    EXPECT_EQ(String::MakeFrom(found->GetPath()), tree->GetRootLexer()->GetLexerName());
 
 
     int iasdfas = 1;

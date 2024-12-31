@@ -101,7 +101,10 @@ namespace Ast
 
         ~FileContentStream() override = default;
 
-        [[nodiscard]] String GetFilePath() const override { return String::MakeFrom(_path); }
+        [[nodiscard]] String GetFilePath() const override
+        {
+            return String::MakeFrom(_path);
+        }
 
         [[nodiscard]] static Ptr Create() { return boost::intrusive_ptr<FileContentStream>(new FileContentStream()); }
 

@@ -235,7 +235,8 @@ namespace Ast
             });
         }
 
-        [[nodiscard]] LogCollector& GetLogCollector() { return _logCollector; }
+        [[nodiscard]] LogCollector& GetLogCollector() noexcept { return _logCollector; }
+        [[nodiscard]] const LogCollector& GetLogCollector() const noexcept { return _logCollector; }
 
         // ==========================================================
         // ================== WORKING WITH UNITS ====================

@@ -105,6 +105,7 @@ namespace Ast
                     return true;
                 });
 
+            _rootLexer->SetLexerName(_contentStream->GetFilePath());
             _rootLexer->DoValidate(logCollector);
         }
 
@@ -177,6 +178,9 @@ namespace Ast
         {
             return boost::dynamic_pointer_cast<const Lexer>(FindIfImpl<Lexer, true>(this, std::forward<FindFunctionT<true>>(callback)));
         }
+
+        [[nodiscard]] BaseLexer::Ptr GetRootLexer() { return _rootLexer; }
+        [[nodiscard]] BaseLexer::CPtr GetRootLexer() const { return _rootLexer; }
 
     private:
         // ======================= PIMPLs =======================
