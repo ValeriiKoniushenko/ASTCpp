@@ -122,10 +122,13 @@ namespace Ast
             [[nodiscard]] Tree<FileLexer>::AdaptivePtr<false> GetTree() { return _tree; }
             [[nodiscard]] Tree<FileLexer>::AdaptivePtr<true> GetTree() const { return _tree; }
 
+            [[nodiscard]] Permission GetPermission() const noexcept { return _permission; }
+
             void _SetTree(Tree<FileLexer>&& tree)
             {
                 _tree = Tree<FileLexer>::Ptr(new Tree<FileLexer>(std::move(tree)));
             }
+
         protected:
             // ================== PIPMPLs =======================
             template<bool IsConst>
@@ -195,6 +198,7 @@ namespace Ast
             }
 
             Unit* RawAddToChilds(Ptr&& unit);
+
         protected:
             Permission _permission = Permission::none;
             std::filesystem::path _path;
