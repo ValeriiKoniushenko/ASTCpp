@@ -119,6 +119,13 @@ namespace Ast
                 ForEachImpl<true>(this, std::forward<decltype(callback)>(callback));
             }
 
+            [[nodiscard]] Tree<FileLexer>::AdaptivePtr<false> GetTree() { return _tree; }
+            [[nodiscard]] Tree<FileLexer>::AdaptivePtr<true> GetTree() const { return _tree; }
+
+            void _SetTree(Tree<FileLexer>&& tree)
+            {
+                _tree = Tree<FileLexer>::Ptr(new Tree<FileLexer>(std::move(tree)));
+            }
         protected:
             // ================== PIPMPLs =======================
             template<bool IsConst>
@@ -211,12 +218,20 @@ namespace Ast
 
         bool Process();
 
-        template<IsParser ParserT>
-        void ParseUsing(LogCollector& logCollector)
+        template<IsParser ParserT, IsContentFilter ContentFilterT = void>
+        void ParseUsing()
         {
-            ForEach([&logCollector](auto* unit)
+            ForEach([this](Unit* unit)
             {
+                if constexpr (!std::is_void_v<ContentFilterT>)
+                {
+                    unit->GetFileContentStream()->ApplyFilters<ContentFilterT>();
+                }
 
+                Tree<FileLexer> tree(unit->GetFileContentStream());
+                tree.ParseUsing<ParserT>(_logCollector);
+                unit->_SetTree(std::move(tree));
+                return true;
             });
         }
 

@@ -21,6 +21,9 @@
 #define CORE_DEBUG
 
 #include "Ast/ProjectTree.h"
+#include "AstCpp/Parser.h"
+#include "AstCpp/Readers/Filters/CommentFilter.h"
+#include "AstCpp/TemplateLexer/CheckForTemplateLexer.h"
 
 #include <gtest/gtest.h>
 
@@ -40,13 +43,21 @@ TEST(ASTProjectTest, ParseProjectTree)
     project.SetFileExtensions({"*.cpp", ".h"});
     project.SetTargetProject(projectPath);
     project.Process();
+    project.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
-    project.ForEach([](const ProjectTree::Unit* unit)
+    ProjectTree::Unit::Ptr found;
+    project.ForEach([&found](ProjectTree::Unit* unit)
     {
-        auto p = unit->GetPath();
-        std::cout << p << std::endl;
+        found = unit;
         return true;
     });
+    ASSERT_TRUE(found);
+
+
+    auto tree = found->GetTree();
+    ASSERT_TRUE(tree);
+
+
 
     int iasdfas = 1;
 }
