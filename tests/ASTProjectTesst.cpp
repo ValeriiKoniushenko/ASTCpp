@@ -41,5 +41,12 @@ TEST(ASTProjectTest, ParseProjectTree)
     project.SetTargetProject(projectPath);
     project.Process();
 
-    int i = 1;
+    project.ForEach([](const ProjectTree::Unit* unit)
+    {
+        auto p = unit->GetPath();
+        std::cout << p << std::endl;
+        return false;
+    });
+
+    int iasdfas = 1;
 }

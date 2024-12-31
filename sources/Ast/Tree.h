@@ -179,7 +179,6 @@ namespace Ast
         }
 
     private:
-
         // ======================= PIMPLs =======================
 
         template<IsLexer Lexer = void, bool IsConst = false>

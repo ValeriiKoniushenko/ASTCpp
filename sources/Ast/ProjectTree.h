@@ -29,11 +29,12 @@
 
 namespace Ast
 {
-    class ProjectTree : public Utils::NotCopyableButMoveable
+    class ProjectTree : public Utils::NotCopyableButMoveable, public boost::intrusive_ref_counter<ProjectTree>
     {
     public:
+        AST_CLASS(ProjectTree)
 
-        class Unit : public boost::intrusive_ref_counter<Unit>, public Utils::CopyableAndMoveable
+        class Unit : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Unit>
         {
         public:
             AST_CLASS(Unit);
@@ -108,7 +109,40 @@ namespace Ast
              */
             Unit* LinkSubFile(const String& name);
 
+            void ForEach(std::function<bool(Unit*)>&& callback)
+            {
+                ForEachImpl<false>(this, std::forward<decltype(callback)>(callback));
+            }
+
+            void ForEach(std::function<bool(const Unit*)>&& callback) const
+            {
+                ForEachImpl<true>(this, std::forward<decltype(callback)>(callback));
+            }
+
         protected:
+            // ================== PIPMPLs =======================
+            template<bool IsConst>
+            static bool ForEachImpl(AdaptiveRawPtr<IsConst> base, std::function<bool(AdaptiveRawPtr<IsConst>)>&& callback)
+            {
+                if (base->IsFile())
+                {
+                    if (!std::invoke(std::forward<decltype(callback)>(callback), base))
+                    {
+                        return false;
+                    }
+                }
+
+                for (auto& child : base->_childs)
+                {
+                    if (child)
+                    {
+                        ForEachImpl<IsConst>(child.get(), std::forward<decltype(callback)>(callback));
+                    }
+                }
+
+                return true;
+            }
+
             template<class T>
             T* _AddChild(T&& unit, const bool isForce, const bool isIgnoreAssert)
             {
@@ -174,7 +208,33 @@ namespace Ast
 
         bool Process();
 
+        template<IsParser ParserT>
+        void ParseUsing(LogCollector& logCollector)
+        {
+
+        }
+
         [[nodiscard]] LogCollector& GetLogCollector() { return _logCollector; }
+
+        // ==========================================================
+        // ================== WORKING WITH UNITS ====================
+        // ==========================================================
+        // [[nodiscard]] Unit::AdaptivePtr<true> GetUnitByPath(const std::filesystem::path& path) const;
+        // [[nodiscard]] Unit::AdaptivePtr<false> GetUnitByPath(const std::filesystem::path& path);
+        void ForEach(std::function<bool(const Unit*)>&& callback) const
+        {
+            if (_root)
+            {
+                static_cast<const Unit*>(_root.get())->ForEach(std::forward<decltype(callback)>(callback));
+            }
+        }
+        void ForEach(std::function<bool(Unit*)>&& callback)
+        {
+            if (_root)
+            {
+                _root->ForEach(std::forward<decltype(callback)>(callback));
+            }
+        }
 
     protected:
         [[nodiscard]] bool IsValidExtension(const String& path) const;
