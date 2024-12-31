@@ -45,7 +45,7 @@ TEST(ASTProjectTest, ParseProjectTree)
     {
         auto p = unit->GetPath();
         std::cout << p << std::endl;
-        return false;
+        return true;
     });
 
     int iasdfas = 1;

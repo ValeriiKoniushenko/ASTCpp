@@ -136,7 +136,10 @@ namespace Ast
                 {
                     if (child)
                     {
-                        ForEachImpl<IsConst>(child.get(), std::forward<decltype(callback)>(callback));
+                        if (!ForEachImpl<IsConst>(child.get(), std::forward<decltype(callback)>(callback)))
+                        {
+                            return false;
+                        }
                     }
                 }
 
@@ -211,7 +214,10 @@ namespace Ast
         template<IsParser ParserT>
         void ParseUsing(LogCollector& logCollector)
         {
+            ForEach([&logCollector](auto* unit)
+            {
 
+            });
         }
 
         [[nodiscard]] LogCollector& GetLogCollector() { return _logCollector; }
