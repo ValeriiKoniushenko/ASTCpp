@@ -30,7 +30,7 @@
 namespace
 {
 
-std::filesystem::path projectPath = "C:\\Users\\Valerii\\Downloads\\WindowsProfiler-lib-develop";
+std::filesystem::path projectPath = PATH_TO_TEST_PROJECT;
 
 Ast::String ValidateAllProjectTree(Ast::ProjectTree& project)
 {
@@ -204,4 +204,39 @@ TEST(ASTProjectTest, move_parse_project_tree)
     auto error = ValidateAllProjectTree(project);
 
     ASSERT_TRUE(error.IsEmpty()) << error.c_str();
+}
+
+TEST(ASTProjectTest, project_tree_units_count)
+{
+    using namespace Ast;
+
+    ProjectTree project;
+    project.SetFileExtensions({"*.cpp", ".h"});
+    project.SetTargetProject(projectPath);
+    project.Process();
+    project.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
+
+    auto error = ValidateAllProjectTree(project);
+    ASSERT_TRUE(error.IsEmpty()) << error.c_str();
+
+    {
+        int count = 0;
+        project.ForEach([&count](ProjectTree::Unit* unit)
+        {
+            count++;
+        });
+
+        ASSERT_EQ(20, count); // 20 files of .h and .cpp in the test_project
+    }
+
+    {
+        const auto* constProject = &project;
+        int count = 0;
+        constProject->ForEach([&count](const ProjectTree::Unit* unit)
+        {
+            count++;
+        });
+
+        ASSERT_EQ(20, count); // 20 files of .h and .cpp in the test_project
+    }
 }

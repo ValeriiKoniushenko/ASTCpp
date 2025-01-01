@@ -25,6 +25,7 @@
 #include "Tree.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
+#include <ppltasks.h>
 #include <set>
 
 namespace Ast
@@ -109,14 +110,26 @@ namespace Ast
              */
             Unit* LinkSubFile(const String& name);
 
-            void ForEach(std::function<bool(Unit*)>&& callback)
+            /**
+             * @brief Can take a functions of next types:
+             * bool([const] Unit*) - this function will work until it gets 'false' in return
+             * void([const] Unit*) - will iterate without stopping through all a tree
+             */
+            template<class FuncT>
+            void ForEach(FuncT&& callback)
             {
-                ForEachImpl<false>(this, std::forward<decltype(callback)>(callback));
+                ForEachImpl<false, FuncT>(this, std::forward<decltype(callback)>(callback));
             }
 
-            void ForEach(std::function<bool(const Unit*)>&& callback) const
+            /**
+             * @brief Can take a functions of next types:
+             * bool(const Unit*) - this function will work until it gets 'false' in return
+             * void(const Unit*) - will iterate without stopping through all a tree
+             */
+            template<class FuncT>
+            void ForEach(FuncT&& callback) const
             {
-                ForEachImpl<true>(this, std::forward<decltype(callback)>(callback));
+                ForEachImpl<true, FuncT>(this, std::forward<decltype(callback)>(callback));
             }
 
             [[nodiscard]] Tree<FileLexer>::AdaptivePtr<false> GetTree() { return _tree; }
@@ -131,14 +144,21 @@ namespace Ast
 
         protected:
             // ================== PIPMPLs =======================
-            template<bool IsConst>
-            static bool ForEachImpl(AdaptiveRawPtr<IsConst> base, std::function<bool(AdaptiveRawPtr<IsConst>)>&& callback)
+            template<bool IsConst, class FuncT>
+            static bool ForEachImpl(AdaptiveRawPtr<IsConst> base, FuncT&& callback)
             {
                 if (base->IsFile())
                 {
-                    if (!std::invoke(std::forward<decltype(callback)>(callback), base))
+                    if constexpr (std::is_void_v<decltype(callback(base))>)
                     {
-                        return false;
+                        std::invoke(std::forward<decltype(callback)>(callback), base);
+                    }
+                    else
+                    {
+                        if (!std::invoke(std::forward<decltype(callback)>(callback), base))
+                        {
+                            return false;
+                        }
                     }
                 }
 
@@ -265,18 +285,30 @@ namespace Ast
             return _root ? _root->GetUnitByPath(path) : nullptr;
         }
 
-        void ForEach(std::function<bool(const Unit*)>&& callback) const
+        /**
+         * @brief Can take a functions of next types:
+         * bool(const Unit*) - this function will work until it gets 'false' in return
+         * void(const Unit*) - will iterate without stopping through all a tree
+         */
+        template<class FuncT>
+        void ForEach(FuncT&& callback) const
         {
             if (_root)
             {
-                static_cast<const Unit*>(_root.get())->ForEach(std::forward<decltype(callback)>(callback));
+                static_cast<const Unit*>(_root.get())->template ForEach<FuncT>(std::forward<decltype(callback)>(callback));
             }
         }
-        void ForEach(std::function<bool(Unit*)>&& callback)
+        /**
+         * @brief Can take a functions of next types:
+         * bool([const] Unit*) - this function will work until it gets 'false' in return
+         * void([const] Unit*) - will iterate without stopping through all a tree
+         */
+        template<class FuncT>
+        void ForEach(FuncT&& callback)
         {
             if (_root)
             {
-                _root->ForEach(std::forward<decltype(callback)>(callback));
+                _root->template ForEach<FuncT>(std::forward<decltype(callback)>(callback));
             }
         }
 

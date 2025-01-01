@@ -1,0 +1,78 @@
+\label{index_md_README}%
+\Hypertarget{index_md_README}%
+\hypertarget{index_autotoc_md1}{}\doxysection{Intro}\label{index_autotoc_md1}
+Hello everyone! If you read this page, so you need one tool to get more control over your system, and this one tool, I hope, this lib. Just download it or clone and connect to your project like opensource or just .lib
+\begin{DoxyCodeInclude}{0}
+
+\end{DoxyCodeInclude}
+.\hypertarget{index_autotoc_md2}{}\doxysection{Examples}\label{index_autotoc_md2}
+More easier examples with details you can find in the folder \textquotesingle{}example\textquotesingle{}. But now I\textquotesingle{}ll try all abilities of this lib. 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{ \{c++\}}
+\DoxyCodeLine{\#include "{}TaskManager.h"{}}
+\DoxyCodeLine{\#include "{}Utils.h"{}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#include <algorithm>}
+\DoxyCodeLine{\#include <iomanip>}
+\DoxyCodeLine{\#include <iostream>}
+\DoxyCodeLine{}
+\DoxyCodeLine{using std::cout;}
+\DoxyCodeLine{using std::endl;}
+\DoxyCodeLine{using std::setw;}
+\DoxyCodeLine{}
+\DoxyCodeLine{void printHeader()}
+\DoxyCodeLine{\{}
+\DoxyCodeLine{    cout << "{}| "{};}
+\DoxyCodeLine{    cout << setw(2 + 5) << "{}PID |"{};}
+\DoxyCodeLine{    cout << setw(2 + 36) << "{}Name |"{};}
+\DoxyCodeLine{    cout << setw(2 + 5) << "{}CPU |"{};}
+\DoxyCodeLine{    cout << setw(2 + 15) << "{}RAM |"{};}
+\DoxyCodeLine{    cout << setw(2 + 15) << "{}VRAM |"{};}
+\DoxyCodeLine{    cout << setw(2 + 15) << "{}Priority |"{};}
+\DoxyCodeLine{    cout << endl;}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{}
+\DoxyCodeLine{void printRow(const RawProcess::Statistics\& Stat)}
+\DoxyCodeLine{\{}
+\DoxyCodeLine{    cout << "{}| "{};}
+\DoxyCodeLine{    cout << setw(5) << Stat.PID << "{} |"{};}
+\DoxyCodeLine{    cout << setw(36) << Stat.Name << "{} |"{};}
+\DoxyCodeLine{    cout << setw(5) << Stat.CPUUsage << "{} |"{};}
+\DoxyCodeLine{    cout << setw(15) << Utils::b2FitString(Stat.RAMUsage) << "{} |"{};}
+\DoxyCodeLine{    cout << setw(15) << Utils::b2FitString(Stat.VirtualMemoryUsage) << "{} |"{};}
+\DoxyCodeLine{    cout << setw(15) << Utils::Priority2String(Stat.Priority) << "{} |"{};}
+\DoxyCodeLine{    cout << endl;}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{}
+\DoxyCodeLine{int main()}
+\DoxyCodeLine{\{}
+\DoxyCodeLine{    TaskManager Tasker;}
+\DoxyCodeLine{}
+\DoxyCodeLine{    cout << std::setprecision(2);}
+\DoxyCodeLine{}
+\DoxyCodeLine{    while (1)}
+\DoxyCodeLine{    \{}
+\DoxyCodeLine{        Sleep(1000);}
+\DoxyCodeLine{        Tasker.Scan();}
+\DoxyCodeLine{}
+\DoxyCodeLine{        auto Data = Tasker.ExtrudeStatisticsFromProcesses();}
+\DoxyCodeLine{        Data.erase(std::remove\_if(Data.begin(), Data.end(), [](auto\& a) \{ return a.RAMUsage < 1024 * 1024 * 1024; \}), Data.end());}
+\DoxyCodeLine{        std::sort(Data.begin(), Data.end(), [](auto\& a, auto\& b) \{ return a.PID < b.PID; \});}
+\DoxyCodeLine{}
+\DoxyCodeLine{        printHeader();}
+\DoxyCodeLine{        for (auto\& Stat : Data)}
+\DoxyCodeLine{        \{}
+\DoxyCodeLine{            printRow(Stat);}
+\DoxyCodeLine{        \}}
+\DoxyCodeLine{        // => |   PID |            Name |  CPU |    RAM |    VRAM |   Priority |}
+\DoxyCodeLine{        // => |   672 |          clangd |    0 |   2 Gb |    2 Gb |     Normal |}
+\DoxyCodeLine{        // => | 11256 |   GoogleDriveFS |  1.3 |   1 Gb |    1 Gb |     Normal |}
+\DoxyCodeLine{        // => | 11572 |         clion64 | 0.54 |   3 Gb |    3 Gb |     Normal |}
+\DoxyCodeLine{    \}}
+\DoxyCodeLine{}
+\DoxyCodeLine{    return 0;}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\hypertarget{index_autotoc_md3}{}\doxysection{Feedback \& Contacts}\label{index_autotoc_md3}
+You can send me e-\/mail\+: \href{mailto:Valerii.Koniushenko@gmail.com}{\texttt{ Valerii.\+Koniushenko@gmail.\+com}} or try to find me in telegram\+: @markmoran24 

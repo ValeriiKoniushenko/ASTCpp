@@ -1,0 +1,211 @@
+\hypertarget{class_raw_process}{}\doxysection{Raw\+Process Class Reference}
+\label{class_raw_process}\index{RawProcess@{RawProcess}}
+
+
+The main class that represent one process.  
+
+
+
+
+{\ttfamily \#include $<$Raw\+Process.\+h$>$}
+
+Inheritance diagram for Raw\+Process\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_raw_process}
+\end{center}
+\end{figure}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_raw_process_1_1_statistics}{Statistics}}
+\begin{DoxyCompactList}\small\item\em Describes statistics for one process. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_raw_process_a9c805bafe36fb5d23017f39f406aea6e}{Raw\+Process}} ()
+\item 
+\mbox{\hyperlink{class_raw_process_a02987c0ecd258c97628566d53610f8cd}{Raw\+Process}} (DWORD Pid)
+\item 
+virtual \mbox{\hyperlink{class_raw_process_a702bb976b6bd9d6bfd5a2a1961351d32}{$\sim$\+Raw\+Process}} ()
+\item 
+\mbox{\hyperlink{class_raw_process_a152d7604352f3ceb9d3f9498f35c4f81}{Raw\+Process}} (const \mbox{\hyperlink{class_raw_process}{Raw\+Process}} \&)=delete
+\item 
+\mbox{\hyperlink{class_raw_process}{Raw\+Process}} \& \mbox{\hyperlink{class_raw_process_a5508ff1886d3581b3916061125321d8e}{operator=}} (const \mbox{\hyperlink{class_raw_process}{Raw\+Process}} \&)=delete
+\item 
+\mbox{\hyperlink{class_raw_process_a628242be66872277caee4d0a3e2c92ed}{Raw\+Process}} (\mbox{\hyperlink{class_raw_process}{Raw\+Process}} \&\&)
+\item 
+\mbox{\hyperlink{class_raw_process}{Raw\+Process}} \& \mbox{\hyperlink{class_raw_process_a11c32391bfe3124fea71232f720378fe}{operator=}} (\mbox{\hyperlink{class_raw_process}{Raw\+Process}} \&\&)
+\item 
+bool \mbox{\hyperlink{class_raw_process_a89dd51c7fc2f5548671cf8c39de05e91}{Open}} (DWORD PID)
+\begin{DoxyCompactList}\small\item\em You can pass PID and monitor only one process. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_raw_process_a211f2743599527b7714c171a586262f3}{Close}} ()
+\begin{DoxyCompactList}\small\item\em Close your handler\textbackslash{}your monitoring. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_raw_process_ab76083ddb2c9c24feab050af95885530}{Is\+Opened}} () const
+\begin{DoxyCompactList}\small\item\em Check if a process was opened successfully. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_raw_process_a05f790b769483d136c8234fb25c6e42f}{Update}} ()
+\begin{DoxyCompactList}\small\item\em Update process status. Call every time before getting of the statistics. \end{DoxyCompactList}\item 
+HANDLE \mbox{\hyperlink{class_raw_process_a724cdc3c983e05063be0b18b9fdf6259}{Data}} ()
+\begin{DoxyCompactList}\small\item\em Get raw data. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{struct_raw_process_1_1_statistics}{Statistics}} \mbox{\hyperlink{class_raw_process_ac9d85d9a5b3c9f1da49bf61feccead18}{Get\+Statistics}} () const
+\begin{DoxyCompactList}\small\item\em Get statistics for one process. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+The main class that represent one process. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_raw_process_a9c805bafe36fb5d23017f39f406aea6e}\label{class_raw_process_a9c805bafe36fb5d23017f39f406aea6e}} 
+\index{RawProcess@{RawProcess}!RawProcess@{RawProcess}}
+\index{RawProcess@{RawProcess}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{RawProcess()}{RawProcess()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily Raw\+Process\+::\+Raw\+Process (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_raw_process_a02987c0ecd258c97628566d53610f8cd}\label{class_raw_process_a02987c0ecd258c97628566d53610f8cd}} 
+\index{RawProcess@{RawProcess}!RawProcess@{RawProcess}}
+\index{RawProcess@{RawProcess}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{RawProcess()}{RawProcess()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily Raw\+Process\+::\+Raw\+Process (\begin{DoxyParamCaption}\item[{DWORD}]{Pid }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_raw_process_a702bb976b6bd9d6bfd5a2a1961351d32}\label{class_raw_process_a702bb976b6bd9d6bfd5a2a1961351d32}} 
+\index{RawProcess@{RawProcess}!````~RawProcess@{$\sim$RawProcess}}
+\index{````~RawProcess@{$\sim$RawProcess}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{$\sim$RawProcess()}{~RawProcess()}}
+{\footnotesize\ttfamily Raw\+Process\+::$\sim$\+Raw\+Process (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+\mbox{\Hypertarget{class_raw_process_a152d7604352f3ceb9d3f9498f35c4f81}\label{class_raw_process_a152d7604352f3ceb9d3f9498f35c4f81}} 
+\index{RawProcess@{RawProcess}!RawProcess@{RawProcess}}
+\index{RawProcess@{RawProcess}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{RawProcess()}{RawProcess()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily Raw\+Process\+::\+Raw\+Process (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_raw_process}{Raw\+Process}} \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\Hypertarget{class_raw_process_a628242be66872277caee4d0a3e2c92ed}\label{class_raw_process_a628242be66872277caee4d0a3e2c92ed}} 
+\index{RawProcess@{RawProcess}!RawProcess@{RawProcess}}
+\index{RawProcess@{RawProcess}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{RawProcess()}{RawProcess()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily Raw\+Process\+::\+Raw\+Process (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_raw_process}{Raw\+Process}} \&\&}]{Other }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_raw_process_a211f2743599527b7714c171a586262f3}\label{class_raw_process_a211f2743599527b7714c171a586262f3}} 
+\index{RawProcess@{RawProcess}!Close@{Close}}
+\index{Close@{Close}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{Close()}{Close()}}
+{\footnotesize\ttfamily void Raw\+Process\+::\+Close (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Close your handler\textbackslash{}your monitoring. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em void} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+void 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_raw_process_a724cdc3c983e05063be0b18b9fdf6259}\label{class_raw_process_a724cdc3c983e05063be0b18b9fdf6259}} 
+\index{RawProcess@{RawProcess}!Data@{Data}}
+\index{Data@{Data}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{Data()}{Data()}}
+{\footnotesize\ttfamily HANDLE Raw\+Process\+::\+Data (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Get raw data. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em void} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+HANDLE 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_raw_process_ac9d85d9a5b3c9f1da49bf61feccead18}\label{class_raw_process_ac9d85d9a5b3c9f1da49bf61feccead18}} 
+\index{RawProcess@{RawProcess}!GetStatistics@{GetStatistics}}
+\index{GetStatistics@{GetStatistics}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{GetStatistics()}{GetStatistics()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_raw_process_1_1_statistics}{Raw\+Process\+::\+Statistics}} Raw\+Process\+::\+Get\+Statistics (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Get statistics for one process. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em void} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\mbox{\hyperlink{struct_raw_process_1_1_statistics}{Statistics}} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_raw_process_ab76083ddb2c9c24feab050af95885530}\label{class_raw_process_ab76083ddb2c9c24feab050af95885530}} 
+\index{RawProcess@{RawProcess}!IsOpened@{IsOpened}}
+\index{IsOpened@{IsOpened}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{IsOpened()}{IsOpened()}}
+{\footnotesize\ttfamily bool Raw\+Process\+::\+Is\+Opened (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Check if a process was opened successfully. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em void} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+bool -\/ true if successfully, false -\/ in other cases 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_raw_process_a89dd51c7fc2f5548671cf8c39de05e91}\label{class_raw_process_a89dd51c7fc2f5548671cf8c39de05e91}} 
+\index{RawProcess@{RawProcess}!Open@{Open}}
+\index{Open@{Open}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{Open()}{Open()}}
+{\footnotesize\ttfamily bool Raw\+Process\+::\+Open (\begin{DoxyParamCaption}\item[{DWORD}]{PID }\end{DoxyParamCaption})}
+
+
+
+You can pass PID and monitor only one process. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em DWORD} & Pid \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+bool -\/ tru if opened, false -\/ in other casese 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_raw_process_a5508ff1886d3581b3916061125321d8e}\label{class_raw_process_a5508ff1886d3581b3916061125321d8e}} 
+\index{RawProcess@{RawProcess}!operator=@{operator=}}
+\index{operator=@{operator=}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_raw_process}{Raw\+Process}} \& Raw\+Process\+::operator= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_raw_process}{Raw\+Process}} \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\Hypertarget{class_raw_process_a11c32391bfe3124fea71232f720378fe}\label{class_raw_process_a11c32391bfe3124fea71232f720378fe}} 
+\index{RawProcess@{RawProcess}!operator=@{operator=}}
+\index{operator=@{operator=}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_raw_process}{Raw\+Process}} \& Raw\+Process\+::operator= (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_raw_process}{Raw\+Process}} \&\&}]{Other }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_raw_process_a05f790b769483d136c8234fb25c6e42f}\label{class_raw_process_a05f790b769483d136c8234fb25c6e42f}} 
+\index{RawProcess@{RawProcess}!Update@{Update}}
+\index{Update@{Update}!RawProcess@{RawProcess}}
+\doxysubsubsection{\texorpdfstring{Update()}{Update()}}
+{\footnotesize\ttfamily void Raw\+Process\+::\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Update process status. Call every time before getting of the statistics. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em void} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+bool -\/ true if successfully, false -\/ in other cases 
+\end{DoxyReturn}
