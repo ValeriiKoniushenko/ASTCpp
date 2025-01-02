@@ -179,6 +179,7 @@ namespace Ast
 
 } // namespace
 
+
 TEST(ASTTests, SimpleParse)
 {
     using namespace Ast;
@@ -450,7 +451,6 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
             [&lexersCount](BaseLexer* lexer, auto)
             {
                 ++lexersCount;
-                return true;
             });
 
         EXPECT_GT(lexersCount, 0);
@@ -464,7 +464,6 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
             [&lexersCount](const BaseLexer* lexer, auto)
             {
                 ++lexersCount;
-                return true;
             });
 
         EXPECT_GT(lexersCount, 0);
@@ -483,10 +482,10 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
+        Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
         const auto found = tree.FindIf(
-            [](const BaseLexer* lexer)
+            [](BaseLexer* lexer)
             {
                 return lexer->GetLexerName() == "Internal";
             });

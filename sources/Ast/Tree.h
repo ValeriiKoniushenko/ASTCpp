@@ -120,18 +120,28 @@ namespace Ast
         // ================== WORKING WITH LEXERS ====================
         // ===========================================================
 
-        template<IsLexer Lexer = void, bool IsConst = false>
-        void ForEach(ForEachFunctionT<IsConst>&& callback)
+        /**
+         * @brief Can take a functions of next types:
+         * 1. bool([const] Lexer*, Param) - this function will work until it gets 'false' in return
+         * 2. void([const] Lexer*, Param) - will iterate without stopping through all a tree
+         */
+        template<IsLexer Lexer = void, bool IsConst = false, class FuncT>
+        void ForEach(FuncT&& callback)
         {
             Params params;
-            ForEachImpl<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), _rootLexer.get(), params);
+            ForEachImpl<FuncT, Lexer, IsConst>(std::forward<decltype(callback)>(callback), _rootLexer.get(), params);
         }
 
-        template<IsLexer Lexer = void>
-        void ForEach(ForEachFunctionT<true>&& callback) const
+         /**
+         * @brief Can take a functions of next types:
+         * 1. bool(const Lexer*, Param) - this function will work until it gets 'false' in return
+         * 2. void(const Lexer*, Param) - will iterate without stopping through all a tree
+         */
+        template<IsLexer Lexer = void, bool IsConst = true, class FuncT>
+        void ForEach(FuncT&& callback) const
         {
             Params params;
-            ForEachImpl<Lexer, true>(std::forward<ForEachFunctionT<true>>(callback), _rootLexer.get(), params);
+            ForEachImpl<FuncT, Lexer, true>(std::forward<decltype(callback)>(callback), _rootLexer.get(), params);
         }
 
         template<IsLexer Lexer = void>
@@ -161,25 +171,25 @@ namespace Ast
         template<IsLexer Lexer = void>
         [[nodiscard]] BaseLexer::Ptr FindIf(FindFunctionT<false>&& callback)
         {
-            return FindIfImpl<Lexer>(this, std::forward<FindFunctionT<false>>(callback));
+            return FindIfImpl<Lexer>(this, std::forward<decltype(callback)>(callback));
         }
 
         template<IsLexer Lexer = void>
         [[nodiscard]] BaseLexer::CPtr FindIf(FindFunctionT<true>&& callback) const
         {
-            return FindIfImpl<Lexer, true>(this, std::forward<FindFunctionT<true>>(callback));
+            return FindIfImpl<Lexer, true>(this, std::forward<decltype(callback)>(callback));
         }
 
         template<IsLexer Lexer>
         [[nodiscard]] BaseLexer::Ptr FindIfAs(FindFunctionT<false>&& callback)
         {
-            return boost::dynamic_pointer_cast<Lexer>(FindIfImpl<Lexer>(this, std::forward<FindFunctionT<false>>(callback)));
+            return boost::dynamic_pointer_cast<Lexer>(FindIfImpl<Lexer>(this, std::forward<decltype(callback)>(callback)));
         }
 
         template<IsLexer Lexer>
         [[nodiscard]] BaseLexer::CPtr FindIfAs(FindFunctionT<true>&& callback) const
         {
-            return boost::dynamic_pointer_cast<const Lexer>(FindIfImpl<Lexer, true>(this, std::forward<FindFunctionT<true>>(callback)));
+            return boost::dynamic_pointer_cast<const Lexer>(FindIfImpl<Lexer, true>(this, std::forward<decltype(callback)>(callback)));
         }
 
         [[nodiscard]] BaseLexer::Ptr GetRootLexer() { return _rootLexer; }
@@ -188,10 +198,10 @@ namespace Ast
     private:
         // ======================= PIMPLs =======================
 
-        template<IsLexer Lexer = void, bool IsConst = false>
-        static bool ForEachImpl(ForEachFunctionT<IsConst>&& callback, BaseLexer::AdaptiveRawPtr<IsConst> base, Params& params)
+        template<class FuncT, IsLexer Lexer = void, bool IsConst = false>
+        static bool ForEachImpl(FuncT&& callback, BaseLexer::AdaptiveRawPtr<IsConst> base, Params& params)
         {
-            if (!base || !callback)
+            if (!base/* || !callback*/)
             {
                 return false;
             }
@@ -211,9 +221,16 @@ namespace Ast
 
             if (isNeedToInvoke)
             {
-                if (!std::invoke(callback, base, params))
+                if constexpr (std::is_void_v<decltype(callback(base, params))>)
                 {
-                    return false;
+                    std::invoke(std::forward<decltype(callback)>(callback), base, params);
+                }
+                else
+                {
+                    if (!std::invoke(callback, base, params))
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -224,7 +241,7 @@ namespace Ast
                 {
                     if (child)
                     {
-                        ForEachImpl<Lexer, IsConst>(std::forward<ForEachFunctionT<IsConst>>(callback), child.get(), params);
+                        ForEachImpl<FuncT, Lexer, IsConst>(std::forward<decltype(callback)>(callback), child.get(), params);
                     }
                 }
                 --params.nesting;
@@ -242,7 +259,7 @@ namespace Ast
             }
 
             BaseLexer::AdaptivePtr<IsConst> ret;
-            fileTree->template ForEach<Lexer>(
+            fileTree->template ForEach<Lexer, IsConst>(
                 [&callback, &ret](BaseLexer::AdaptiveRawPtr<IsConst> lexer, auto)
                 {
                     if (callback(lexer))

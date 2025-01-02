@@ -287,8 +287,8 @@ namespace Ast
 
         /**
          * @brief Can take a functions of next types:
-         * bool(const Unit*) - this function will work until it gets 'false' in return
-         * void(const Unit*) - will iterate without stopping through all a tree
+         * 1. bool(const Unit*) - this function will work until it gets 'false' in return
+         * 2. void(const Unit*) - will iterate without stopping through all a tree
          */
         template<class FuncT>
         void ForEach(FuncT&& callback) const
@@ -300,8 +300,8 @@ namespace Ast
         }
         /**
          * @brief Can take a functions of next types:
-         * bool([const] Unit*) - this function will work until it gets 'false' in return
-         * void([const] Unit*) - will iterate without stopping through all a tree
+         * 1. bool([const] Unit*) - this function will work until it gets 'false' in return
+         * 2. void([const] Unit*) - will iterate without stopping through all a tree
          */
         template<class FuncT>
         void ForEach(FuncT&& callback)
