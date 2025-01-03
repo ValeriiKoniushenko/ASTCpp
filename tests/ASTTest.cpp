@@ -1134,18 +1134,37 @@ TEST(ASTTests, GenerateNewDifficultTreeAndFlushToFileStream)
     std::cout << stream->Data().c_str() << std::endl;
 }
 
+namespace
+{
+    void Pred1(const Ast::BaseLexer*)
+    {
+
+    }
+    void Pred2(const Ast::BaseLexer*, Ast::Tree<Ast::FileLexer>::Params)
+    {
+
+    }
+}
+
 TEST(ASTTests, TreeForEach)
 {
     using namespace Ast;
     const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
 
-    std::vector<Core::StringAtom> strings;
-    auto pred = [&](const auto* lexer)
     {
-        strings.push_back(lexer->GetLexerName());
-    };
+        std::vector<Core::StringAtom> strings;
+        auto pred = [&](const auto* lexer)
+        {
+            strings.push_back(lexer->GetLexerName());
+        };
 
-    tree.ForEach(pred);
+        tree.ForEach(pred);
 
-    EXPECT_GT(strings.size(), 1);
+        EXPECT_GT(strings.size(), 1);
+    }
+
+    {
+        tree.ForEach(Pred1);
+        tree.ForEach(Pred2);
+    }
 }
