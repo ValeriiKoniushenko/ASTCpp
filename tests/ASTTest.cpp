@@ -1133,3 +1133,19 @@ TEST(ASTTests, GenerateNewDifficultTreeAndFlushToFileStream)
 
     std::cout << stream->Data().c_str() << std::endl;
 }
+
+TEST(ASTTests, TreeForEach)
+{
+    using namespace Ast;
+    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content) });
+
+    std::vector<Core::StringAtom> strings;
+    auto pred = [&](const auto* lexer)
+    {
+        strings.push_back(lexer->GetLexerName());
+    };
+
+    tree.ForEach(pred);
+
+    EXPECT_GT(strings.size(), 1);
+}

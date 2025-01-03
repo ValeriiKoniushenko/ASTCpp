@@ -119,17 +119,16 @@ namespace Ast
         // ===========================================================
         // ================== WORKING WITH LEXERS ====================
         // ===========================================================
-
         /**
          * @brief Can take a functions of next types:
          * 1. bool([const] Lexer*, Param) - this function will work until it gets 'false' in return
          * 2. void([const] Lexer*, Param) - will iterate without stopping through all a tree
          */
-        template<IsLexer Lexer = void, bool IsConst = false, class FuncT>
+        template<IsLexer Lexer = void, class FuncT>
         void ForEach(FuncT&& callback)
         {
             Params params;
-            ForEachImpl<FuncT, Lexer, IsConst>(std::forward<decltype(callback)>(callback), _rootLexer.get(), params);
+            ForEachImpl<FuncT, Lexer, false>(std::forward<decltype(callback)>(callback), _rootLexer.get(), params);
         }
 
          /**
@@ -137,7 +136,7 @@ namespace Ast
          * 1. bool(const Lexer*, Param) - this function will work until it gets 'false' in return
          * 2. void(const Lexer*, Param) - will iterate without stopping through all a tree
          */
-        template<IsLexer Lexer = void, bool IsConst = true, class FuncT>
+        template<IsLexer Lexer = void, class FuncT>
         void ForEach(FuncT&& callback) const
         {
             Params params;
@@ -201,7 +200,7 @@ namespace Ast
         template<class FuncT, IsLexer Lexer = void, bool IsConst = false>
         static bool ForEachImpl(FuncT&& callback, BaseLexer::AdaptiveRawPtr<IsConst> base, Params& params)
         {
-            if (!base/* || !callback*/)
+            if (!base)
             {
                 return false;
             }
@@ -221,15 +220,32 @@ namespace Ast
 
             if (isNeedToInvoke)
             {
-                if constexpr (std::is_void_v<decltype(callback(base, params))>)
+                if constexpr (std::is_invocable_v<FuncT, decltype(base), decltype(params)>)
                 {
-                    std::invoke(std::forward<decltype(callback)>(callback), base, params);
+                    if constexpr (std::is_void_v<decltype(callback(base, params))>)
+                    {
+                        std::invoke(std::forward<decltype(callback)>(callback), base, params);
+                    }
+                    else
+                    {
+                        if (!std::invoke(std::forward<decltype(callback)>(callback), base, params))
+                        {
+                            return false;
+                        }
+                    }
                 }
                 else
                 {
-                    if (!std::invoke(callback, base, params))
+                    if constexpr (std::is_void_v<decltype(callback(base))>)
                     {
-                        return false;
+                        std::invoke(std::forward<decltype(callback)>(callback), base);
+                    }
+                    else
+                    {
+                        if (!std::invoke(std::forward<decltype(callback)>(callback), base))
+                        {
+                            return false;
+                        }
                     }
                 }
             }
@@ -259,7 +275,7 @@ namespace Ast
             }
 
             BaseLexer::AdaptivePtr<IsConst> ret;
-            fileTree->template ForEach<Lexer, IsConst>(
+            fileTree->template ForEach<Lexer>(
                 [&callback, &ret](BaseLexer::AdaptiveRawPtr<IsConst> lexer, auto)
                 {
                     if (callback(lexer))
