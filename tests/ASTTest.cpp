@@ -32,6 +32,7 @@
 
 #include <fstream>
 #include <gtest/gtest.h>
+#include <unordered_set>
 
 namespace
 {
