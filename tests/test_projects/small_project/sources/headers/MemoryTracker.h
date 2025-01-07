@@ -1,10 +1,12 @@
-// Copyright (c) 2024 Valerii Koniushenko
+// MIT License
+//
+// Copyright (c) 2023 Valerii Koniushenko
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
+// 														 copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
 // The above copyright notice and this permission notice shall be included in all
@@ -20,23 +22,41 @@
 
 #pragma once
 
-#include "Ast/LogCollector.h"
-#include "Lexers/BaseLexer.h"
+#include "Object.h"
 
-#include <filesystem>
+#include <Windows.h>
+#include <cstdlib>
 
-namespace Ast
+/**
+ * @brief Allows to track Memory data
+ */
+class MemoryTracker : public Object
 {
-    class Parser : Utils::CopyableAndMoveable
-    {
-    public:
-        Parser() = default;
-        ~Parser() override = default;
+public:
+	MemoryTracker(HANDLE& Handle);
+	~MemoryTracker() override;
+	MemoryTracker(const MemoryTracker&) = default;
+	MemoryTracker& operator=(const MemoryTracker&) = default;
+	MemoryTracker(MemoryTracker&&) = default;
+	MemoryTracker& operator=(MemoryTracker&&) = default;
 
-        virtual void Parse(const ContentStream::Ptr& content, LogCollector::Ptr logCollector) = 0;
-        virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
-    };
+	/**
+ 	 * @brief Allows to get access to the RAM usage
+ 	 * @return std::size_t count of bytes that now a process uses
+ 	 * @param void
+	 */
+	std::size_t RAMUsage() const;
 
-    template<class T>
-    concept IsParser = std::derived_from<T, Parser>;
-} // namespace Ast
+	/**
+ 	 * @brief Allows to get access to the Virtual Memory usage
+ 	 * @return std::size_t count of bytes that now a process uses
+ 	 * @param void
+	 */
+	std::size_t VirtualMemoryUsage() const;
+
+private:
+	void ClearData() override;
+
+private:
+	HANDLE* Handle{};
+};

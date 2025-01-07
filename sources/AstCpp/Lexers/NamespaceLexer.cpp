@@ -72,7 +72,7 @@ namespace Ast::Cpp
     {
     }
 
-    bool NamespaceLexer::DoValidate(LogCollector& logCollector)
+    bool NamespaceLexer::DoParse(LogCollector& logCollector)
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
@@ -99,9 +99,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool NamespaceLexer::DoValidateScope(LogCollector& logCollector)
+    bool NamespaceLexer::DoScopeParse(LogCollector& logCollector)
     {
-        if (!BaseLexer::DoValidateScope(logCollector))
+        if (!BaseLexer::DoScopeParse(logCollector))
         {
             return false;
         }

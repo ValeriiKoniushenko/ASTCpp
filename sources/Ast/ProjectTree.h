@@ -231,10 +231,14 @@ namespace Ast
         };
 
     public:
-        ProjectTree() = default;
+        ProjectTree();
         ~ProjectTree() override = default;
         ProjectTree(ProjectTree&&) = default;
         ProjectTree& operator=(ProjectTree&&) = default;
+
+        [[nodiscard]] bool IsValid() const;
+
+        [[nodiscard]] bool operator!() const { return IsValid(); }
 
         void SetFileExtensions(std::vector<String> extensions);
         [[nodiscard]] const std::set<String>& GetFileExtensions() const { return _fileExtensions; };
@@ -261,8 +265,8 @@ namespace Ast
             });
         }
 
-        [[nodiscard]] LogCollector& GetLogCollector() noexcept { return _logCollector; }
-        [[nodiscard]] const LogCollector& GetLogCollector() const noexcept { return _logCollector; }
+        [[nodiscard]] LogCollector::Ptr GetLogCollector() { return _logCollector; }
+        [[nodiscard]] LogCollector::CPtr GetLogCollector() const { return _logCollector; }
 
         // ==========================================================
         // ================== WORKING WITH UNITS ====================
@@ -319,7 +323,7 @@ namespace Ast
     protected:
         std::set<String> _fileExtensions;
         Unit::Ptr _root;
-        LogCollector _logCollector;
+        LogCollector::Ptr _logCollector;
     };
 
 } // namespace Ast

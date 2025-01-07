@@ -237,7 +237,7 @@ namespace Ast::Cpp
     {
     }
 
-    bool ClassLexer::DoValidate(LogCollector& logCollector)
+    bool ClassLexer::DoParse(LogCollector& logCollector)
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
@@ -329,9 +329,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool ClassLexer::DoValidateScope(LogCollector& logCollector)
+    bool ClassLexer::DoScopeParse(LogCollector& logCollector)
     {
-        if (!BaseLexer::DoValidateScope(logCollector))
+        if (!BaseLexer::DoScopeParse(logCollector))
         {
             return false;
         }
@@ -351,9 +351,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool ClassLexer::DoMarkingValidate(LogCollector& logCollector)
+    bool ClassLexer::DoMarkingParse(LogCollector& logCollector)
     {
-        if (!BaseLexer::DoMarkingValidate(logCollector))
+        if (!BaseLexer::DoMarkingParse(logCollector))
         {
             return false;
         }
@@ -411,9 +411,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool ClassLexer::DoPostValidate(LogCollector& logCollector)
+    bool ClassLexer::DoPostParse(LogCollector& logCollector)
     {
-        if (!BaseLexer::DoPostValidate(logCollector))
+        if (!BaseLexer::DoPostParse(logCollector))
         {
             return false;
         }

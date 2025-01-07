@@ -43,27 +43,28 @@ namespace Ast::Cpp
         using Container = std::vector<boost::intrusive_ptr<T>>;
 
     public:
-        Parser() = default;
-        explicit Parser(ContentStream& stream);
-        explicit Parser(ContentStream&& stream);
+        Parser();
+        explicit Parser(ContentStream& stream, LogCollector::Ptr logCollector = nullptr);
+        explicit Parser(ContentStream&& stream, LogCollector::Ptr logCollector = nullptr);
         ~Parser() override = default;
 
-        void Parse(const ContentStream::Ptr& file) override;
-        [[nodiscard]] const LogCollector& GetLogCollector() const;
+        void Parse(const ContentStream::Ptr& file, LogCollector::Ptr logCollector = nullptr) override;
+        [[nodiscard]] LogCollector::CPtr GetLogCollector() const { return _logCollector; }
+        [[nodiscard]] LogCollector::Ptr GetLogCollector() { return _logCollector; }
 
         void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) override;
         [[nodiscard]] ContentStream::Ptr GetContentStream() const { return _contentStream; }
 
     protected:
         template<IsLexer Lexer, IsReader ReaderT>
-        static void ReadAs(Container<Lexer>& container, const ContentStream::Ptr& reader, LogCollector& logCollector)
+        void ReadAs(Container<Lexer>& container, const ContentStream::Ptr& reader)
         {
             ReaderT readerObject(reader);
             for (auto&& token : readerObject)
             {
                 auto lexer = Lexer::Create(reader);
                 lexer->SetToken(token);
-                if (lexer->Validate(logCollector))
+                if (lexer->Parse(*_logCollector))
                 {
                     container.push_back(std::move(lexer));
                 }
@@ -71,16 +72,17 @@ namespace Ast::Cpp
         }
 
     private:
-        void RawParse(const ContentStream::Ptr& file, LogCollector& logCollector);
-        void BindScopes(LogCollector& logCollector);
-        BaseLexer* BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector);
+        void RawParse(const ContentStream::Ptr& file);
+        void MakeCorrectDependencies();
+        void OnParse();
+        BaseLexer* MakeCorrectDependenciesForLexer(BaseLexer* prevLexer);
         BaseLexer* FindNextLexer(const BaseLexer* prevLexer);
 
     private:
         Container<ClassLexer> _classLexers;
         Container<NamespaceLexer> _namespaceLexers;
         Container<EnumClassLexer> _enumClassLexers;
-        LogCollector _logCollector;
+        LogCollector::Ptr _logCollector;
         ContentStream::Ptr _contentStream;
     };
 

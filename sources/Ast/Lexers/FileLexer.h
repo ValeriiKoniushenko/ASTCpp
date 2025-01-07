@@ -35,7 +35,7 @@ namespace Ast
 
         ~FileLexer() override = default;
 
-        bool DoValidate(LogCollector& logCollector) override;
+        bool DoParse(LogCollector& logCollector) override;
         [[nodiscard]] static Ptr Create(const ContentStream::Ptr& stream) { return { new FileLexer(stream) }; }
 
         void SetPragmaOnce(bool value = true) { _hasPragmaOnce = value; }

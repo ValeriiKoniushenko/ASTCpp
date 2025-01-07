@@ -52,8 +52,8 @@ namespace Ast::Cpp
     protected:
         explicit NamespaceLexer(const ContentStream::Ptr& fileReader);
 
-        bool DoValidate(LogCollector& logCollector) override;
-        bool DoValidateScope(LogCollector& logCollector) override;
+        bool DoParse(LogCollector& logCollector) override;
+        bool DoScopeParse(LogCollector& logCollector) override;
 
     private:
         std::vector<String> _nameList; // e.g: namespace A::B -> { "A", "B" }

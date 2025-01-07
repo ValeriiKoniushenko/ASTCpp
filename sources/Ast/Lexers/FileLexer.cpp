@@ -46,7 +46,7 @@ namespace Ast
     {
     }
 
-    bool FileLexer::DoValidate(LogCollector& logCollector)
+    bool FileLexer::DoParse(LogCollector& logCollector)
     {
         if (const auto reader = boost::dynamic_pointer_cast<const FileReader>(_reader))
         {

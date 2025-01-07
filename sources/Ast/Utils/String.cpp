@@ -26,7 +26,7 @@ namespace Ast::Utils
 {
     const String::CharT* SkipBracketsR(const BaseLexer* lexer, const String::CharT* str, String::CharT openBracket, String::CharT closedBracket)
     {
-        if (!Verify(lexer->GetTokenReader().IsValid()) || *str != closedBracket || !Verify(str))
+        if (!Verify(lexer->GetTokenReader().IsValid()) || !Verify(str))
         {
             return nullptr;
         }
@@ -37,6 +37,14 @@ namespace Ast::Utils
         }
         else
         {
+            /*--str;
+            while (String::IsSpace(*str))
+            {
+                --str;
+            }
+            if (*str == closedBracket)
+            {
+            }*/
             return nullptr;
         }
 

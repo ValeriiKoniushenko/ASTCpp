@@ -28,6 +28,17 @@ namespace Ast
     class ContentStream;
 } // namespace Ast
 
+class Temp
+{
+public:
+    enum Type
+    {
+        One,
+        Two,
+        Three
+    };
+};
+
 namespace Ast::Cpp
 {
     class ClassLexer;
@@ -142,10 +153,10 @@ namespace Ast::Cpp
     protected:
         explicit ClassLexer(const ContentStream::Ptr& fileReader);
 
-        bool DoValidate(LogCollector& logCollector) override;
-        bool DoValidateScope(LogCollector& logCollector) override;
-        bool DoMarkingValidate(LogCollector& logCollector) override;
-        bool DoPostValidate(LogCollector& logCollector) override;
+        bool DoParse(LogCollector& logCollector) override;
+        bool DoScopeParse(LogCollector& logCollector) override;
+        bool DoMarkingParse(LogCollector& logCollector) override;
+        bool DoPostParse(LogCollector& logCollector) override;
 
     private:
         void TryToFindTemplate(LogCollector& logCollector);

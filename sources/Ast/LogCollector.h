@@ -24,14 +24,19 @@
 #include "Core/Delegate.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
+
 #include <algorithm>
 
 namespace Ast
 {
 
-    class LogCollector final : public virtual ::Utils::CopyableAndMoveable
+    class LogCollector final : public boost::intrusive_ref_counter<LogCollector>, public virtual ::Utils::CopyableAndMoveable
     {
     public:
+        AST_CLASS(LogCollector)
+
         enum class LogType
         {
             None,

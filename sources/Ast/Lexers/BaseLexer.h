@@ -98,7 +98,9 @@ namespace Ast
         [[nodiscard]] bool operator==(const BaseLexer&) const;
 
         void SetToken(const TokenReader& token);
-        bool Validate(LogCollector& logCollector);
+        bool Parse(LogCollector& logCollector);
+        void ValidateAfterParse(LogCollector& logCollector);
+
         [[nodiscard]] bool IsValid() const;
 
         bool IsCorrespondingToRule(const Rule& rule, LogCollector& logCollector, const char* additionalMessage = nullptr) const;
@@ -110,7 +112,7 @@ namespace Ast
         }
 
         template<IsLexer Lexer>
-        [[nodiscard]] typename Lexer::Ptr CastTo() noexcept
+        [[nodiscard]] typename Lexer::Ptr CastTo()
         {
             if (auto* newType = dynamic_cast<Lexer*>(this))
             {
@@ -120,7 +122,7 @@ namespace Ast
         }
 
         template<IsLexer Lexer>
-        [[nodiscard]] typename Lexer::CPtr CastTo() const noexcept
+        [[nodiscard]] typename Lexer::CPtr CastTo() const
         {
             if (auto* newType = dynamic_cast<const Lexer*>(this))
             {
@@ -205,10 +207,13 @@ namespace Ast
         [[nodiscard]] String GetTextSource() final;
 
     protected:
-        virtual bool DoValidate(LogCollector& logCollector) = 0;
-        virtual bool DoValidateScope(LogCollector& logCollector) { return true; }
-        virtual bool DoMarkingValidate(LogCollector& logCollector) { return true; }
-        virtual bool DoPostValidate(LogCollector& logCollector) { return true; }
+        virtual bool DoParse(LogCollector&) = 0;
+        virtual bool DoScopeParse(LogCollector&) { return true; }
+        virtual bool DoMarkingParse(LogCollector&) { return true; }
+        virtual bool DoPostParse(LogCollector&) { return true; }
+
+        virtual void OnParse() {}
+        virtual void ValidateMark(LogCollector&) {}
 
         BaseLexer(const ContentStream::Ptr& reader, const String& type);
 

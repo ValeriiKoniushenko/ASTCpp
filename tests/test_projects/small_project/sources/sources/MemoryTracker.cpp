@@ -1,10 +1,12 @@
-// Copyright (c) 2024 Valerii Koniushenko
+// MIT License
+//
+// Copyright (c) 2023 Valerii Koniushenko
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
+// 														 copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
 // The above copyright notice and this permission notice shall be included in all
@@ -18,25 +20,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
 
-#include "Ast/LogCollector.h"
-#include "Lexers/BaseLexer.h"
+#include "MemoryTracker.h"
 
-#include <filesystem>
+#include <psapi.h>
 
-namespace Ast
+std::size_t MemoryTracker::RAMUsage() const
 {
-    class Parser : Utils::CopyableAndMoveable
-    {
-    public:
-        Parser() = default;
-        ~Parser() override = default;
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	GetProcessMemoryInfo(*Handle, (PROCESS_MEMORY_COUNTERS*) &pmc, sizeof(pmc));
 
-        virtual void Parse(const ContentStream::Ptr& content, LogCollector::Ptr logCollector) = 0;
-        virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
-    };
+	return static_cast<std::size_t>(pmc.WorkingSetSize);
+}
 
-    template<class T>
-    concept IsParser = std::derived_from<T, Parser>;
-} // namespace Ast
+std::size_t MemoryTracker::VirtualMemoryUsage() const
+{
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	GetProcessMemoryInfo(*Handle, (PROCESS_MEMORY_COUNTERS*) &pmc, sizeof(pmc));
+
+	return static_cast<std::size_t>(pmc.PrivateUsage);
+}
+
+void MemoryTracker::ClearData()
+{
+	Handle = {};
+}
+
+MemoryTracker::MemoryTracker(HANDLE& Handle) : Handle(&Handle)
+{
+}
+
+MemoryTracker::~MemoryTracker()
+{
+	ClearData();
+}

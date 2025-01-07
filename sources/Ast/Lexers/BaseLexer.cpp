@@ -40,21 +40,21 @@ namespace Ast
         _token = token;
     }
 
-    bool BaseLexer::Validate(LogCollector& logCollector)
+    bool BaseLexer::Parse(LogCollector& logCollector)
     {
-        if (!DoValidate(logCollector))
+        if (!DoParse(logCollector))
         {
             return false;
         }
-        if (!DoValidateScope(logCollector))
+        if (!DoScopeParse(logCollector))
         {
             return false;
         }
-        if (!DoMarkingValidate(logCollector))
+        if (!DoMarkingParse(logCollector))
         {
             return false;
         }
-        if (!DoPostValidate(logCollector))
+        if (!DoPostParse(logCollector))
         {
             return false;
         }
@@ -63,6 +63,13 @@ namespace Ast
             { String::Format("successfull parsing of the {}: '{}'", _lexerType.CStr(), _lexerName.CStr()), LogCollector::LogType::Success });
 
         return IsValid();
+    }
+
+    void BaseLexer::ValidateAfterParse(LogCollector& logCollector)
+    {
+        OnParse();
+
+        ValidateMark(logCollector);
     }
 
     bool BaseLexer::IsValid() const

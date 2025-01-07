@@ -68,32 +68,31 @@ namespace Ast
         }
 
         template<IsParser ParserT>
-        [[nodiscard]] static Tree<RootLexerT> From(const ParserT& parser)
+        [[nodiscard]] static Tree<RootLexerT> From(const ParserT& parser, LogCollector::Ptr logCollector = nullptr)
         {
             Tree<RootLexerT> tree(parser.GetContentStream());
-            LogCollector logCollector;
-            tree.template ParseUsing<ParserT>(logCollector);
+            tree.template ParseUsing<ParserT>(logCollector ? logCollector : new LogCollector());
             return tree;
         }
 
         template<IsParser ParserT>
-        void ParseUsing(LogCollector& logCollector)
+        void ParseUsing(LogCollector::Ptr logCollector)
         {
             if (!Verify(!!_contentStream, "File reader was nullptr"))
             {
-                logCollector.AddLog({ "File reader was nullptr", LogCollector::LogType::Error });
+                logCollector->AddLog({ "File reader was nullptr", LogCollector::LogType::Error });
                 return;
             }
 
             ParserT parser;
-            parser.Parse(_contentStream);
+            parser.Parse(_contentStream, logCollector);
 
             parser.IterateOverLexers(
                 [&](BaseLexer* lexer)
                 {
                     if (!Verify(lexer, "Some lexer was nullptr but expected a valid object."))
                     {
-                        logCollector.AddLog({ "Some lexer was nullptr but expected a valid object.", LogCollector::LogType::Error });
+                        logCollector->AddLog({ "Some lexer was nullptr but expected a valid object.", LogCollector::LogType::Error });
                         return true;
                     }
 
@@ -109,7 +108,7 @@ namespace Ast
             {
                 _rootLexer->SetLexerName(_contentStream->GetFilePath());
             }
-            _rootLexer->DoValidate(logCollector);
+            _rootLexer->DoParse(*logCollector);
         }
 
         [[nodiscard]] ContentStream::Ptr GetReader() const { return _contentStream; }

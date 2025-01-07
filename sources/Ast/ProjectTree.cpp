@@ -206,6 +206,25 @@ namespace Ast
         return it.second ? it.first->get() : nullptr;
     }
 
+    ProjectTree::ProjectTree()
+    {
+        _logCollector = LogCollector::Ptr(new LogCollector());
+    }
+
+    bool ProjectTree::IsValid() const
+    {
+        if ( _root != nullptr)
+        {
+            bool foundAtLeastOneFile = false;
+            ForEach([&foundAtLeastOneFile](const auto*)
+            {
+                foundAtLeastOneFile = true;
+                return false;
+            });
+            return foundAtLeastOneFile;
+        }
+        return false;
+    }
     void ProjectTree::SetFileExtensions(std::vector<String> extensions)
     {
         for (auto& extension : extensions)
@@ -232,12 +251,12 @@ namespace Ast
     {
         if (_fileExtensions.empty())
         {
-            _logCollector.AddLog({ "File reader was nullptr", LogCollector::LogType::Error });
+            _logCollector->AddLog({ "File reader was nullptr", LogCollector::LogType::Error });
             return false;
         }
         if (!_root)
         {
-            _logCollector.AddLog({ "Target path is invalid", LogCollector::LogType::Error });
+            _logCollector->AddLog({ "Target path is invalid", LogCollector::LogType::Error });
             return false;
         }
 

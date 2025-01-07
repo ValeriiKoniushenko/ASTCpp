@@ -23,6 +23,7 @@
 #include "Ast/ProjectTree.h"
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
+#include "AstCpp/Rules/EnumClassRules.h"
 #include "AstCpp/TemplateLexer/CheckForTemplateLexer.h"
 
 #include <gtest/gtest.h>
@@ -30,7 +31,25 @@
 namespace
 {
 
-std::filesystem::path projectPath = PATH_TO_TEST_PROJECT;
+std::filesystem::path bigProjectPath = PATH_TO_TEST_PROJECT + std::string("big_project");
+std::filesystem::path smallProjectPath = PATH_TO_TEST_PROJECT + std::string("small_project");
+
+Ast::ProjectTree SafeGetSmallProject()
+{
+    using namespace Ast;
+
+    std::filesystem::copy(smallProjectPath, "small_project",
+        std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive
+        );
+
+    ProjectTree project;
+    project.SetFileExtensions({"*.cpp", ".h"});
+    project.SetTargetProject("small_project");
+    project.Process();
+    project.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
+
+    return project;
+}
 
 Ast::String ValidateAllProjectTree(Ast::ProjectTree& project)
 {
@@ -163,7 +182,7 @@ TEST(ASTProjectTest, simple_parse_project_tree)
 
     ProjectTree project;
     project.SetFileExtensions({"*.cpp", ".h"});
-    project.SetTargetProject(projectPath);
+    project.SetTargetProject(bigProjectPath);
     project.Process();
     project.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
@@ -195,7 +214,7 @@ TEST(ASTProjectTest, move_parse_project_tree)
     {
         ProjectTree temp;
         temp.SetFileExtensions({"*.cpp", ".h"});
-        temp.SetTargetProject(projectPath);
+        temp.SetTargetProject(bigProjectPath);
         temp.Process();
         temp.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
         project = std::move(temp);
@@ -212,7 +231,7 @@ TEST(ASTProjectTest, project_tree_units_count)
 
     ProjectTree project;
     project.SetFileExtensions({"*.cpp", ".h"});
-    project.SetTargetProject(projectPath);
+    project.SetTargetProject(bigProjectPath);
     project.Process();
     project.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
@@ -226,7 +245,7 @@ TEST(ASTProjectTest, project_tree_units_count)
             count++;
         });
 
-        ASSERT_EQ(20, count); // 20 files of .h and .cpp in the test_project
+        ASSERT_EQ(20, count); // 20 files of .h and .cpp in the big_project
     }
 
     {
@@ -237,6 +256,35 @@ TEST(ASTProjectTest, project_tree_units_count)
             count++;
         });
 
-        ASSERT_EQ(20, count); // 20 files of .h and .cpp in the test_project
+        ASSERT_EQ(20, count); // 20 files of .h and .cpp in the big_project
     }
+}
+
+TEST(ASTProjectTest, CreateEnumRefectionAndGenerateFile)
+{
+    auto project = SafeGetSmallProject();
+
+    ASSERT_TRUE(project.IsValid());
+
+    bool foundAtLeastOne = false;
+    project.ForEach([&foundAtLeastOne](Ast::ProjectTree::Unit* unit)
+    {
+        auto tree = unit->GetTree();
+        tree->ForEach<Ast::Cpp::EnumClassLexer>([&](Ast::BaseLexer* lexer)
+        {
+            if (lexer->IsMarked())
+            {
+                auto enumClass = lexer->CastTo<Ast::Cpp::EnumClassLexer>();
+                if (Verify(!!enumClass))
+                {
+                    int i = 1;
+                    foundAtLeastOne = true;
+                    return false;
+                }
+            }
+            return true;
+        });
+    });
+
+    ASSERT_TRUE(foundAtLeastOne);
 }

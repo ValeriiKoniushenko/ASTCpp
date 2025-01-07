@@ -861,8 +861,8 @@ TEST(ASTTests, CreateTreeFromClass)
     {
         const Cpp::Parser parser{ ContentStream(source.c_str()) };
 
-        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Error>());
-        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(parser.GetLogCollector()->HasAny<LogCollector::LogType::Error>());
+        EXPECT_FALSE(parser.GetLogCollector()->HasAny<LogCollector::LogType::Warning>());
 
         const Tree newTree = BaseTree::From(parser);
         auto found = newTree.FindIf(
@@ -897,8 +897,8 @@ TEST(ASTTests, CreateDifficultTreeFromClass)
     {
         const Cpp::Parser parser{ ContentStream(source.c_str()) };
 
-        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Error>());
-        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(parser.GetLogCollector()->HasAny<LogCollector::LogType::Error>());
+        EXPECT_FALSE(parser.GetLogCollector()->HasAny<LogCollector::LogType::Warning>());
 
         const Tree newTree = BaseTree::From(parser);
         auto found = newTree.FindIf(
@@ -946,8 +946,8 @@ TEST(ASTTests, CreateTreeWithEnumClass)
     {
         const Cpp::Parser parser{ ContentStream(source.c_str()) };
 
-        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Error>());
-        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(parser.GetLogCollector()->HasAny<LogCollector::LogType::Error>());
+        EXPECT_FALSE(parser.GetLogCollector()->HasAny<LogCollector::LogType::Warning>());
 
         const Tree newTree = BaseTree::From(parser);
         auto found = newTree.FindIf(
@@ -999,8 +999,8 @@ TEST(ASTTests, CreateTreeWithEnumClassAndNamespaceLexer)
     {
         const Cpp::Parser parser{ ContentStream(source.c_str()) };
 
-        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Error>());
-        EXPECT_FALSE(parser.GetLogCollector().HasAny<LogCollector::LogType::Warning>());
+        EXPECT_FALSE(parser.GetLogCollector()->HasAny<LogCollector::LogType::Error>());
+        EXPECT_FALSE(parser.GetLogCollector()->HasAny<LogCollector::LogType::Warning>());
 
         const Tree newTree = BaseTree::From(parser);
         auto found = newTree.FindIf(
@@ -1160,6 +1160,18 @@ TEST(ASTTests, TreeForEach)
         };
 
         tree.ForEach(pred);
+
+        EXPECT_GT(strings.size(), 1);
+    }
+
+    {
+        std::vector<Core::StringAtom> strings;
+        auto pred = [&](const auto* lexer)
+        {
+            strings.push_back(lexer->GetLexerName());
+        };
+
+        tree.ForEach<Cpp::EnumClassLexer>(pred);
 
         EXPECT_GT(strings.size(), 1);
     }

@@ -30,49 +30,72 @@
 namespace Ast::Cpp
 {
 
-    Parser::Parser(ContentStream& stream)
+    Parser::Parser()
     {
-        Parse(&stream);
+        _logCollector = LogCollector::Ptr(new LogCollector());
     }
 
-    Parser::Parser(ContentStream&& stream)
+    Parser::Parser(ContentStream& stream, LogCollector::Ptr logCollector) : Parser()
+    {
+        Parse(&stream, logCollector);
+    }
+
+    Parser::Parser(ContentStream&& stream, LogCollector::Ptr logCollector) : Parser()
     {
         _contentStream = ContentStream::Ptr(new ContentStream{ std::move(stream) });
-        Parse(_contentStream);
+        Parse(_contentStream, logCollector);
     }
 
-    void Parser::Parse(const ContentStream::Ptr& stream)
+    void Parser::Parse(const ContentStream::Ptr& stream, LogCollector::Ptr logCollector)
     {
-        _contentStream = stream;
-        RawParse(stream, _logCollector);
-        BindScopes(_logCollector);
-    }
-
-    const LogCollector& Parser::GetLogCollector() const
-    {
-        return _logCollector;
-    }
-
-    void Parser::RawParse(const ContentStream::Ptr& reader, LogCollector& logCollector)
-    {
-        ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, reader, logCollector);
-        ReadAs<ClassLexer, ClassReader>(_classLexers, reader, logCollector);
-        ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, reader, logCollector);
-    }
-
-    void Parser::BindScopes(LogCollector& logCollector)
-    {
-        BaseLexer* lexer = BindScopesForLexer(nullptr, logCollector);
-        while ((lexer = FindNextLexer(lexer)))
+        if (logCollector)
         {
-            lexer = BindScopesForLexer(lexer, logCollector);
+            _logCollector = logCollector;
         }
 
-        logCollector.AddLog({ String::Format("Successfully was build binding between lexers at file: '{}'", _contentStream->GetFilePath().c_str()),
-                              LogCollector::LogType::Success });
+        if (stream != _contentStream)
+        {
+            _contentStream = stream;
+        }
+
+        RawParse(stream);
+        MakeCorrectDependencies();
+        OnParse();
     }
 
-    BaseLexer* Parser::BindScopesForLexer(BaseLexer* prevLexer, LogCollector& logCollector)
+    void Parser::RawParse(const ContentStream::Ptr& reader)
+    {
+        ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, reader);
+        ReadAs<ClassLexer, ClassReader>(_classLexers, reader);
+        ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, reader);
+    }
+
+    void Parser::MakeCorrectDependencies()
+    {
+        BaseLexer* lexer = MakeCorrectDependenciesForLexer(nullptr);
+        while ((lexer = FindNextLexer(lexer)))
+        {
+            lexer = MakeCorrectDependenciesForLexer(lexer);
+        }
+
+        _logCollector->AddLog(
+            { String::Format("Successfully was build dependencies between lexers at file: '{}'", _contentStream->GetFilePath().c_str()),
+              LogCollector::LogType::Success });
+    }
+
+    void Parser::OnParse()
+    {
+        IterateOverLexers([this](BaseLexer* lexer)
+        {
+            if (Verify(lexer))
+            {
+                lexer->ValidateAfterParse(*_logCollector);
+            }
+            return true;
+        });
+    }
+
+    BaseLexer* Parser::MakeCorrectDependenciesForLexer(BaseLexer* prevLexer)
     {
         const auto startChildsCount = prevLexer ? prevLexer->GetChildLexers().size() : 0;
         IterateOverLexers(
@@ -96,7 +119,7 @@ namespace Ast::Cpp
 
                         if (prevLexer->IsContainLexer(lexer, true))
                         {
-                            BindScopesForLexer(lexer, logCollector);
+                            MakeCorrectDependenciesForLexer(lexer);
                             if (!lexer->HasParent())
                             {
                                 prevLexer->TryToSetAsChild(lexer);

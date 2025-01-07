@@ -20,9 +20,12 @@
 
 #include "EnumClassLexer.h"
 
+#include "Ast/Lexers/FileLexer.h"
 #include "Ast/LogCollector.h"
 #include "Ast/Readers/ContentStream.h"
 #include "Ast/Utils/Scopes.h"
+#include "Ast/Utils/String.h"
+#include "NamespaceLexer.h"
 
 namespace Ast::Cpp
 {
@@ -141,7 +144,7 @@ namespace Ast::Cpp
     {
     }
 
-    bool EnumClassLexer::DoValidate(LogCollector& logCollector)
+    bool EnumClassLexer::DoParse(LogCollector& logCollector)
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
@@ -178,9 +181,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool EnumClassLexer::DoValidateScope(LogCollector& logCollector)
+    bool EnumClassLexer::DoScopeParse(LogCollector& logCollector)
     {
-        if (!BaseLexer::DoValidateScope(logCollector))
+        if (!BaseLexer::DoScopeParse(logCollector))
         {
             return false;
         }
@@ -208,6 +211,73 @@ namespace Ast::Cpp
         }
 
         return true;
+    }
+
+    bool EnumClassLexer::DoMarkingParse(LogCollector& logCollector)
+    {
+        if (!BaseLexer::DoMarkingParse(logCollector))
+        {
+            return false;
+        }
+
+        const char* begin = _token.beginData;
+        // trying to find closed bracket
+        if (*begin != ')')
+        {
+            do
+            {
+                --begin;
+            } while (String::IsSpace(*begin));
+        }
+
+        // Corresponding to AstCpp/Markers.h -> #define ENUM_CLASS
+        if ((begin = Ast::Utils::SkipBracketsR(this, begin, '(', ')')))
+        {
+            while (String::IsSpace(*begin))
+            {
+                --begin;
+            }
+
+            begin -= marker.Size();
+            if (begin >= _reader->Data().c_str())
+            {
+                if (String(begin, marker.Size()).RegexMatch(marker))
+                {
+                    Marker marker;
+
+                    while (*begin != '(')
+                    {
+                        marker.rule.push_back(*begin);
+                        ++begin;
+                    }
+
+                    const auto* end = Utils::FindClosedBracket(begin, ')', '(');
+                    for (auto param : String(begin, end - begin).Split(","))
+                    {
+                        param.Trim(' ').Trim('(').Trim(')');
+                        marker.params.push_back(std::move(param));
+                    }
+
+                    _marking = std::move(marker);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    void EnumClassLexer::ValidateMark(LogCollector& logCollector)
+    {
+        if (_marking)
+        {
+            if (_parentLexer && !_parentLexer->IsTypeOf<FileLexer>() && !_parentLexer->IsTypeOf<NamespaceLexer>())
+            {
+                _marking = std::nullopt;
+
+                logCollector.AddLog({ "Marking of the lexer '{}' of type '{}' is impossible. Becuase marking of this lexer available only in a file or namespace scope. It can't be marked inside '{}': '{}'"_f
+                    << _lexerName << _lexerType << _parentLexer->GetLexerType() << _parentLexer->GetLexerName(), LogCollector::LogType::Error });
+            }
+        }
     }
 
     bool EnumClassLexer::RecognizeConstants(LogCollector& logCollector)

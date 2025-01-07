@@ -1,10 +1,12 @@
-// Copyright (c) 2024 Valerii Koniushenko
+// MIT License
+//
+// Copyright (c) 2023 Valerii Koniushenko
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
+// 														 copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
 // The above copyright notice and this permission notice shall be included in all
@@ -20,23 +22,25 @@
 
 #pragma once
 
-#include "Ast/LogCollector.h"
-#include "Lexers/BaseLexer.h"
-
-#include <filesystem>
-
-namespace Ast
+/**
+ * @brief The base class for setting params to all objects
+ */
+class Object
 {
-    class Parser : Utils::CopyableAndMoveable
-    {
-    public:
-        Parser() = default;
-        ~Parser() override = default;
+public:
+	virtual ~Object() = default;
+	Object(const Object&) = default;
+	Object& operator=(const Object&) = default;
+	Object(Object&&) = default;
+	Object& operator=(Object&&) = default;
 
-        virtual void Parse(const ContentStream::Ptr& content, LogCollector::Ptr logCollector) = 0;
-        virtual void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) = 0;
-    };
+	/**
+	 * @brief Try to clear data for overloaded operator= and for copy\move constructs
+	 * @return void
+	 * @param void
+	 */
+	virtual void ClearData() = 0;
 
-    template<class T>
-    concept IsParser = std::derived_from<T, Parser>;
-} // namespace Ast
+protected:
+	Object() = default;
+};
