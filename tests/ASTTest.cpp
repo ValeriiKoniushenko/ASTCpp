@@ -1181,3 +1181,72 @@ TEST(ASTTests, TreeForEach)
         tree.ForEach(Pred2);
     }
 }
+
+namespace
+{
+
+    const char* contentEnumClassWithWrongMark = R"(
+
+#pragma once
+
+class SomeClass
+{
+    ENUM_CLASS()
+    enum class SomeEnum
+    {
+        A = MACROS,
+        B = 555,
+        C = 0x005 * 55
+    };
+};
+
+)";
+
+} // namespace
+
+TEST(ASTTest, EnumClassWithWrongMark)
+{
+    using namespace Ast;
+    auto logCollector = LogCollector::Create();
+    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(contentEnumClassWithWrongMark), logCollector });
+
+    const auto errors = logCollector->GetFilteredLogs<LogCollector::LogType::Error>();
+    ASSERT_EQ(1, errors.size());
+    std::cout << "Ignore next text: " << errors.front() << std::endl;
+
+    const auto found = tree.FindFirstByNameAs<Cpp::EnumClassLexer>("SomeEnum");
+    ASSERT_TRUE(found);
+
+    EXPECT_FALSE(found->GetMark());
+}
+
+namespace
+{
+
+    const char* contentWithoutMarkAtBegin = R"(
+
+class SomeClass
+{
+    enum class SomeEnum
+    {
+        A = MACROS,
+        B = 555,
+        C = 0x005 * 55
+    };
+};
+
+)";
+
+} // namespace
+
+TEST(ASTTest, NoMarkAtBeginOfFile)
+{
+    using namespace Ast;
+    auto logCollector = LogCollector::Create();
+    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(contentWithoutMarkAtBegin), logCollector });
+
+    const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("SomeClass");
+    ASSERT_TRUE(found);
+
+    EXPECT_FALSE(found->GetMark());
+}

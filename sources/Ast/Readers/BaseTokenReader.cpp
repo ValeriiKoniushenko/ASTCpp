@@ -58,8 +58,8 @@ namespace Ast
     BaseTokenReader::Iterator BaseTokenReader::Iterator::operator++(int) noexcept
     {
         auto temp = *this;
-        ++temp;
-        return *this;
+        ++*this;
+        return temp;
     }
 
     std::optional<TokenReader> BaseTokenReader::FindNextToken() const

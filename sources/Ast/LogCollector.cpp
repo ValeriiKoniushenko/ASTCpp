@@ -25,12 +25,17 @@ namespace Ast
 
     void LogCollector::AddLog(const LogLine& logLine)
     {
-        if (Verify(logLine.type != LogType::None, "Was passed LogType::None but expected NOT LogType::None") &&
+        if (Verify(logLine.type.Cast() != LogType::None, "Was passed LogType::None but expected NOT LogType::None") &&
             Verify(!logLine.message.IsEmpty(), "Was passed an empty message to the log"))
         {
             _logs.emplace_back(logLine);
             onValidationEvent.Trigger(logLine.message, logLine.type);
         }
+    }
+
+    std::ostream& operator<<(std::ostream& os, const LogCollector::LogLine& line)
+    {
+        return os << line.type.ToStr() << ": " << line.message.c_str();
     }
 
 } // namespace Ast

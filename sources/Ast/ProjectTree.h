@@ -53,7 +53,7 @@ namespace Ast
             Unit() = default;
             ~Unit() override = default;
 
-            [[nodiscard]] static Ptr Create() { return Ptr(new Unit()); }
+            [[nodiscard]] static Ptr Create() { return new Self; }
 
             [[nodiscard]] Type GetType() const { return _type; }
             [[nodiscard]] bool IsFile() const { return _type == Type::File; }

@@ -48,6 +48,8 @@ namespace Ast
 
         ContentStream() = default;
 
+        [[nodiscard]] static Ptr Create() { return new Self; }
+
         template<IsContentFilter... Filter>
         explicit ContentStream(const String::CharT* data)
         {
@@ -70,8 +72,6 @@ namespace Ast
 
         [[nodiscard]] virtual String GetFilePath() const { return "none"_atom; }
 
-        [[nodiscard]] static Ptr Create() { return boost::intrusive_ptr<ContentStream>(new ContentStream()); }
-
     protected:
         virtual void OnPut() {}
 
@@ -85,6 +85,8 @@ namespace Ast
         AST_CLASS(FileContentStream)
 
         FileContentStream() = default;
+
+        [[nodiscard]] static Ptr Create() { return new Self; }
 
         template<IsContentFilter... Filter>
         explicit FileContentStream(const std::filesystem::path& path)
@@ -105,8 +107,6 @@ namespace Ast
         {
             return String::MakeFrom(_path);
         }
-
-        [[nodiscard]] static Ptr Create() { return boost::intrusive_ptr<FileContentStream>(new FileContentStream()); }
 
     protected:
         void OnPut() override;

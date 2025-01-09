@@ -30,6 +30,7 @@ public:                                                                         
     using AdaptiveRawPtr = std::conditional_t<IsConst, const className, className>*;                                                                 \
     using Ptr = boost::intrusive_ptr<className>;                                                                                                     \
     using CPtr = boost::intrusive_ptr<const className>;                                                                                              \
+    using Self = className;                                                                                                                          \
     template<bool IsConst = false>                                                                                                                   \
     using AdaptivePtr = std::conditional_t<IsConst, CPtr, Ptr>;
 

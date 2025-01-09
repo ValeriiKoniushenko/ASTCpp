@@ -23,6 +23,7 @@
 #include "CommonTypes.h"
 #include "Core/Delegate.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
+#include "Core/Enum.h"
 
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
@@ -37,14 +38,13 @@ namespace Ast
     public:
         AST_CLASS(LogCollector)
 
-        enum class LogType
-        {
+        CreateEnum(LogType, int,
             None,
             Info,
             Warning,
             Error,
             Success
-        };
+        );
 
         struct LogLine final
         {
@@ -62,26 +62,28 @@ namespace Ast
         [[nodiscard]] const Container& GetLogs() const noexcept { return _logs; }
         [[nodiscard]] bool IsEmpty() const { return _logs.empty(); }
 
+        [[nodiscard]] static Ptr Create() { return new Self; }
+
         void ClearLogs() { _logs.clear(); }
 
-        template<LogType logType>
+        template<int logType>
         [[nodiscard]] bool HasAny() const
         {
             return std::find_if(_logs.cbegin(), _logs.cend(),
                                 [](const LogLine& logLine)
                                 {
-                                    return logLine.type == logType;
+                                    return logLine.type.Cast() == logType;
                                 }) != _logs.cend();
         }
 
-        template<LogType logType>
+        template<int logType>
         [[nodiscard]] Container GetFilteredLogs() const
         {
             Container temp;
-            std::copy_if(_logs.cbegin(), _logs.cend(),
-                         [&temp](const LogLine& logLine)
+            std::copy_if(_logs.cbegin(), _logs.cend(), std::back_inserter(temp),
+                         [](const LogLine& logLine)
                          {
-                             return logLine.type == logType;
+                             return logLine.type.Cast() == logType;
                          });
             return temp;
         }
@@ -91,5 +93,7 @@ namespace Ast
     private:
         Container _logs;
     };
+
+    std::ostream& operator<<(std::ostream& os, const LogCollector::LogLine& line);
 
 } // namespace Ast

@@ -45,7 +45,6 @@ public:
 	/**
 	 * @brief Process priority
 	 */
-	ENUM_CLASS()
 	enum class Priority
 	{
 		None,
