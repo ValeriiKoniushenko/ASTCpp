@@ -1223,30 +1223,57 @@ TEST(ASTTest, EnumClassWithWrongMark)
 namespace
 {
 
-    const char* contentWithoutMarkAtBegin = R"(
+    const char* content_EnumClass_WithoutMarkAtBegin = R"(
+enum class SomeEnum
+{
+    A = MACROS,
+    B = 555,
+    C = 0x005 * 55
+};)";
 
-    enum class SomeEnum
-    {
-        A = MACROS,
-        B = 555,
-        C = 0x005 * 55
-    };
+    const char* content_Class_WithoutMarkAtBegin = R"(
 class SomeClass
 {
-};
+};)";
 
-)";
+    const char* content_Namespace_WithoutMarkAtBegin = R"(
+namespace SomeNs
+{
+};)";
 
 } // namespace
 
 TEST(ASTTest, NoMarkAtBeginOfFile)
 {
     using namespace Ast;
-    auto logCollector = LogCollector::Create();
-    const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(contentWithoutMarkAtBegin), logCollector });
 
-    const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("SomeClass");
-    ASSERT_TRUE(found);
+    {
+        auto logCollector = LogCollector::Create();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content_EnumClass_WithoutMarkAtBegin), logCollector });
 
-    EXPECT_FALSE(found->GetMark());
+        const auto found = tree.FindFirstByNameAs<Cpp::EnumClassLexer>("SomeEnum");
+        ASSERT_TRUE(found);
+
+        EXPECT_FALSE(found->GetMark());
+    }
+
+    {
+        auto logCollector = LogCollector::Create();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content_Class_WithoutMarkAtBegin), logCollector });
+
+        const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("SomeClass");
+        ASSERT_TRUE(found);
+
+        EXPECT_FALSE(found->GetMark());
+    }
+
+    {
+        auto logCollector = LogCollector::Create();
+        const Tree tree = BaseTree::From(Cpp::Parser{ ContentStream(content_Namespace_WithoutMarkAtBegin), logCollector });
+
+        const auto found = tree.FindFirstByNameAs<Cpp::NamespaceLexer>("SomeNs");
+        ASSERT_TRUE(found);
+
+        EXPECT_FALSE(found->GetMark());
+    }
 }
