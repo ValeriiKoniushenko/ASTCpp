@@ -372,7 +372,7 @@ namespace Ast::Cpp
 
         auto limits = GetReaderLimits();
 
-        while (begin > limits.first && String::IsSpace(*begin))
+        while (begin > limits.first && (String::IsSpace(*begin) || *begin == ';'))
         {
             --begin;
         }

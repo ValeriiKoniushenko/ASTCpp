@@ -220,17 +220,18 @@ namespace Ast::Cpp
             return false;
         }
 
+        auto limits = GetReaderLimits();
+
         const char* begin = _token.beginData;
         // trying to find closed bracket
-        if (*begin != ')')
+        if (Verify(begin) && *begin != ')')
         {
             do
             {
                 --begin;
-            } while (String::IsSpace(*begin) || *begin == ';');
+            } while (begin > limits.first && (String::IsSpace(*begin) || *begin == ';'));
         }
 
-        auto limits = GetReaderLimits();
 
         // Corresponding to AstCpp/Markers.h -> #define ENUM_CLASS
         if ((begin = Ast::Utils::SkipBracketsR(this, begin, '(', ')', limits.first)))

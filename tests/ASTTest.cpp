@@ -1225,14 +1225,14 @@ namespace
 
     const char* contentWithoutMarkAtBegin = R"(
 
-class SomeClass
-{
     enum class SomeEnum
     {
         A = MACROS,
         B = 555,
         C = 0x005 * 55
     };
+class SomeClass
+{
 };
 
 )";
