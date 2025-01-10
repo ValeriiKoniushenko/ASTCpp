@@ -33,21 +33,24 @@ namespace
             return {};
         }
 
+        const auto* const stopPointBegin = lexer->GetReader()->Data().c_str() - 1;
+        const auto* const stopPointEnd = lexer->GetReader()->Data().c_str() + lexer->GetReader()->Data().Size();
+
         if (auto scope = lexer->GetTokenReader(); scope.beginData)
         {
             auto end = scope.beginData - 1;
-            while (Ast::String::Toolset::IsSpace(*end))
+            while (end > stopPointBegin && Ast::String::Toolset::IsSpace(*end))
             {
                 --end;
             }
 
-            if (auto* src = Ast::Utils::FindClosedBracketR(end, '>', '<'))
+            if (auto* src = Ast::Utils::FindClosedBracketR(end, '>', '<', stopPointBegin); src && src > stopPointBegin)
             {
-                while (Ast::String::IsSpace(*src) || *src == '<')
+                while (end > stopPointBegin && Ast::String::IsSpace(*src) || *src == '<')
                 {
                     --src;
                 }
-                while (!Ast::String::IsSpace(*src))
+                while (end > stopPointBegin && !Ast::String::IsSpace(*src))
                 {
                     --src;
                 }

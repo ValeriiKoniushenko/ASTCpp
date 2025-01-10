@@ -82,6 +82,15 @@ namespace Ast
         return rule.IsCorrespondingTheRules(this, logCollector, additionalMessage);
     }
 
+    std::pair<const String::CharT* const, const String::CharT* const> BaseLexer::GetReaderLimits() const
+    {
+        if (Verify(!!_reader))
+        {
+            return std::make_pair(_reader->Data().c_str() - 1, _reader->Data().c_str() + _reader->Data().Size());
+        }
+        return std::make_pair(nullptr, nullptr);
+    }
+
     bool BaseLexer::HasTheSameParentAs(BaseLexer::Ptr parent) const
     {
         if (Verify(!!parent))

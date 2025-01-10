@@ -370,13 +370,15 @@ namespace Ast::Cpp
 
         --begin;
 
-        while (String::IsSpace(*begin))
+        auto limits = GetReaderLimits();
+
+        while (begin > limits.first && String::IsSpace(*begin))
         {
             --begin;
         }
 
         // Corresponding to AstCpp/Markers.h -> #define CLASS
-        if ((begin = Ast::Utils::SkipBracketsR(this, begin, '(', ')')))
+        if (begin = Ast::Utils::SkipBracketsR(this, begin, '(', ')', limits.first); begin && begin > limits.first)
         {
             while (String::IsSpace(*begin))
             {

@@ -137,6 +137,7 @@ namespace Ast
         [[nodiscard]] String GetLexerName() const noexcept { return _lexerName; }
 
         [[nodiscard]] String GetLexerType() const noexcept { return _lexerType; }
+        [[nodiscard]] std::pair<const String::CharT* const, const String::CharT* const> GetReaderLimits() const;
 
         // ================================================================
         // ================== WORKING WITH LEXERS TREE ====================

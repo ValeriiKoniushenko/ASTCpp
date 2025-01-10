@@ -67,7 +67,7 @@ namespace Ast::Utils
         return *source != 0 ? --source : nullptr;
     }
 
-    const String::CharT* FindClosedBracketR(const String::CharT* source, String::CharT closedBracket, String::CharT openedBracket)
+    const String::CharT* FindClosedBracketR(const String::CharT* source, String::CharT closedBracket, String::CharT openedBracket, const String::CharT* const stopPointBegin)
     {
         if (!Verify(source, "Impossible to find the first bracket because was passed the NULL string"))
         {
@@ -75,7 +75,7 @@ namespace Ast::Utils
         }
 
         // skipping of the opened bracket
-        if (String::Toolset::IsSpace(*source))
+        if (source > stopPointBegin && String::Toolset::IsSpace(*source))
         {
             --source;
         }
@@ -86,7 +86,7 @@ namespace Ast::Utils
             ++bracketCounter;
             --source;
         }
-        for (; *source != 0 && bracketCounter != 0; --source)
+        for (; source != stopPointBegin && *source != 0 && bracketCounter != 0; --source)
         {
             if (*source == closedBracket)
             {

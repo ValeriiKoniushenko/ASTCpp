@@ -24,7 +24,7 @@
 
 namespace Ast::Utils
 {
-    const String::CharT* SkipBracketsR(const BaseLexer* lexer, const String::CharT* str, String::CharT openBracket, String::CharT closedBracket)
+    const String::CharT* SkipBracketsR(const BaseLexer* lexer, const String::CharT* str, String::CharT openBracket, String::CharT closedBracket, const String::CharT* const stopPointBegin)
     {
         if (!Verify(lexer->GetTokenReader().IsValid()) || !Verify(str))
         {
@@ -49,7 +49,7 @@ namespace Ast::Utils
         }
 
         int bracketsCount = -1;
-        while (str >= lexer->GetReader()->Data().c_str() && bracketsCount != 0)
+        while (str > stopPointBegin && str >= lexer->GetReader()->Data().c_str() && bracketsCount != 0)
         {
             if (*str == openBracket)
             {
@@ -63,7 +63,9 @@ namespace Ast::Utils
             --str;
         }
 
-        return ++str;
+        ++str;
+
+        return str > stopPointBegin ? str : nullptr;
     }
 
 } // namespace Ast::Utils

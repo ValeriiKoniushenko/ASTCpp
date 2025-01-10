@@ -230,16 +230,18 @@ namespace Ast::Cpp
             } while (String::IsSpace(*begin) || *begin == ';');
         }
 
+        auto limits = GetReaderLimits();
+
         // Corresponding to AstCpp/Markers.h -> #define ENUM_CLASS
-        if ((begin = Ast::Utils::SkipBracketsR(this, begin, '(', ')')))
+        if ((begin = Ast::Utils::SkipBracketsR(this, begin, '(', ')', limits.first)))
         {
-            while (String::IsSpace(*begin))
+            while (begin > limits.first && String::IsSpace(*begin))
             {
                 --begin;
             }
 
             begin -= marker.Size();
-            if (begin >= _reader->Data().c_str())
+            if (begin > limits.first)
             {
                 if (String(begin, marker.Size()).RegexMatch(marker))
                 {
