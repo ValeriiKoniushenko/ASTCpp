@@ -179,6 +179,17 @@ namespace Ast
 
         [[nodiscard]] std::pair<String, std::vector<CPtr>> GetFullPath() const { return GetFullPathImpl<true>(this); }
 
+        /**
+         * @brief Returns absolute(full path) path of the Lexer. For example if we have the next code:
+         * @code
+         * namespace Ns{
+         *    class SomeClass{
+         *       enum class SomeEnum{};
+         *    };
+         * }
+         * @endcode
+         * And if will try to get SomeEnum by full path we'll get: Ns::SomeClass::SomeEnum
+         */
         [[nodiscard]] std::pair<String, std::vector<Ptr>> GetFullPath() { return GetFullPathImpl(this); }
 
         void TryToSetParent(const Ptr& parent);

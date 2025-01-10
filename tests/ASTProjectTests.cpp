@@ -288,3 +288,20 @@ TEST(ASTProjectTest, CreateEnumRefectionAndGenerateFile)
 
     ASSERT_TRUE(foundAtLeastOne);
 }
+
+TEST(ASTProjectTest, ReflectEnumClass)
+{
+    using namespace Ast;
+
+    auto project = SafeGetSmallProject();
+
+    Cpp::EnumClassLexer::Ptr found;
+    project.ForEach([&found](ProjectTree::Unit* unit)
+    {
+        auto tree = unit->GetTree();
+        tree->FindIfAs<Cpp::EnumClassLexer>([&](Ast::BaseLexer* lexer)
+        {
+            return lexer->GetFullPath()
+        });
+    });
+}
