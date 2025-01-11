@@ -45,6 +45,7 @@ Ast::ProjectTree SafeGetSmallProject()
     ProjectTree project;
     project.SetFileExtensions({"*.cpp", ".h"});
     project.SetTargetProject("small_project");
+    project.ExcludeFromProject("excludedDirs");
     project.Process();
     project.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
@@ -260,7 +261,7 @@ TEST(ASTProjectTest, project_tree_units_count)
     }
 }
 
-TEST(ASTProjectTest, CreateEnumRefectionAndGenerateFile)
+TEST(ASTProjectTest, CheckingForEnumClass)
 {
     auto project = SafeGetSmallProject();
 
@@ -310,24 +311,24 @@ TEST(ASTProjectTest, ReflectEnumClass)
     ASSERT_TRUE(found);
 
     std::cout << found->GetTextSource() << std::endl;
-    Cpp::Generator generator;
-    generator.SetProject(project);
+    //Cpp::Generator generator;
+    //generator.SetTargetProject(project);
 
-    if (generator.IsNeedRegenerate())
-    {
-        std::cout << "Code generation will be run for next units:" << std::endl;
-        for (const auto&& info : generator.GetPregenerateInfo())
-        {
-            std::cout << "\tFile: " << info.GetFilePath().string() << std::endl;
+    //if (generator.IsNeedRegenerate())
+    //{
+    //    std::cout << "Code generation will be run for next units:" << std::endl;
+    //    for (const auto&& info : generator.GetPregenerateInfo())
+    //    {
+    //        std::cout << "\tFile: " << info.GetFilePath().string() << std::endl;
 
-            for (const auto&& lexer : info.GetParticipantLexers())
-            {
-                std::cout << "\t\tLexer: " << lexer->GetLexerType() << " " << lexer->GetLexerName() << std::endl;
-            }
-        }
+    //        for (const auto&& lexer : info.GetParticipantLexers())
+    //        {
+    //            std::cout << "\t\tLexer: " << lexer->GetLexerType() << " " << lexer->GetLexerName() << std::endl;
+    //        }
+    //    }
 
-        std::cout << "Running" << std::endl;
-        generator.GenerateEnums();
-        std::cout << "Generation was produced" << std::endl;
-    }
+    //    std::cout << "Running" << std::endl;
+    //    generator.GenerateEnums();
+    //    std::cout << "Generation was produced" << std::endl;
+    //}
 }

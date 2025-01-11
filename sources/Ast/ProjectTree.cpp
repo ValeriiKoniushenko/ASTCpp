@@ -239,6 +239,111 @@ namespace Ast
         }
     }
 
+    void ProjectTree::ExcludeFromProject(std::filesystem::path path)
+    {
+        if (path.empty())
+        {
+            _logCollector->AddLog({"Was passed a path to exclude it. But the path is empty", LogCollector::LogType::Warning});
+            return;
+        }
+        _excluded.emplace(std::move(path));
+    }
+
+    bool ProjectTree::IsExcludedPath(std::filesystem::path path) const
+    {
+        if (_excluded.contains(path))
+        {
+            return true;
+        }
+
+        if (path.is_relative())
+        {
+            if (Verify(!!_root))
+            {
+                path = _root->GetPath() / path;
+                path = std::filesystem::canonical(path);
+                if (path.empty())
+                {
+                    _logCollector->AddLog({"Was trying to convert a path to absolute, but met some problem.", LogCollector::LogType::Error});
+                    return false;
+                }
+            }
+        }
+
+        for (auto p : _excluded)
+        {
+            if (p.is_relative())
+            {
+                if (Verify(!!_root))
+                {
+                    p = _root->GetPath() / p;
+                    p = std::filesystem::canonical(p);
+                    if (p.empty())
+                    {
+                        _logCollector->AddLog({"Was trying to convert a path to absolute, but met some problem.", LogCollector::LogType::Error});
+                        return false;
+                    }
+                }
+            }
+
+            if (path.string().contains(p.string()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    const std::unordered_set<std::filesystem::path>& ProjectTree::GetExcludedPaths() const noexcept
+    {
+        return _excluded;
+    }
+
+    /*
+    bool ProjectTree::ApplyGitignore(std::filesystem::path path)
+    {
+        if (!_root)
+        {
+            return false;
+        }
+
+        if (path.empty())
+        {
+            path = _root->GetPath() / ".gitignore";
+        }
+
+        if (!std::filesystem::exists(path))
+        {
+            _logCollector->AddLog({"By the next path: {} - .gitignore wasn't found"_f << path.string(), LogCollector::LogType::Error });
+            return false;
+        }
+
+        std::ifstream file(path);
+        if (!file.is_open())
+        {
+            _logCollector->AddLog({"Can't open a .gitignore file by the next path: {}"_f << path.string(), LogCollector::LogType::Error });
+            return false;
+        }
+
+        constexpr std::size_t size = 1024;
+        char line[size];
+
+        while (!file.eof())
+        {
+            file.getline(line, size);
+            if (strlen(line) > 0)
+            {
+                _excluded.emplace(line);
+            }
+        }
+
+        file.close();
+
+        return true;
+    }
+    */
+
     void ProjectTree::SetTargetProject(const std::filesystem::path& path)
     {
         if (Verify(std::filesystem::exists(path), "Incorrect project path"))
@@ -265,6 +370,7 @@ namespace Ast
             auto tmp = String(i.path().string());
             if (!Verify(tmp.Find(_root->GetPath().string())))
             {
+                _logCollector->AddLog({"Can't process the next file: {} - it's not a part of the project"_f << tmp, LogCollector::LogType::Warning });
                 continue;
             }
             if (std::filesystem::is_directory(i))
@@ -278,7 +384,7 @@ namespace Ast
             {
                 auto newPath = std::filesystem::path(tmp.c_str());
 
-                if (IsValidExtension(String(newPath.extension().string())))
+                if (IsValidExtension(String(newPath.extension().string())) && !IsExcludedPath(newPath))
                 {
                     ProcessFile(newPath.parent_path(), i.path());
                 }

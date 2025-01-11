@@ -27,6 +27,7 @@
 
 #include <ppltasks.h>
 #include <set>
+#include <unordered_set>
 
 namespace Ast
 {
@@ -243,6 +244,11 @@ namespace Ast
         void SetFileExtensions(std::vector<String> extensions);
         [[nodiscard]] const std::set<String>& GetFileExtensions() const { return _fileExtensions; };
 
+        void ExcludeFromProject(std::filesystem::path path);
+        [[nodiscard]] bool IsExcludedPath(std::filesystem::path path) const;
+        [[nodiscard]] const std::unordered_set<std::filesystem::path>& GetExcludedPaths() const noexcept;
+        // bool ApplyGitignore(std::filesystem::path path = "");
+
         void SetTargetProject(const std::filesystem::path& path);
         [[nodiscard]] std::filesystem::path GetTargetProject() const noexcept { return _root ? _root->GetPath() : std::filesystem::path(); }
 
@@ -324,6 +330,7 @@ namespace Ast
         std::set<String> _fileExtensions;
         Unit::Ptr _root;
         LogCollector::Ptr _logCollector;
+        std::unordered_set<std::filesystem::path> _excluded;
     };
 
 } // namespace Ast
