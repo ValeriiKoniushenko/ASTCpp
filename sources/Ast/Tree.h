@@ -179,13 +179,13 @@ namespace Ast
         }
 
         template<IsLexer Lexer>
-        [[nodiscard]] BaseLexer::Ptr FindIfAs(FindFunctionT<false>&& callback)
+        [[nodiscard]] typename Lexer::Ptr FindIfAs(FindFunctionT<false>&& callback)
         {
             return boost::dynamic_pointer_cast<Lexer>(FindIfImpl<Lexer>(this, std::forward<decltype(callback)>(callback)));
         }
 
         template<IsLexer Lexer>
-        [[nodiscard]] BaseLexer::CPtr FindIfAs(FindFunctionT<true>&& callback) const
+        [[nodiscard]] typename Lexer::CPtr FindIfAs(FindFunctionT<true>&& callback) const
         {
             return boost::dynamic_pointer_cast<const Lexer>(FindIfImpl<Lexer, true>(this, std::forward<decltype(callback)>(callback)));
         }

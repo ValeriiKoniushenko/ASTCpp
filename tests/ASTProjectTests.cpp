@@ -299,9 +299,16 @@ TEST(ASTProjectTest, ReflectEnumClass)
     project.ForEach([&found](ProjectTree::Unit* unit)
     {
         auto tree = unit->GetTree();
-        tree->FindIfAs<Cpp::EnumClassLexer>([&](Ast::BaseLexer* lexer)
+        found = tree->FindIfAs<Cpp::EnumClassLexer>([&found](Ast::BaseLexer* lexer)
         {
-            return lexer->GetFullPath()
+            return lexer->GetFullPath().first == "Utils::Unit";
         });
+
+        return !found;
     });
+
+    ASSERT_TRUE(found);
+
+    std::cout << found->GetTextSource() << std::endl;
+
 }
