@@ -41,7 +41,7 @@ enum class ExampleEnum
 namespace Reflect::Enum
 {
     template<class T>
-    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, const Ast::String&> GetEnumClassName()
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, const Ast::String&> Name()
     {
         static const auto returnValue = "ExampleEnum"_atom;
         return returnValue;
@@ -150,4 +150,9 @@ TEST(GeneratedEnum, ToMap)
     EXPECT_EQ(2, map.size());
     EXPECT_EQ("Hello"_atom, map[ExampleEnum::Hello]);
     EXPECT_EQ("World"_atom, map[ExampleEnum::World]);
+}
+
+TEST(GeneratedEnum, GetName)
+{
+    EXPECT_EQ("ExampleEnum"_atom, Reflect::Enum::Name<ExampleEnum>());
 }
