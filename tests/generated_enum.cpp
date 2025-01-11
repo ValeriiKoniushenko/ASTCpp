@@ -47,7 +47,7 @@ namespace Reflect::Enum
         return returnValue;
     }
 
-    [[nodiscard]] inline const Ast::String& ToString(ExampleEnum value)
+    [[nodiscard]] inline const Ast::String& ToString(const ExampleEnum value)
     {
         if (value == ExampleEnum::Hello)
         {
@@ -101,9 +101,22 @@ namespace Reflect::Enum
     [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_map<ExampleEnum, Ast::String>> ToMap()
     {
         return {
-            { ExampleEnum::Hello, "Hello"_atom },
-            { ExampleEnum::World, "World"_atom }
+                    { ExampleEnum::Hello, "Hello"_atom },
+                    { ExampleEnum::World, "World"_atom }
         };
+    }
+
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, Ast::String> ToJsonString()
+    {
+        return R"({
+    "Name": "ExampleEnum",
+    "Type": "int",
+    "Constants": {
+        "Hello": {},
+        "World": {}
+    }
+})"_f << static_cast<int>(ExampleEnum::Hello) << static_cast<int>(ExampleEnum::World);
     }
 } // namespace Reflect::Enum
 
@@ -155,4 +168,9 @@ TEST(GeneratedEnum, ToMap)
 TEST(GeneratedEnum, GetName)
 {
     EXPECT_EQ("ExampleEnum"_atom, Reflect::Enum::Name<ExampleEnum>());
+}
+
+TEST(GeneratedEnum, ToJsonString)
+{
+    std::cout << Reflect::Enum::ToJsonString<ExampleEnum>() << std::endl;
 }
