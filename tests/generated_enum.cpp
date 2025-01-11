@@ -23,16 +23,17 @@
 #include <gtest/gtest.h>
 
 // ============== THE PART OF THE INPUT FILE ============
-enum class ExampleEnum
+enum class ExampleEnum : int
 {
-    Hello, World
+    Hello,
+    World
 };
 
 // ============== EXAMPLE OF GENERATED CODE ============
 #include "Ast/CommonTypes.h"
 
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 // ======= !!!WARNING!!! ========
 // This file was generated automatically, don't change it,
@@ -100,10 +101,7 @@ namespace Reflect::Enum
     template<class T>
     [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_map<ExampleEnum, Ast::String>> ToMap()
     {
-        return {
-                    { ExampleEnum::Hello, "Hello"_atom },
-                    { ExampleEnum::World, "World"_atom }
-        };
+        return { { ExampleEnum::Hello, "Hello"_atom }, { ExampleEnum::World, "World"_atom } };
     }
 
     template<class T>
@@ -116,7 +114,19 @@ namespace Reflect::Enum
         "Hello": {},
         "World": {}
     }
-})"_f << static_cast<int>(ExampleEnum::Hello) << static_cast<int>(ExampleEnum::World);
+})"_f << static_cast<int>(ExampleEnum::Hello)
+      << static_cast<int>(ExampleEnum::World);
+    }
+
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, Ast::String> ToXmlString()
+    {
+        return R"(<Enum name="ExampleEnum" underlyingType="int">
+    <Enumerator name="Hello" value="{}" />
+    <Enumerator name="World" value="{}" />
+</Enum>
+)"_f << static_cast<int>(ExampleEnum::Hello)
+      << static_cast<int>(ExampleEnum::World);
     }
 } // namespace Reflect::Enum
 
@@ -173,4 +183,9 @@ TEST(GeneratedEnum, GetName)
 TEST(GeneratedEnum, ToJsonString)
 {
     std::cout << Reflect::Enum::ToJsonString<ExampleEnum>() << std::endl;
+}
+
+TEST(GeneratedEnum, ToXmlString)
+{
+    std::cout << Reflect::Enum::ToXmlString<ExampleEnum>() << std::endl;
 }
