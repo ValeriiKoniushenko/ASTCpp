@@ -310,5 +310,24 @@ TEST(ASTProjectTest, ReflectEnumClass)
     ASSERT_TRUE(found);
 
     std::cout << found->GetTextSource() << std::endl;
+    Cpp::Generator generator;
+    generator.SetProject(project);
 
+    if (generator.IsNeedRegenerate())
+    {
+        std::cout << "Code generation will be run for next units:" << std::endl;
+        for (const auto&& info : generator.GetPregenerateInfo())
+        {
+            std::cout << "\tFile: " << info.GetFilePath().string() << std::endl;
+
+            for (const auto&& lexer : info.GetParticipantLexers())
+            {
+                std::cout << "\t\tLexer: " << lexer->GetLexerType() << " " << lexer->GetLexerName() << std::endl;
+            }
+        }
+
+        std::cout << "Running" << std::endl;
+        generator.GenerateEnums();
+        std::cout << "Generation was produced" << std::endl;
+    }
 }
