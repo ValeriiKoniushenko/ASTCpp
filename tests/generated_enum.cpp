@@ -31,6 +31,9 @@ enum class ExampleEnum
 // ============== EXAMPLE OF GENERATED CODE ============
 #include "Ast/CommonTypes.h"
 
+#include <vector>
+#include <unordered_set>
+
 // ======= !!!WARNING!!! ========
 // This file was generated automatically, don't change it,
 // because it will be replaced with the next generation
@@ -77,11 +80,31 @@ namespace Reflect::Enum
     }
 
     template<class T>
-    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, uint32_t> Size() noexcept
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, uint32_t> Size() noexcept
     {
         return 2;
     }
 
+    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::vector<ExampleEnum>> ToVector()
+    {
+        return { ExampleEnum::Hello, ExampleEnum::World };
+    }
+
+    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_set<ExampleEnum>> ToSet()
+    {
+        return { ExampleEnum::Hello, ExampleEnum::World };
+    }
+
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_map<ExampleEnum, Ast::String>> ToMap()
+    {
+        return {
+            { ExampleEnum::Hello, "Hello"_atom },
+            { ExampleEnum::World, "World"_atom }
+        };
+    }
 } // namespace Reflect::Enum
 
 // =================================================
@@ -103,4 +126,28 @@ TEST(GeneratedEnum, ToString)
     EXPECT_EQ("Hello"_atom, Reflect::Enum::ToString(ExampleEnum::Hello));
     EXPECT_EQ("World"_atom, Reflect::Enum::ToString(ExampleEnum::World));
     EXPECT_EQ(""_atom, Reflect::Enum::ToString(static_cast<ExampleEnum>(999)));
+}
+
+TEST(GeneratedEnum, ToVector)
+{
+    const auto vec = Reflect::Enum::ToVector<ExampleEnum>();
+    EXPECT_EQ(2, vec.size());
+    EXPECT_EQ("Hello"_atom, Reflect::Enum::ToString(vec[0]));
+    EXPECT_EQ("World"_atom, Reflect::Enum::ToString(vec[1]));
+}
+
+TEST(GeneratedEnum, ToSet)
+{
+    const auto set = Reflect::Enum::ToSet<ExampleEnum>();
+    EXPECT_EQ(2, set.size());
+    EXPECT_NE(set.end(), set.find(ExampleEnum::Hello));
+    EXPECT_NE(set.end(), set.find(ExampleEnum::World));
+}
+
+TEST(GeneratedEnum, ToMap)
+{
+    auto map = Reflect::Enum::ToMap<ExampleEnum>();
+    EXPECT_EQ(2, map.size());
+    EXPECT_EQ("Hello"_atom, map[ExampleEnum::Hello]);
+    EXPECT_EQ("World"_atom, map[ExampleEnum::World]);
 }
