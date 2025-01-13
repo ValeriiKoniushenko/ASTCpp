@@ -50,7 +50,7 @@ namespace Ast
         ~Generator() override = default;
 
         void SetTargetProject(const ProjectTree::Ptr& project);
-        virtual void GenerateAll() = 0;
+        // virtual void GenerateAll() = 0;
         [[nodiscard]] bool IsNeedRegenerate() const;
 
     protected:

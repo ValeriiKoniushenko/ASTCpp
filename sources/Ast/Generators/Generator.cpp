@@ -19,3 +19,25 @@
 // SOFTWARE.
 
 #include "Generator.h"
+
+void Ast::Generator::SetTargetProject(const ProjectTree::Ptr& project)
+{
+    _projectTree = project;
+}
+
+bool Ast::Generator::IsNeedRegenerate() const
+{
+    if (!Verify(!!_projectTree, "No project. Use Ast::Generator::SetTargetProject to set a project."))
+    {
+        return false;
+    }
+
+    _projectTree->ForEach([](const ProjectTree::Unit* unit)
+    {
+
+    });
+
+    return false;
+}
+
+

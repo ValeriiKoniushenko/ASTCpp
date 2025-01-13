@@ -20,6 +20,7 @@
 
 #define CORE_DEBUG
 
+#include "Ast/Generators/Generator.h"
 #include "Ast/ProjectTree.h"
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
@@ -34,7 +35,7 @@ namespace
 std::filesystem::path bigProjectPath = PATH_TO_TEST_PROJECT + std::string("big_project");
 std::filesystem::path smallProjectPath = PATH_TO_TEST_PROJECT + std::string("small_project");
 
-Ast::ProjectTree SafeGetSmallProject()
+Ast::ProjectTree::Ptr SafeGetSmallProject()
 {
     using namespace Ast;
 
@@ -42,12 +43,12 @@ Ast::ProjectTree SafeGetSmallProject()
         std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive
         );
 
-    ProjectTree project;
-    project.SetFileExtensions({"*.cpp", ".h"});
-    project.SetTargetProject("small_project");
-    project.ExcludeFromProject("excludedDirs");
-    project.Process();
-    project.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
+    auto project = ProjectTree::Ptr(new ProjectTree());
+    project->SetFileExtensions({"*.cpp", ".h"});
+    project->SetTargetProject("small_project");
+    project->ExcludeFromProject("excludedDirs");
+    project->Process();
+    project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
     return project;
 }
@@ -265,10 +266,10 @@ TEST(ASTProjectTest, CheckingForEnumClass)
 {
     auto project = SafeGetSmallProject();
 
-    ASSERT_TRUE(project.IsValid());
+    ASSERT_TRUE(project->IsValid());
 
     bool foundAtLeastOne = false;
-    project.ForEach([&foundAtLeastOne](Ast::ProjectTree::Unit* unit)
+    project->ForEach([&foundAtLeastOne](Ast::ProjectTree::Unit* unit)
     {
         auto tree = unit->GetTree();
         tree->ForEach<Ast::Cpp::EnumClassLexer>([&](Ast::BaseLexer* lexer)
@@ -297,7 +298,7 @@ TEST(ASTProjectTest, ReflectEnumClass)
     auto project = SafeGetSmallProject();
 
     Cpp::EnumClassLexer::Ptr found;
-    project.ForEach([&found](ProjectTree::Unit* unit)
+    project->ForEach([&found](ProjectTree::Unit* unit)
     {
         auto tree = unit->GetTree();
         found = tree->FindIfAs<Cpp::EnumClassLexer>([&found](Ast::BaseLexer* lexer)
@@ -311,7 +312,9 @@ TEST(ASTProjectTest, ReflectEnumClass)
     ASSERT_TRUE(found);
 
     std::cout << found->GetTextSource() << std::endl;
-    //Cpp::Generator generator;
+    Generator generator;
+    generator.SetTargetProject(project);
+    auto a = generator.IsNeedRegenerate();
     //generator.SetTargetProject(project);
 
     //if (generator.IsNeedRegenerate())
