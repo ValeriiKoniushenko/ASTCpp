@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "Ast/Cache.h"
+#include "Ast/Generators/Generator.h"
 #include "Ast/ProjectTree.h"
 #include "Ast/Tree.h"
 #include "Ast/Utils/IO.h"
@@ -50,7 +52,7 @@ int main()
     project->Process();
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
-    project->WriteToCache("");
+    Generator generator;
 
     return 0;
 }

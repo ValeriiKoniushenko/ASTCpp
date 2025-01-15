@@ -20,7 +20,7 @@
 
 #include "Cache.h"
 
-namespace Ast
+namespace Ast::experimental
 {
 
     bool Cache::IsExist() const
@@ -37,7 +37,7 @@ namespace Ast
         return count > 0 && std::filesystem::exists(_cachePath);
     }
 
-    bool Cache::ReadFromCache()
+    bool Cache::Read()
     {
         if (!IsExist())
         {
@@ -47,14 +47,43 @@ namespace Ast
         return true;
     }
 
-    bool Cache::WriteToCache(WriteAction action) const
+    bool Cache::Write(WriteAction action)
     {
-        if (!IsExist())
+        if (!Verify(!_cachePath.empty(), "Cache path is invalid, impossible to write"))
         {
             return false;
         }
 
+        if (!Verify(!!_projectTree, "Project tree is invalid, impossible to generate a cache"))
+        {
+            return false;
+        }
+
+        // creating of the directory
+        if (!std::filesystem::exists(_cachePath))
+        {
+            try
+            {
+                std::filesystem::create_directory(_cachePath);
+            }
+            catch (std::filesystem::filesystem_error& e)
+            {
+                Assert(false);
+                _projectTree->GetLogCollector()->AddLog(
+                    { "Impossible to create a cache directory by the next reason: {}"_f << e.what(), LogCollector::LogType::Error });
+                return false;
+            }
+
+            if (!std::filesystem::exists(_cachePath))
+            {
+                _projectTree->GetLogCollector()->AddLog({ "By some reasons a cache directory wasn't created", LogCollector::LogType::Error });
+                return false;
+            }
+        }
+
+
+
         return true;
     }
 
-} // namespace Ast
+} // namespace Ast::experimental

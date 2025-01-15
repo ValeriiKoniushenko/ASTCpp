@@ -395,20 +395,6 @@ namespace Ast
         return true;
     }
 
-    bool ProjectTree::WriteToCache(std::filesystem::path path) const
-    {
-
-
-        return true;
-    }
-
-    bool ProjectTree::ReadFromCache(std::filesystem::path path)
-    {
-
-
-        return true;
-    }
-
     bool ProjectTree::IsValidExtension(const String& ex) const
     {
         for (const auto& extension : _fileExtensions)

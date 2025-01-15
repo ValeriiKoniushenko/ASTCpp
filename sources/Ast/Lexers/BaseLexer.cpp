@@ -82,6 +82,7 @@ namespace Ast
         return rule.IsCorrespondingTheRules(this, logCollector, additionalMessage);
     }
 
+    /*
     BaseLexer::PTree BaseLexer::GetAsXML() const
     {
         PTree tree;
@@ -101,6 +102,7 @@ namespace Ast
         }
         return tree;
     }
+    */
 
     std::pair<const String::CharT* const, const String::CharT* const> BaseLexer::GetReaderLimits() const
     {

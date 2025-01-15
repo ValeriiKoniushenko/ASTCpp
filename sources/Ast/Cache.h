@@ -23,13 +23,13 @@
 #include "CommonTypes.h"
 #include "ProjectTree.h"
 
-#include <boost/smart_ptr/intrusive_ptr.hpp>
-#include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include <boost/foreach.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
-namespace Ast
+namespace Ast::experimental
 {
 
     class Cache : public boost::intrusive_ref_counter<Cache>, public Utils::NotCopyableButMoveable
@@ -41,20 +41,26 @@ namespace Ast
         inline static const char* defaultPath = ".generator-cache";
 
         CreateEnum(WriteAction, int,
-            Overwrite, // overwrite absolutely all
-            Update // will write if not exists, and will update if exists
+                   Overwrite, // overwrite absolutely all
+                   Update     // will write if not exists, and will update if exists
         );
 
     public:
-        explicit Cache(const ProjectTree::Ptr& projectTree) : _projectTree{projectTree} {}
+        explicit Cache(const ProjectTree::Ptr& projectTree)
+            : _projectTree{ projectTree }
+        {
+        }
 
         [[nodiscard]] bool IsExist() const;
-        bool ReadFromCache();
-        bool WriteToCache(WriteAction action = WriteAction::Update) const;
+        bool Read();
+        bool Write(WriteAction action = WriteAction::Update);
+
+        void SetCachePath(const std::filesystem::path& path) { _cachePath = path; };
+        [[nodiscard]] const std::filesystem::path& GetCachePath() const noexcept { return _cachePath; };
 
     protected:
         ProjectTree::Ptr _projectTree;
         std::filesystem::path _cachePath = defaultPath;
     };
 
-} // namespace Ast
+} // namespace Ast::experimental
