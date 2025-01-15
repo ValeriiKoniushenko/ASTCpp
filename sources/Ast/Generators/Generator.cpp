@@ -20,43 +20,44 @@
 
 #include "Generator.h"
 
-void Ast::Generator::SetTargetProject(const ProjectTree::Ptr& project)
+namespace Ast
 {
-    _projectTree = project;
-}
 
-bool Ast::Generator::IsNeedRegenerate() const
-{
-    if (!Verify(!!_projectTree, "No project. Use Ast::Generator::SetTargetProject to set a project."))
+    void Generator::SetTargetProject(const ProjectTree::Ptr& project)
     {
-        return false;
+        _projectTree = project;
     }
 
-    if (!IsExistCacheOnDisk())
+    bool Generator::IsNeedRegenerate() const
     {
-        return true;
-    }
-
-    _projectTree->ForEach(
-        [](const ProjectTree::Unit* unit)
+        if (!Verify(!!_projectTree, "No project. Use Ast::Generator::SetTargetProject to set a project."))
         {
+            return false;
+        }
 
-        });
+        bool isNeed = false;
+        _projectTree->ForEach(
+            [&isNeed](const ProjectTree::Unit* unit)
+            {
+                if (!Verify(unit))
+                {
+                    return true;
+                }
 
-    return false;
-}
+                auto tree = unit->GetTree();
+                if (tree->HasAtLeastOneMarkedLexer())
+                {
+                    if (!unit->HasGeneratedFile())
+                    {
+                        isNeed = true;
+                        return false;
+                    }
+                }
 
-void Ast::Generator::SetCachePath(const std::filesystem::path& path)
-{
-    if (Verify(!path.empty(), "Passed cache path is empty."))
-    {
-        _cachePath = path;
+                return true;
+            });
+
+        return isNeed;
     }
-}
 
-bool Ast::Generator::IsExistCacheOnDisk() const
-{
-    return std::filesystem::exists(_cachePath);
-}
-
-
+} // namespace Ast

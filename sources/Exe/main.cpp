@@ -53,6 +53,7 @@ int main()
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
     Generator generator;
-
+    generator.SetTargetProject(project);
+    auto a = generator.IsNeedRegenerate();
     return 0;
 }

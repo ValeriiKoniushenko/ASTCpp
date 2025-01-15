@@ -190,6 +190,14 @@ namespace Ast
             return boost::dynamic_pointer_cast<const Lexer>(FindIfImpl<Lexer, true>(this, std::forward<decltype(callback)>(callback)));
         }
 
+        [[nodiscard]] bool HasAtLeastOneMarkedLexer() const
+        {
+            return !!FindIf([](auto* lexer)
+            {
+                return lexer->IsMarked();
+            });
+        }
+
         [[nodiscard]] BaseLexer::Ptr GetRootLexer() { return _rootLexer; }
         [[nodiscard]] BaseLexer::CPtr GetRootLexer() const { return _rootLexer; }
 

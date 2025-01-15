@@ -41,6 +41,8 @@ namespace Ast
         public:
             AST_CLASS(Unit);
 
+            inline static const char* generatedSuffix = ".generated";
+
             using Permission = std::filesystem::perms;
 
             enum class Type
@@ -51,6 +53,7 @@ namespace Ast
                 Link
             };
 
+        public:
             Unit() = default;
             ~Unit() override = default;
 
@@ -137,6 +140,9 @@ namespace Ast
             [[nodiscard]] Tree<FileLexer>::AdaptivePtr<true> GetTree() const { return _tree; }
 
             [[nodiscard]] Permission GetPermission() const noexcept { return _permission; }
+
+            [[nodiscard]] bool HasGeneratedFile() const;
+            [[nodiscard]] std::filesystem::path GetGeneratedFilePath() const;
 
             void _SetTree(Tree<FileLexer>&& tree)
             {

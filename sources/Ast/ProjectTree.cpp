@@ -198,6 +198,33 @@ namespace Ast
         return RawAddToChilds(std::move(unit));
     }
 
+    bool ProjectTree::Unit::HasGeneratedFile() const
+    {
+        if (!IsFile())
+        {
+            return false;
+        }
+
+        if (_path.empty())
+        {
+            return false;
+        }
+
+        return GetGeneratedFilePath().empty();
+    }
+
+    std::filesystem::path ProjectTree::Unit::GetGeneratedFilePath() const
+    {
+        if (_path.empty() || !_path.has_extension())
+        {
+            return {};
+        }
+
+        auto path = _path;
+        path.replace_extension(generatedSuffix + _path.extension().string());
+        return path;
+    }
+
     ProjectTree::Unit* ProjectTree::Unit::RawAddToChilds(Ptr&& unit)
     {
         auto it = _childs.emplace(std::move(unit));
