@@ -28,6 +28,9 @@
 
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/foreach.hpp>
 
 namespace Ast
 {
@@ -67,6 +70,8 @@ namespace Ast
     public:
         AST_CLASS(BaseLexer)
 
+        using PTree = boost::property_tree::ptree;
+
         struct LineToken final
         {
             const String::CharT* string = nullptr;
@@ -104,6 +109,8 @@ namespace Ast
         [[nodiscard]] bool IsValid() const;
 
         bool IsCorrespondingToRule(const Rule& rule, LogCollector& logCollector, const char* additionalMessage = nullptr) const;
+
+        [[nodiscard]] PTree GetAsXML() const;
 
         template<IsLexer Lexer>
         [[nodiscard]] bool IsTypeOf() const noexcept
@@ -177,6 +184,17 @@ namespace Ast
             return GetChildLexersImpl<Lexer, true>(this);
         }
 
+        /**
+         * @brief Returns absolute(full path) path of the Lexer. For example if we have the next code:
+         * @code
+         * namespace Ns{
+         *    class SomeClass{
+         *       enum class SomeEnum{};
+         *    };
+         * }
+         * @endcode
+         * And if will try to get SomeEnum by full path we'll get: Ns::SomeClass::SomeEnum
+         */
         [[nodiscard]] std::pair<String, std::vector<CPtr>> GetFullPath() const { return GetFullPathImpl<true>(this); }
 
         /**

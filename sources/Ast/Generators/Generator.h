@@ -53,8 +53,13 @@ namespace Ast
         // virtual void GenerateAll() = 0;
         [[nodiscard]] bool IsNeedRegenerate() const;
 
+        void SetCachePath(const std::filesystem::path& path);
+        [[nodiscard]] const std::filesystem::path& GetCachePath() const noexcept { return _cachePath; }
+        [[nodiscard]] bool IsExistCacheOnDisk() const;
+
     protected:
         ProjectTree::Ptr _projectTree;
+        std::filesystem::path _cachePath = "generator-cache";
     };
 
 } // namespace Ast

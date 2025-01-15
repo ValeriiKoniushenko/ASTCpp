@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Ast/Readers/FileReader.h"
+#include "Ast/ProjectTree.h"
 #include "Ast/Tree.h"
 #include "Ast/Utils/IO.h"
 #include "AstCpp/Parser.h"
@@ -28,44 +28,29 @@
 
 int main()
 {
-    Ast::FileReader::Ptr fileReader = new Ast::FileReader;
-    Ast::LogCollector logCollector;
-    logCollector.onValidationEvent.Subscribe(
+    using namespace Ast;
+
+    std::filesystem::copy(PATH_TO_TEST_PROJECT + std::string("small_project"), "small_project",
+                          std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+
+
+    LogCollector::Ptr logCollector = new Ast::LogCollector();
+    logCollector->onValidationEvent.Subscribe(
         [](const Ast::String& message, Ast::LogCollector::LogType logType)
         {
             using namespace std;
-            const char* typeStr = [logType]()
-            {
-                if (logType == Ast::LogCollector::LogType::Error)
-                {
-                    return "Error";
-                }
-                if (logType == Ast::LogCollector::LogType::Warning)
-                {
-                    return "Warning";
-                }
-                if (logType == Ast::LogCollector::LogType::Success)
-                {
-                    return "Success";
-                }
-                if (logType == Ast::LogCollector::LogType::Info)
-                {
-                    return "Info";
-                }
-                return "None";
-            }();
-
-            cout << "ASTCpp: [" << typeStr << "]: " << message.CStr() << endl;
+            cout << "ASTCpp: [" << logType.ToStr() << "]: " << message.CStr() << endl;
         });
 
-    if (fileReader->ReadFromFile("D:\\Workspace\\test.cpp"))
-    {
-        fileReader->ApplyFilters<Ast::Cpp::CommentFilter>();
-        Ast::Tree tree(fileReader);
-        tree.ParseUsing<Ast::Cpp::Parser>(logCollector);
 
-        std::cout << tree << std::endl;
-    }
+    auto project = ProjectTree::Ptr(new ProjectTree());
+    project->SetFileExtensions({ "*.cpp", ".h" });
+    project->SetTargetProject("small_project");
+    project->ExcludeFromProject("excludedDirs");
+    project->Process();
+    project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
+
+    project->WriteToCache();
 
     return 0;
 }

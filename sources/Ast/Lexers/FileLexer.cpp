@@ -20,7 +20,6 @@
 
 #include "FileLexer.h"
 
-#include "Ast/Readers/FileReader.h"
 #include "Ast/Tree.h"
 
 namespace Ast
@@ -48,9 +47,9 @@ namespace Ast
 
     bool FileLexer::DoParse(LogCollector& logCollector)
     {
-        if (const auto reader = boost::dynamic_pointer_cast<const FileReader>(_reader))
+        if (const auto reader = boost::dynamic_pointer_cast<const FileContentStream>(_reader))
         {
-            _lexerName = reader->GetPathToFile().string();
+            _lexerName = reader->GetFilePath();
         }
 
         if (!_reader->Data().FindRegex("#pragma +once", 0, std::regex_constants::format_first_only).empty())

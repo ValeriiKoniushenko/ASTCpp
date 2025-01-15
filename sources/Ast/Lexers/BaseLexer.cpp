@@ -82,6 +82,26 @@ namespace Ast
         return rule.IsCorrespondingTheRules(this, logCollector, additionalMessage);
     }
 
+    BaseLexer::PTree BaseLexer::GetAsXML() const
+    {
+        PTree tree;
+
+        tree.push_back(PTree::value_type("lexer", PTree()));
+        tree.put("lexer.<xmlattr>.name", GetLexerName().c_str());
+        tree.put("lexer.<xmlattr>.type", GetLexerType().c_str());
+        if (auto path = GetFullPath().first; Verify(!!path))
+        {
+            tree.put("lexer.<xmlattr>.fullPath", path.c_str());
+        }
+
+        if (_marking)
+        {
+            tree.push_back(PTree::value_type("lexer.mark", PTree()));
+            tree.put("lexer.mark.<xmlattr>.rule", _marking->rule.c_str());
+        }
+        return tree;
+    }
+
     std::pair<const String::CharT* const, const String::CharT* const> BaseLexer::GetReaderLimits() const
     {
         if (Verify(!!_reader))

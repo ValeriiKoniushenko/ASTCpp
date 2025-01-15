@@ -32,12 +32,31 @@ bool Ast::Generator::IsNeedRegenerate() const
         return false;
     }
 
-    _projectTree->ForEach([](const ProjectTree::Unit* unit)
+    if (!IsExistCacheOnDisk())
     {
+        return true;
+    }
 
-    });
+    _projectTree->ForEach(
+        [](const ProjectTree::Unit* unit)
+        {
+
+        });
 
     return false;
+}
+
+void Ast::Generator::SetCachePath(const std::filesystem::path& path)
+{
+    if (Verify(!path.empty(), "Passed cache path is empty."))
+    {
+        _cachePath = path;
+    }
+}
+
+bool Ast::Generator::IsExistCacheOnDisk() const
+{
+    return std::filesystem::exists(_cachePath);
 }
 
 
