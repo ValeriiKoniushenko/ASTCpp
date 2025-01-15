@@ -18,39 +18,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Ast/ProjectTree.h"
-#include "Ast/Tree.h"
-#include "Ast/Utils/IO.h"
-#include "AstCpp/Parser.h"
-#include "AstCpp/Readers/Filters/CommentFilter.h"
+#pragma once
 
-#include <iostream>
+#include "CommonTypes.h"
+#include "ProjectTree.h"
 
-int main()
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/foreach.hpp>
+
+namespace Ast
 {
-    using namespace Ast;
 
-    std::filesystem::copy(PATH_TO_TEST_PROJECT + std::string("small_project"), "small_project",
-                          std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+    class Cache : public boost::intrusive_ref_counter<Cache>, public Utils::NotCopyableButMoveable
+    {
+    public:
+        AST_CLASS(Cache)
+        using PTree = boost::property_tree::ptree;
 
+        inline static const char* defaultPath = ".generator-cache";
 
-    LogCollector::Ptr logCollector = new Ast::LogCollector();
-    logCollector->onValidationEvent.Subscribe(
-        [](const Ast::String& message, Ast::LogCollector::LogType logType)
-        {
-            using namespace std;
-            cout << "ASTCpp: [" << logType.ToStr() << "]: " << message.CStr() << endl;
-        });
+        CreateEnum(WriteAction, int,
+            Overwrite, // overwrite absolutely all
+            Update // will write if not exists, and will update if exists
+        );
 
+    public:
+        explicit Cache(const ProjectTree::Ptr& projectTree) : _projectTree{projectTree} {}
 
-    auto project = ProjectTree::Ptr(new ProjectTree());
-    project->SetFileExtensions({ "*.cpp", ".h" });
-    project->SetTargetProject("small_project");
-    project->ExcludeFromProject("excludedDirs");
-    project->Process();
-    project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
+        [[nodiscard]] bool IsExist() const;
+        bool ReadFromCache();
+        bool WriteToCache(WriteAction action = WriteAction::Update) const;
 
-    project->WriteToCache("");
+    protected:
+        ProjectTree::Ptr _projectTree;
+        std::filesystem::path _cachePath = defaultPath;
+    };
 
-    return 0;
-}
+} // namespace Ast

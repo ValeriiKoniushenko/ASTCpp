@@ -322,6 +322,9 @@ namespace Ast
             }
         }
 
+        bool WriteToCache(std::filesystem::path path = "") const;
+        bool ReadFromCache(std::filesystem::path path = "");
+
     protected:
         [[nodiscard]] bool IsValidExtension(const String& path) const;
         void ProcessFile(const std::filesystem::path& folders, const std::filesystem::path& fullPath);

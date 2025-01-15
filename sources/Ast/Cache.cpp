@@ -18,39 +18,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Ast/ProjectTree.h"
-#include "Ast/Tree.h"
-#include "Ast/Utils/IO.h"
-#include "AstCpp/Parser.h"
-#include "AstCpp/Readers/Filters/CommentFilter.h"
+#include "Cache.h"
 
-#include <iostream>
-
-int main()
+namespace Ast
 {
-    using namespace Ast;
 
-    std::filesystem::copy(PATH_TO_TEST_PROJECT + std::string("small_project"), "small_project",
-                          std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+    bool Cache::IsExist() const
+    {
+        using std::filesystem::directory_iterator;
+        std::size_t count = 0;
+        return std::count_if(directory_iterator(_cachePath), directory_iterator{},
+                             [&count](const std::filesystem::path& p)
+                             {
+                                 ++count;
+                                 return true;
+                             });
 
+        return count > 0 && std::filesystem::exists(_cachePath);
+    }
 
-    LogCollector::Ptr logCollector = new Ast::LogCollector();
-    logCollector->onValidationEvent.Subscribe(
-        [](const Ast::String& message, Ast::LogCollector::LogType logType)
+    bool Cache::ReadFromCache()
+    {
+        if (!IsExist())
         {
-            using namespace std;
-            cout << "ASTCpp: [" << logType.ToStr() << "]: " << message.CStr() << endl;
-        });
+            return false;
+        }
 
+        return true;
+    }
 
-    auto project = ProjectTree::Ptr(new ProjectTree());
-    project->SetFileExtensions({ "*.cpp", ".h" });
-    project->SetTargetProject("small_project");
-    project->ExcludeFromProject("excludedDirs");
-    project->Process();
-    project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
+    bool Cache::WriteToCache(WriteAction action) const
+    {
+        if (!IsExist())
+        {
+            return false;
+        }
 
-    project->WriteToCache("");
+        return true;
+    }
 
-    return 0;
-}
+} // namespace Ast

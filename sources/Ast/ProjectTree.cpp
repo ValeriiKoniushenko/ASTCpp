@@ -370,7 +370,8 @@ namespace Ast
             auto tmp = String(i.path().string());
             if (!Verify(tmp.Find(_root->GetPath().string())))
             {
-                _logCollector->AddLog({"Can't process the next file: {} - it's not a part of the project"_f << tmp, LogCollector::LogType::Warning });
+                _logCollector->AddLog(
+                    { "Can't process the next file: {} - it's not a part of the project"_f << tmp, LogCollector::LogType::Warning });
                 continue;
             }
             if (std::filesystem::is_directory(i))
@@ -390,6 +391,20 @@ namespace Ast
                 }
             }
         }
+
+        return true;
+    }
+
+    bool ProjectTree::WriteToCache(std::filesystem::path path) const
+    {
+
+
+        return true;
+    }
+
+    bool ProjectTree::ReadFromCache(std::filesystem::path path)
+    {
+
 
         return true;
     }
