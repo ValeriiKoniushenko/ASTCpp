@@ -54,7 +54,13 @@ int main()
 
     Generator generator;
     generator.SetTargetProject(project);
-    auto a = generator.IsNeedRegenerate();
+    generator.ForEachOverRegenerateableUnits([](const ProjectTree::Unit* unit)
+    {
+        if (unit)
+        {
+            std::cout << "Generated file will be [re]created for this unit: " << unit->GetPath() << std::endl;
+        }
+    });
 
     return 0;
 }

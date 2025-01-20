@@ -53,6 +53,7 @@ namespace Ast
         // virtual void GenerateAll() = 0;
         [[nodiscard]] bool IsNeedRegenerate() const;
         void RegenerateNeededFiles();
+        void ForEachOverRegenerateableUnits(std::function<void(const ProjectTree::Unit*)> callback) const;
 
     protected:
         ProjectTree::Ptr _projectTree;

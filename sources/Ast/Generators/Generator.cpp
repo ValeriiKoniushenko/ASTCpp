@@ -60,4 +60,25 @@ namespace Ast
     {
     }
 
+    void Generator::ForEachOverRegenerateableUnits(std::function<void(const ProjectTree::Unit*)> callback) const
+    {
+        if (!Verify(!!_projectTree, "No project. Use Ast::Generator::SetTargetProject to set a project."))
+        {
+            return;
+        }
+
+        _projectTree->ForEach(
+            [&callback, this](const ProjectTree::Unit* unit)
+            {
+                if (unit)
+                {
+                    if (_projectTree->IsNeedRegeneration(*unit))
+                    {
+                        std::invoke(callback, unit);
+                    }
+                }
+
+            });
+    }
+
 } // namespace Ast
