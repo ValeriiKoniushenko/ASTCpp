@@ -41,9 +41,21 @@ namespace Ast
         public:
             AST_CLASS(Unit);
 
+            inline static const char* generatedFileHeader_Head = "// Time of generation: ";
+            inline static const char* generatedFileHeader_Body = R"(// This file was generated automatically don't change it and don't remove it
+// If you see some compile errors you can fix it in the code-gen setup of
+// your project. If the issue was caused by core of the code-gen - find a
+// contact in the github repository and author will fix it.
+)";
             inline static const char* generatedSuffix = ".generated";
 
             using Permission = std::filesystem::perms;
+
+            struct GenerateData
+            {
+                bool isDirty = false;
+                uint32_t lastWriteTime = 0;
+            };
 
             enum class Type
             {
@@ -56,6 +68,15 @@ namespace Ast
         public:
             Unit() = default;
             ~Unit() override = default;
+
+            [[nodiscard]] static bool IsGenerated(const Unit& unit) noexcept
+            {
+                return unit.IsGenerated();
+            }
+            [[nodiscard]] bool IsGenerated() const noexcept
+            {
+                return _generateData.has_value();
+            }
 
             [[nodiscard]] static Ptr Create() { return new Self; }
 
@@ -102,6 +123,8 @@ namespace Ast
             [[nodiscard]] Ptr GetUnitByPath(const std::filesystem::path& path);
             [[nodiscard]] bool IsExistUnitByPath(const std::filesystem::path& path);
 
+            [[nodiscard]] uint64_t GetLastModificationTime() const;
+
             /** @brief a subfolder will be created based on logic(will be added to _childs) and will be
              * validated in the real path.
              * If the path will not valid - you will get an assert and the folder will not be created on the hard disk.
@@ -141,12 +164,15 @@ namespace Ast
 
             [[nodiscard]] Permission GetPermission() const noexcept { return _permission; }
 
-            [[nodiscard]] bool HasGeneratedFile() const;
-            [[nodiscard]] std::filesystem::path GetGeneratedFilePath() const;
+            [[nodiscard]] bool HasGeneratedSiblingFile() const;
+            [[nodiscard]] std::filesystem::path GetGeneratedSiblingFilePath() const;
 
             void _SetTree(Tree<FileLexer>&& tree)
             {
-                _tree = Tree<FileLexer>::Ptr(new Tree<FileLexer>(std::move(tree)));
+                if (!IsGenerated())
+                {
+                    _tree = Tree<FileLexer>::Ptr(new Tree<FileLexer>(std::move(tree)));
+                }
             }
 
         protected:
@@ -227,9 +253,15 @@ namespace Ast
             Unit* RawAddToChilds(Ptr&& unit);
 
         protected:
+            [[nodiscard]] bool CheckByPathIfWasGenerated() const;
+            [[nodiscard]] uint64_t ExtrudeGenerationTime() const;
+
+        protected:
             Permission _permission = Permission::none;
             std::filesystem::path _path;
             Type _type = Type::None;
+            // this field using if a file was generated
+            std::optional<GenerateData> _generateData;
             Tree<FileLexer>::Ptr _tree;
             FileContentStream::Ptr _contentStream;
 
@@ -270,9 +302,13 @@ namespace Ast
                     unit->GetFileContentStream()->ApplyFilters<ContentFilterT>();
                 }
 
-                Tree<FileLexer> tree(unit->GetFileContentStream());
-                tree.ParseUsing<ParserT>(_logCollector);
-                unit->_SetTree(std::move(tree));
+                if (!unit->IsGenerated())
+                {
+                    Tree<FileLexer> tree(unit->GetFileContentStream());
+                    tree.ParseUsing<ParserT>(_logCollector);
+                    unit->_SetTree(std::move(tree));
+                }
+
                 return true;
             });
         }
@@ -294,12 +330,19 @@ namespace Ast
 
         [[nodiscard]] Unit::AdaptivePtr<true> GetUnitByPath(const std::filesystem::path& path) const
         {
-            return _root ? _root->GetUnitByPath(path) : nullptr;
+            return _root && !path.empty() ? _root->GetUnitByPath(path) : nullptr;
         }
         [[nodiscard]] Unit::AdaptivePtr<false> GetUnitByPath(const std::filesystem::path& path)
         {
-            return _root ? _root->GetUnitByPath(path) : nullptr;
+            return _root && !path.empty() ? _root->GetUnitByPath(path) : nullptr;
         }
+
+        [[nodiscard]] Unit::AdaptivePtr<false> GetGeneratedFileOfUnit(const Unit::Ptr& unit);
+        [[nodiscard]] Unit::AdaptivePtr<true> GetGeneratedFileOfUnit(const Unit::CPtr& unit) const;
+        [[nodiscard]] Unit::AdaptivePtr<false> GetGeneratedFileOfUnit(const Unit& unit);
+        [[nodiscard]] Unit::AdaptivePtr<true> GetGeneratedFileOfUnit(const Unit& unit) const;
+        [[nodiscard]] bool IsNeedRegeneration(const Unit::CPtr& unit) const;
+        [[nodiscard]] bool IsNeedRegeneration(const Unit& unit) const;
 
         /**
          * @brief Can take a functions of next types:

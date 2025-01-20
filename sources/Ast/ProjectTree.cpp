@@ -96,6 +96,22 @@ namespace Ast
             }
 
             unit._type = Type::File;
+            if (unit.CheckByPathIfWasGenerated())
+            {
+                using namespace std::chrono;
+                const auto time = unit.ExtrudeGenerationTime();
+                decltype(time) now =
+                    duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+
+
+                Unit::GenerateData genData;
+                genData.lastWriteTime = now;
+                if (time != now)
+                {
+                    genData.isDirty = true;
+                }
+                unit._generateData = genData;
+            }
         }
 
         unit._permission = std::filesystem::status(path).permissions();
@@ -151,6 +167,16 @@ namespace Ast
         return !!GetUnitByPath(path);
     }
 
+    uint64_t ProjectTree::Unit::GetLastModificationTime() const
+    {
+        if (_path.empty())
+        {
+            return 0;
+        }
+
+        return std::filesystem::last_write_time(_path).time_since_epoch().count();
+    }
+
     ProjectTree::Unit* ProjectTree::Unit::LinkSubFolder(const String& name)
     {
         if (!Verify(std::filesystem::exists(_path), "Invalid unit"))
@@ -184,6 +210,7 @@ namespace Ast
         }
 
         auto unit = CreatePtrFromPath(_path.string() + static_cast<String::CharT>(std::filesystem::path::preferred_separator) + name.ToStdString());
+
         if (!Verify(!!unit))
         {
             return nullptr;
@@ -198,7 +225,7 @@ namespace Ast
         return RawAddToChilds(std::move(unit));
     }
 
-    bool ProjectTree::Unit::HasGeneratedFile() const
+    bool ProjectTree::Unit::HasGeneratedSiblingFile() const
     {
         if (!IsFile())
         {
@@ -210,10 +237,10 @@ namespace Ast
             return false;
         }
 
-        return GetGeneratedFilePath().empty();
+        return GetGeneratedSiblingFilePath().empty();
     }
 
-    std::filesystem::path ProjectTree::Unit::GetGeneratedFilePath() const
+    std::filesystem::path ProjectTree::Unit::GetGeneratedSiblingFilePath() const
     {
         if (_path.empty() || !_path.has_extension())
         {
@@ -231,6 +258,76 @@ namespace Ast
         Assert(it.second, "Undefined error. Impossible to add new subfolder to the childs");
 
         return it.second ? it.first->get() : nullptr;
+    }
+
+    bool ProjectTree::Unit::CheckByPathIfWasGenerated() const
+    {
+        if (IsFile())
+        {
+            if (Verify(!_path.empty(), "Path is empty"))
+            {
+                auto tmp = _path;
+                if (!tmp.has_extension())
+                {
+                    return false;
+                }
+                tmp.replace_extension("");
+                if (!tmp.has_extension())
+                {
+                    return false;
+                }
+                return tmp.extension().string() == generatedSuffix;
+            }
+        }
+        return false;
+    }
+
+    uint64_t ProjectTree::Unit::ExtrudeGenerationTime() const
+    {
+        if (Verify(!_contentStream))
+        {
+            return {};
+        }
+
+        if (!Verify(!_contentStream->Data().IsEmpty()))
+        {
+            return {};
+        }
+
+        String timeString;
+
+        _contentStream->Data().ForEachByLine([&timeString](String string){
+            const auto* found = string.Find(generatedFileHeader_Head);
+            if (!found)
+            {
+                return true;
+            }
+
+            if (!(found = string.Find(":")))
+            {
+                return true;
+            }
+
+            string.SubStr(found - string.c_str());
+            string.Trim(' ');
+            if (string.IsEmpty())
+            {
+                return true;
+            }
+
+            timeString = string;
+
+            return false;
+        });
+
+        if (timeString.IsEmpty())
+        {
+             return std::filesystem::file_time_type().time_since_epoch().count();
+        }
+
+        const auto ret = timeString.ConvertTo<uint64_t>();
+        Assert(ret != 0);
+        return ret;
     }
 
     ProjectTree::ProjectTree()
@@ -420,6 +517,49 @@ namespace Ast
         }
 
         return true;
+    }
+
+    ProjectTree::Unit::AdaptivePtr<> ProjectTree::GetGeneratedFileOfUnit(const Unit::Ptr& unit)
+    {
+        return GetUnitByPath(unit->GetGeneratedSiblingFilePath());
+    }
+
+    ProjectTree::Unit::AdaptivePtr<true> ProjectTree::GetGeneratedFileOfUnit(const Unit::CPtr& unit) const
+    {
+        return GetUnitByPath(unit->GetGeneratedSiblingFilePath());
+    }
+
+    ProjectTree::Unit::AdaptivePtr<> ProjectTree::GetGeneratedFileOfUnit(const Unit& unit)
+    {
+        return GetUnitByPath(unit.GetGeneratedSiblingFilePath());
+    }
+
+    ProjectTree::Unit::AdaptivePtr<true> ProjectTree::GetGeneratedFileOfUnit(const Unit& unit) const
+    {
+        return GetUnitByPath(unit.GetGeneratedSiblingFilePath());
+    }
+
+    bool ProjectTree::IsNeedRegeneration(const Unit::CPtr& unit) const
+    {
+        return Verify(!!unit) ? IsNeedRegeneration(*unit) : false;
+    }
+
+    bool ProjectTree::IsNeedRegeneration(const Unit& unit) const
+    {
+        if (unit.GetTree()->HasAtLeastOneMarkedLexer())
+        {
+            if (!unit.HasGeneratedSiblingFile())
+            {
+                const auto generatedUnit = GetGeneratedFileOfUnit(unit);
+                if (generatedUnit == nullptr)
+                {
+                    return true;
+                }
+                return generatedUnit->GetLastModificationTime() != unit.GetLastModificationTime();
+            }
+        }
+
+        return false;
     }
 
     bool ProjectTree::IsValidExtension(const String& ex) const

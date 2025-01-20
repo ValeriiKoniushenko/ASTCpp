@@ -37,27 +37,27 @@ namespace Ast
 
         bool isNeed = false;
         _projectTree->ForEach(
-            [&isNeed](const ProjectTree::Unit* unit)
+            [&isNeed, this](const ProjectTree::Unit* unit)
             {
                 if (!Verify(unit))
                 {
                     return true;
                 }
 
-                auto tree = unit->GetTree();
-                if (tree->HasAtLeastOneMarkedLexer())
+                if (_projectTree->IsNeedRegeneration(*unit))
                 {
-                    if (!unit->HasGeneratedFile())
-                    {
-                        isNeed = true;
-                        return false;
-                    }
+                    isNeed = true;
+                    return false;
                 }
 
                 return true;
             });
 
         return isNeed;
+    }
+
+    void Generator::RegenerateNeededFiles()
+    {
     }
 
 } // namespace Ast

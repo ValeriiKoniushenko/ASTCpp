@@ -52,6 +52,7 @@ namespace Ast
         void SetTargetProject(const ProjectTree::Ptr& project);
         // virtual void GenerateAll() = 0;
         [[nodiscard]] bool IsNeedRegenerate() const;
+        void RegenerateNeededFiles();
 
     protected:
         ProjectTree::Ptr _projectTree;

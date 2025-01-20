@@ -55,5 +55,6 @@ int main()
     Generator generator;
     generator.SetTargetProject(project);
     auto a = generator.IsNeedRegenerate();
+
     return 0;
 }
