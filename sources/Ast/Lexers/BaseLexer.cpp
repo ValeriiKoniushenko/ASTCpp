@@ -60,7 +60,7 @@ namespace Ast
         }
 
         logCollector.AddLog(
-            { String::Format("successfull parsing of the {}: '{}'", _lexerType.CStr(), _lexerName.CStr()), LogCollector::LogType::Success });
+            { String::Format("Successful parsing of the {}: '{}'", _lexerType.CStr(), _lexerName.CStr()), LogCollector::LogType::Success });
 
         return IsValid();
     }

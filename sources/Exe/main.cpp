@@ -36,18 +36,19 @@ int main()
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 
     auto project = ProjectTree::Ptr(new ProjectTree());
-    project->SetFileExtensions({ "*.cpp", ".h" });
-    project->SetTargetProject("small_project");
-    project->ExcludeFromProject("excludedDirs");
-    project->Process();
-    project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
-
     project->GetLogCollector()->onValidationEvent.Subscribe(
         [](const LogCollector::LogLine log)
         {
             using namespace std;
             cout << log.GetHumanTime() << " ASTCpp: [" << log.type.ToStr() << "]: " << log.message.CStr() << endl;
         });
+
+    project->SetFileExtensions({ "*.cpp", ".h" });
+    project->SetTargetProject("small_project");
+    project->ExcludeFromProject("excludedDirs");
+    project->Process();
+    project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
+
 
     Generator generator;
     generator.SetTargetProject(project);
