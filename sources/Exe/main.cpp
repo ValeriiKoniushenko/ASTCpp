@@ -18,11 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Ast/Cache.h"
 #include "Ast/Generators/Generator.h"
-#include "Ast/ProjectTree.h"
-#include "Ast/Tree.h"
-#include "Ast/Utils/IO.h"
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 
@@ -37,7 +33,7 @@ int main()
 
     auto project = ProjectTree::Ptr(new ProjectTree());
     project->GetLogCollector()->onValidationEvent.Subscribe(
-        [](const LogCollector::LogLine log)
+        [](const LogCollector::LogLine& log)
         {
             using namespace std;
             cout << log.GetHumanTime() << " ASTCpp: [" << log.type.ToStr() << "]: " << log.message.CStr() << endl;
