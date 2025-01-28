@@ -32,8 +32,10 @@ namespace Ast
     {
         ForEachOverRegenerateableUnits([this](const ProjectTree::Unit* unit)
         {
+            auto source = unit->GetGeneratedDummyHeader();
+
             const auto tree = unit->GetTree();
-            tree->ForEachOverMarked([this](const BaseLexer* lexer)
+            tree->ForEachOverMarked([&](const BaseLexer* lexer)
             {
                 auto generator = GetGeneratorUnitFor(*lexer);
                 if (!Verify(!!generator))
@@ -42,7 +44,7 @@ namespace Ast
                 }
                 else
                 {
-                    generator->Generate(lexer);
+                    source += generator->Generate(lexer);
                 }
             });
         });

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "../CommonTypes.h"
+#include "../Lexers/BaseLexer.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
 #include <boost/smart_ptr/intrusive_ptr.hpp>
@@ -28,7 +29,6 @@
 
 namespace Ast
 {
-    class BaseLexer;
 
     class GeneratorUnit : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<GeneratorUnit>
     {
@@ -45,11 +45,10 @@ namespace Ast
         };
 
     public:
-        explicit GeneratorUnit(const String& type)
-            : _type{ type } {};
         ~GeneratorUnit() override = default;
 
-        virtual void Generate(const BaseLexer* lexer) const = 0;
+        // Don't call this method directly. Override it & implement needed logic
+        virtual String Generate(const BaseLexer* lexer) const { return String(); }
         const String& GetType() const { return _type; }
 
         [[nodiscard]] bool operator==(const GeneratorUnit& other) const { return _type == other._type; }
@@ -57,6 +56,22 @@ namespace Ast
 
     protected:
         const String _type;
+
+        template<IsLexer Lexer>
+        [[nodiscard]] static GeneratorUnit Create()
+        {
+            return GeneratorUnit(Lexer::typeName);
+        }
+
+    private:
+        explicit GeneratorUnit(const String& type)
+            : _type{ type } {};
+    };
+
+    template<class T>
+    concept IsGeneratorUnit = std::derived_from<T, GeneratorUnit> && requires(T)
+    {
+        { T() };
     };
 
 } // namespace Ast

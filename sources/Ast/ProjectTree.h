@@ -36,7 +36,7 @@ namespace Ast
     public:
         AST_CLASS(ProjectTree)
 
-        class Unit : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Unit>
+        class Unit : public Utils::CopyableAndMoveable, public boost::intrusive_ref_counter<Unit>, public ITextSourceReader
         {
         public:
             AST_CLASS(Unit);
@@ -46,6 +46,7 @@ namespace Ast
 // If you see some compile errors you can fix it in the code-gen setup of
 // your project. If the issue was caused by core of the code-gen - find a
 // contact in the github repository and author will fix it.
+// Original file is:
 )";
             inline static const char* generatedSuffix = ".generated";
 
@@ -68,6 +69,9 @@ namespace Ast
         public:
             Unit() = default;
             ~Unit() override = default;
+
+            [[nodiscard]] String GetGeneratedDummyHeader() const;
+            [[nodiscard]] String GetTextSource() override;
 
             [[nodiscard]] static bool IsGenerated(const Unit& unit) noexcept
             {
@@ -287,7 +291,6 @@ namespace Ast
         void ExcludeFromProject(std::filesystem::path path);
         [[nodiscard]] bool IsExcludedPath(std::filesystem::path path) const;
         [[nodiscard]] const std::unordered_set<std::filesystem::path>& GetExcludedPaths() const noexcept;
-        // bool ApplyGitignore(std::filesystem::path path = "");
 
         void SetTargetProject(const std::filesystem::path& path);
         [[nodiscard]] std::filesystem::path GetTargetProject() const noexcept { return _root ? _root->GetPath() : std::filesystem::path(); }

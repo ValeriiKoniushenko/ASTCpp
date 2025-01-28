@@ -59,6 +59,12 @@ namespace Ast
         [[nodiscard]] GeneratorUnit::CPtr GetGeneratorUnitFor(const BaseLexer& lexer) const;
         [[nodiscard]] GeneratorUnit::CPtr GetGeneratorUnitFor(const BaseLexer::Ptr& lexer) const;
 
+        template<IsGeneratorUnit Generator>
+        void AddGenerator()
+        {
+            _generatorUnits.emplace( new Generator() );
+        }
+
     protected:
         ProjectTree::Ptr _projectTree;
         GeneratorContainerT _generatorUnits;

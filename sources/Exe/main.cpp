@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "Ast/Generators/Generator.h"
+#include "AstCpp/Generators/EnumClassGenerator.h"
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 
@@ -46,6 +47,8 @@ int main()
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
     Generator generator;
+    generator.AddGenerator<Cpp::EnumClassGenerator>();
+
     generator.SetTargetProject(project);
     generator.ForEachOverRegenerateableUnits([](ProjectTree::Unit* unit)
     {

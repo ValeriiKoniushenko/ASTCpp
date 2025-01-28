@@ -35,6 +35,29 @@ namespace
 namespace Ast
 {
 
+    String ProjectTree::Unit::GetGeneratedDummyHeader() const
+    {
+        if (!IsFile())
+        {
+            return {};
+        }
+
+        String out;
+        out += generatedFileHeader_Head;
+        out += String::MakeFrom(std::filesystem::file_time_type().time_since_epoch().count());
+        out += Code::Endl();
+        out += generatedFileHeader_Body;
+        out += String::MakeFrom(_path);
+        out += Code::Endl();
+        out += Code::Endl();
+        return out;
+    }
+
+    String ProjectTree::Unit::GetTextSource()
+    {
+        return _contentStream->Data();
+    }
+
     bool ProjectTree::Unit::IsExistsOnDisk() const
     {
         std::error_code ec;
