@@ -29,7 +29,7 @@ namespace Ast
             Verify(!logLine.message.IsEmpty(), "Was passed an empty message to the log"))
         {
             _logs.emplace_back(logLine);
-            onValidationEvent.Trigger(logLine.message, logLine.type);
+            onValidationEvent.Trigger(logLine);
         }
     }
 

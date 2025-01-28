@@ -43,10 +43,10 @@ int main()
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
     project->GetLogCollector()->onValidationEvent.Subscribe(
-        [](const Ast::String& message, Ast::LogCollector::LogType logType)
+        [](const LogCollector::LogLine log)
         {
             using namespace std;
-            cout << "ASTCpp: [" << logType.ToStr() << "]: " << message.CStr() << endl;
+            cout << "ASTCpp: [" << log.type.ToStr() << "]: " << log.message.CStr() << endl;
         });
 
     Generator generator;

@@ -90,7 +90,7 @@ namespace Ast
             return temp;
         }
 
-        Core::Delegate<void(const String&, LogType)> onValidationEvent;
+        Core::Delegate<void(const LogLine&)> onValidationEvent;
 
     private:
         Container _logs;
