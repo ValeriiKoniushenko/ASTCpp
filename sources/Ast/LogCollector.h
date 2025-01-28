@@ -50,8 +50,10 @@ namespace Ast
         {
             String message;
             LogType type = LogType::None;
+            std::chrono::milliseconds timestamp;
+            [[nodiscard]] String GetHumanTime() const;
 
-            LogLine(String message, LogType type) : message{std::move(message)}, type(type) {}
+            LogLine(String message, LogType type);
         };
 
         using Container = std::vector<LogLine>;

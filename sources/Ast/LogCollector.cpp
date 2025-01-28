@@ -20,8 +20,36 @@
 
 #include "LogCollector.h"
 
+using namespace std::chrono;
+
 namespace Ast
 {
+
+    String LogCollector::LogLine::GetHumanTime() const
+    {
+        auto timeTValue = system_clock::to_time_t(system_clock::time_point{timestamp});
+
+        std::tm tm;
+        localtime_s(&tm, &timeTValue);
+
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+        oss << '.' << std::setfill('0') << std::setw(3) << timestamp.count() % 1000;
+
+        return String{oss.str()};
+
+    }
+
+    LogCollector::LogLine::LogLine(String message, LogType type)
+        : message{ std::move(message) },
+          type(type)
+    {
+        timestamp = duration_cast< milliseconds >(
+            system_clock::now().time_since_epoch()
+        );
+
+
+    }
 
     void LogCollector::AddLog(const LogLine& logLine)
     {

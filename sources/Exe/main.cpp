@@ -46,7 +46,7 @@ int main()
         [](const LogCollector::LogLine log)
         {
             using namespace std;
-            cout << "ASTCpp: [" << log.type.ToStr() << "]: " << log.message.CStr() << endl;
+            cout << log.GetHumanTime() << " ASTCpp: [" << log.type.ToStr() << "]: " << log.message.CStr() << endl;
         });
 
     Generator generator;
