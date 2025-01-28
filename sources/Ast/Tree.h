@@ -142,6 +142,30 @@ namespace Ast
             ForEachImpl<FuncT, Lexer, true>(std::forward<decltype(callback)>(callback), _rootLexer.get(), params);
         }
 
+        /**
+        * @brief Can take a functions of next types:
+        * 1. bool([const] Lexer*, Param) - this function will work until it gets 'false' in return
+        * 2. void([const] Lexer*, Param) - will iterate without stopping through all a tree
+        */
+        template<IsLexer Lexer = void, class FuncT>
+        void ForEachOverMarked(FuncT&& callback) const
+        {
+            Params params;
+            ForEachImpl<FuncT, Lexer, true, true>(std::forward<decltype(callback)>(callback), _rootLexer.get(), params);
+        }
+
+        /**
+        * @brief Can take a functions of next types:
+        * 1. bool([const] Lexer*, Param) - this function will work until it gets 'false' in return
+        * 2. void([const] Lexer*, Param) - will iterate without stopping through all a tree
+        */
+        template<IsLexer Lexer = void, class FuncT>
+        void ForEachOverMarked(FuncT&& callback)
+        {
+            Params params;
+            ForEachImpl<FuncT, Lexer, false, true>(std::forward<decltype(callback)>(callback), _rootLexer.get(), params);
+        }
+
         template<IsLexer Lexer = void>
         [[nodiscard]] BaseLexer::Ptr FindFirstByName(const String& lexerName)
         {
@@ -204,7 +228,7 @@ namespace Ast
     private:
         // ======================= PIMPLs =======================
 
-        template<class FuncT, IsLexer Lexer = void, bool IsConst = false>
+        template<class FuncT, IsLexer Lexer = void, bool IsConst = false, bool onlyMarked = false>
         static bool ForEachImpl(FuncT&& callback, BaseLexer::AdaptiveRawPtr<IsConst> base, Params& params)
         {
             if (!base)
@@ -223,6 +247,11 @@ namespace Ast
                 {
                     isNeedToInvoke = true;
                 }
+            }
+
+            if (onlyMarked && isNeedToInvoke)
+            {
+                isNeedToInvoke = base->IsMarked();
             }
 
             if (isNeedToInvoke)

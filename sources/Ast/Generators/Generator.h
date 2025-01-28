@@ -22,6 +22,7 @@
 
 #include "Ast/LogCollector.h"
 #include "Ast/ProjectTree.h"
+#include "GeneratorUnit.h"
 
 namespace Ast
 {
@@ -33,11 +34,7 @@ namespace Ast
 
         struct FileInfo
         {
-            CreateEnum(Action, int,
-                None,
-                Regenerate,
-                DoNothing
-            );
+            CreateEnum(Action, int, None, Regenerate, DoNothing);
 
             std::filesystem::path path;
             Action action = Action::None;
@@ -45,18 +42,26 @@ namespace Ast
             std::vector<BaseLexer::Ptr> participantLexers;
         };
 
+        using GeneratorContainerT = std::unordered_set<GeneratorUnit::Ptr, GeneratorUnit::HasherPtr>;
+
     public:
         Generator() = default;
         ~Generator() override = default;
 
         void SetTargetProject(const ProjectTree::Ptr& project);
-        // virtual void GenerateAll() = 0;
+        virtual void Generate();
         [[nodiscard]] bool IsNeedRegenerate() const;
-        void RegenerateNeededFiles();
         void ForEachOverRegenerateableUnits(std::function<void(const ProjectTree::Unit*)> callback) const;
+        void ForEachOverRegenerateableUnits(std::function<void(ProjectTree::Unit*)> callback);
+
+        [[nodiscard]] const GeneratorContainerT& GetGeneratorUnits() const noexcept { return _generatorUnits; }
+        [[nodiscard]] GeneratorUnit::CPtr GetGeneratorUnitFor(const String& type) const;
+        [[nodiscard]] GeneratorUnit::CPtr GetGeneratorUnitFor(const BaseLexer& lexer) const;
+        [[nodiscard]] GeneratorUnit::CPtr GetGeneratorUnitFor(const BaseLexer::Ptr& lexer) const;
 
     protected:
         ProjectTree::Ptr _projectTree;
+        GeneratorContainerT _generatorUnits;
     };
 
 } // namespace Ast

@@ -28,6 +28,26 @@ namespace Ast
         _projectTree = project;
     }
 
+    void Generator::Generate()
+    {
+        ForEachOverRegenerateableUnits([this](const ProjectTree::Unit* unit)
+        {
+            const auto tree = unit->GetTree();
+            tree->ForEachOverMarked([this](const BaseLexer* lexer)
+            {
+                auto generator = GetGeneratorUnitFor(*lexer);
+                if (!Verify(!!generator))
+                {
+                    _projectTree->GetLogCollector()->AddLog({"Generator wasn't found for lexer: '{}' by the next path: {}"_f << lexer->GetLexerType() <<lexer->GetFullPath().first, LogCollector::LogType::Error });
+                }
+                else
+                {
+                    generator->Generate(lexer);
+                }
+            });
+        });
+    }
+
     bool Generator::IsNeedRegenerate() const
     {
         if (!Verify(!!_projectTree, "No project. Use Ast::Generator::SetTargetProject to set a project."))
@@ -56,10 +76,6 @@ namespace Ast
         return isNeed;
     }
 
-    void Generator::RegenerateNeededFiles()
-    {
-    }
-
     void Generator::ForEachOverRegenerateableUnits(std::function<void(const ProjectTree::Unit*)> callback) const
     {
         if (!Verify(!!_projectTree, "No project. Use Ast::Generator::SetTargetProject to set a project."))
@@ -79,6 +95,46 @@ namespace Ast
                 }
 
             });
+    }
+
+    void Generator::ForEachOverRegenerateableUnits(std::function<void(ProjectTree::Unit*)> callback)
+    {
+        if (!Verify(!!_projectTree, "No project. Use Ast::Generator::SetTargetProject to set a project."))
+        {
+            return;
+        }
+
+        _projectTree->ForEach(
+            [&callback, this](ProjectTree::Unit* unit)
+            {
+                if (unit)
+                {
+                    if (_projectTree->IsNeedRegeneration(*unit))
+                    {
+                        std::invoke(callback, unit);
+                    }
+                }
+            });
+    }
+
+    GeneratorUnit::CPtr Generator::GetGeneratorUnitFor(const String& type) const
+    {
+        auto found = std::find_if(_generatorUnits.begin(), _generatorUnits.end(),
+                                  [&type](const GeneratorUnit::Ptr& unit)
+                                  {
+                                      return unit->GetType() == type;
+                                  });
+
+        return found != _generatorUnits.end() ? *found : nullptr;
+    }
+
+    GeneratorUnit::CPtr Generator::GetGeneratorUnitFor(const BaseLexer& lexer) const
+    {
+        return GetGeneratorUnitFor(lexer.GetLexerType());
+    }
+    GeneratorUnit::CPtr Generator::GetGeneratorUnitFor(const BaseLexer::Ptr& lexer) const
+    {
+        return Verify(!!lexer) ? GetGeneratorUnitFor(lexer->GetLexerType()) : nullptr;
     }
 
 } // namespace Ast

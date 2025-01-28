@@ -36,13 +36,6 @@ int main()
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 
 
-    LogCollector::Ptr logCollector = new Ast::LogCollector();
-    logCollector->onValidationEvent.Subscribe(
-        [](const Ast::String& message, Ast::LogCollector::LogType logType)
-        {
-            using namespace std;
-            cout << "ASTCpp: [" << logType.ToStr() << "]: " << message.CStr() << endl;
-        });
 
 
     auto project = ProjectTree::Ptr(new ProjectTree());
@@ -52,15 +45,21 @@ int main()
     project->Process();
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
+    project->GetLogCollector()->onValidationEvent.Subscribe(
+        [](const Ast::String& message, Ast::LogCollector::LogType logType)
+        {
+            using namespace std;
+            cout << "ASTCpp: [" << logType.ToStr() << "]: " << message.CStr() << endl;
+        });
+
     Generator generator;
     generator.SetTargetProject(project);
-    generator.ForEachOverRegenerateableUnits([](const ProjectTree::Unit* unit)
+    generator.ForEachOverRegenerateableUnits([](ProjectTree::Unit* unit)
     {
-        if (Verify(unit))
-        {
-            std::cout << "Generated file will be [re]created for this unit: " << unit->GetPath() << std::endl;
-        }
+        std::cout << "Generated file will be [re]created for this unit: " << unit->GetPath() << std::endl;
     });
+
+    generator.Generate();
 
     return 0;
 }
