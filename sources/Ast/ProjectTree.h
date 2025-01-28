@@ -275,6 +275,8 @@ namespace Ast
         ProjectTree(ProjectTree&&) = default;
         ProjectTree& operator=(ProjectTree&&) = default;
 
+        [[nodiscard]] static Ptr Create() { return new Self; }
+
         [[nodiscard]] bool IsValid() const;
 
         [[nodiscard]] bool operator!() const { return IsValid(); }

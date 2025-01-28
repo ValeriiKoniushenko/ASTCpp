@@ -31,7 +31,7 @@ int main()
     std::filesystem::copy(PATH_TO_TEST_PROJECT + std::string("small_project"), "small_project",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 
-    auto project = ProjectTree::Ptr(new ProjectTree());
+    auto project = ProjectTree::Create();
     project->GetLogCollector()->onValidationEvent.Subscribe(
         [](const LogCollector::LogLine& log)
         {
@@ -44,7 +44,6 @@ int main()
     project->ExcludeFromProject("excludedDirs");
     project->Process();
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
-
 
     Generator generator;
     generator.SetTargetProject(project);
