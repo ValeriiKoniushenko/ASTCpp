@@ -19,3 +19,17 @@
 // SOFTWARE.
 
 #include "GeneratorUnit.h"
+
+namespace Ast
+{
+
+    String GeneratorUnit::Generate(const BaseLexer* lexer) const
+    {
+        String out;
+        out += PreGenerate(lexer);
+        out += OnGenerate(lexer);
+        out += PostGenerate(lexer);
+        return out;
+    }
+
+}

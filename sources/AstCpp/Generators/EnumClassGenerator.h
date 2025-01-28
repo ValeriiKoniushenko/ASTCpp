@@ -31,14 +31,36 @@ namespace Ast::Cpp
     public:
         AST_CLASS(EnumClassGenerator)
 
+        using Code = ITextSourceReader::Code;
+
+        // TODO: fix it. Add new layer Cpp::GeneratorUnit
+        inline static const char* namespaceName = "Enum";
+
         EnumClassGenerator()
             : GeneratorUnit(GeneratorUnit::Create<EnumClassLexer>())
         {
         }
+        ~EnumClassGenerator() override = default;
 
         [[nodiscard]] static Ptr Create() { return new EnumClassGenerator(); }
 
-        String Generate(const BaseLexer* lexer) const override;
+        [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
+
+    protected:
+        // TODO: fix it. Add new layer Cpp::GeneratorUnit
+        [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
+        // TODO: fix it. Add new layer Cpp::GeneratorUnit
+        [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
+
+    private:
+        [[nodiscard]] String GenerateName(const BaseLexer* lexer) const;
+        [[nodiscard]] String GenerateToString(const BaseLexer* lexer) const;
+        [[nodiscard]] String GenerateFromString(const BaseLexer* lexer) const;
+        [[nodiscard]] String GenerateSize(const BaseLexer* lexer) const;
+        [[nodiscard]] String GenerateToVector(const BaseLexer* lexer) const;
+        [[nodiscard]] String GenerateToSet(const BaseLexer* lexer) const;
+        [[nodiscard]] String GenerateToMap(const BaseLexer* lexer) const;
+        [[nodiscard]] String GenerateToJsonString(const BaseLexer* lexer) const;
     };
 
 } // namespace Ast::Cpp

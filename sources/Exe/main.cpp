@@ -29,6 +29,10 @@ int main()
 {
     using namespace Ast;
 
+    if (std::filesystem::exists("small_project"))
+    {
+        std::filesystem::remove_all("small_project");
+    }
     std::filesystem::copy(PATH_TO_TEST_PROJECT + std::string("small_project"), "small_project",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 
@@ -50,10 +54,11 @@ int main()
     generator.AddGenerator<Cpp::EnumClassGenerator>();
 
     generator.SetTargetProject(project);
-    generator.ForEachOverRegenerateableUnits([](ProjectTree::Unit* unit)
-    {
-        std::cout << "Generated file will be [re]created for this unit: " << unit->GetPath() << std::endl;
-    });
+    generator.ForEachOverRegenerateableUnits(
+        [](ProjectTree::Unit* unit)
+        {
+            std::cout << "Generated file will be [re]created for this unit: " << unit->GetPath() << std::endl;
+        });
 
     generator.Generate();
 

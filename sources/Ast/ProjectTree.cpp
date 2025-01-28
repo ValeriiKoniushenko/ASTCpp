@@ -44,7 +44,7 @@ namespace Ast
 
         String out;
         out += generatedFileHeader_Head;
-        out += String::MakeFrom(std::filesystem::file_time_type().time_since_epoch().count());
+        out += String::MakeFrom(std::chrono::system_clock::now().time_since_epoch().count());
         out += Code::Endl();
         out += generatedFileHeader_Body;
         out += String::MakeFrom(_path);
@@ -424,7 +424,11 @@ namespace Ast
                 if (Verify(!!_root))
                 {
                     p = _root->GetPath() / p;
-                    p = std::filesystem::canonical(p);
+                    if (std::filesystem::exists(p))
+                    {
+                        p = std::filesystem::canonical(p);
+                    }
+
                     if (p.empty())
                     {
                         _logCollector->AddLog({"Was trying to convert a path to absolute, but met some problem.", LogCollector::LogType::Error});

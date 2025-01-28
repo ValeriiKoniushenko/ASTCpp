@@ -43,6 +43,7 @@ namespace Ast
         };
 
         using GeneratorContainerT = std::unordered_set<GeneratorUnit::Ptr, GeneratorUnit::HasherPtr>;
+        using Code = ITextSourceReader::Code;
 
     public:
         Generator() = default;

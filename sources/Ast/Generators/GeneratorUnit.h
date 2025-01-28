@@ -47,8 +47,7 @@ namespace Ast
     public:
         ~GeneratorUnit() override = default;
 
-        // Don't call this method directly. Override it & implement needed logic
-        virtual String Generate(const BaseLexer* lexer) const { return String(); }
+        [[nodiscard]] String Generate(const BaseLexer* lexer) const;
         const String& GetType() const { return _type; }
 
         [[nodiscard]] bool operator==(const GeneratorUnit& other) const { return _type == other._type; }
@@ -62,6 +61,11 @@ namespace Ast
         {
             return GeneratorUnit(Lexer::typeName);
         }
+        // Don't call this method directly. Override it & implement needed logic
+        [[nodiscard]] virtual String OnGenerate(const BaseLexer* lexer) const { return String(); }
+
+        [[nodiscard]] virtual String PreGenerate(const BaseLexer* lexer) const { return String(); }
+        [[nodiscard]] virtual String PostGenerate(const BaseLexer* lexer) const { return String(); }
 
     private:
         explicit GeneratorUnit(const String& type)

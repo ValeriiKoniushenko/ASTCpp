@@ -46,8 +46,7 @@ namespace Ast
 // If you see some compile errors you can fix it in the code-gen setup of
 // your project. If the issue was caused by core of the code-gen - find a
 // contact in the github repository and author will fix it.
-// Original file is:
-)";
+// Original file is:)";
             inline static const char* generatedSuffix = ".generated";
 
             using Permission = std::filesystem::perms;

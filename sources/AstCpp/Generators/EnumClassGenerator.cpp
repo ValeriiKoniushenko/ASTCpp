@@ -23,10 +23,34 @@
 namespace Ast::Cpp
 {
 
-    String EnumClassGenerator::Generate(const BaseLexer* lexer) const
+    String EnumClassGenerator::OnGenerate(const BaseLexer* lexer) const
     {
         String out;
 
+        out += GenerateName(lexer) + Code::Endl() + Code::Endl();
+
+        return out;
+    }
+
+    String EnumClassGenerator::PreGenerate(const BaseLexer* lexer) const
+    {
+        return String("namespace Reflect::") + namespaceName + Code::Endl() + "{" + Code::Endl();
+    }
+    String EnumClassGenerator::PostGenerate(const BaseLexer* lexer) const
+    {
+        return String("} // namespace Reflect::") + namespaceName + Code::Endl();
+    }
+
+    String EnumClassGenerator::GenerateName(const BaseLexer* lexer) const
+    {
+        auto l = lexer->CastTo<EnumClassLexer>();
+        String out = R"(template<class T>
+[[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_NAME>, const Ast::String&> Name()
+{
+    static const auto returnValue = "REPLACE_WITH_NAME"_atom;
+    return returnValue;
+})";
+        out.ReplaceAll("REPLACE_WITH_NAME", l->GetLexerName());
         return out;
     }
 

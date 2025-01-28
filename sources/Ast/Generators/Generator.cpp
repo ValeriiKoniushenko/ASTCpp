@@ -20,6 +20,8 @@
 
 #include "Generator.h"
 
+#include <fstream>
+
 namespace Ast
 {
 
@@ -33,6 +35,12 @@ namespace Ast
         ForEachOverRegenerateableUnits([this](const ProjectTree::Unit* unit)
         {
             auto source = unit->GetGeneratedDummyHeader();
+            source += "#pragma once" + Code::Endl() + Code::Endl();
+            source += "#include \"Ast/CommonTypes.h\"" + Code::Endl() + Code::Endl();
+            source += "#include <type_traits>" + Code::Endl();
+            source += "#include <vector>" + Code::Endl();
+            source += "#include <unordered_map>" + Code::Endl();
+            source += "#include <unordered_set>" + Code::Endl();
 
             const auto tree = unit->GetTree();
             tree->ForEachOverMarked([&](const BaseLexer* lexer)
@@ -44,9 +52,12 @@ namespace Ast
                 }
                 else
                 {
-                    source += generator->Generate(lexer);
+                    source += generator->Generate(lexer) + Code::Endl();
                 }
             });
+
+            std::ofstream out(unit->GetGeneratedSiblingFilePath());
+            out << source.c_str();
         });
     }
 
