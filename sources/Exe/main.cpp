@@ -35,9 +35,6 @@ int main()
     std::filesystem::copy(PATH_TO_TEST_PROJECT + std::string("small_project"), "small_project",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 
-
-
-
     auto project = ProjectTree::Ptr(new ProjectTree());
     project->SetFileExtensions({ "*.cpp", ".h" });
     project->SetTargetProject("small_project");

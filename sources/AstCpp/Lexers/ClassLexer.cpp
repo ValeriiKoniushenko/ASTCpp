@@ -267,7 +267,7 @@ namespace Ast::Cpp
         }
         else
         {
-            logCollector.AddLog({ "Impossible to parse class token at {line}" });
+            logCollector.AddLog({ "Impossible to parse class token at {}"_f << _token.startLine, LogCollector::LogType::Warning });
             return false;
         }
 

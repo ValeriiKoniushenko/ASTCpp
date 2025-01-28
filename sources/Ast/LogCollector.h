@@ -50,6 +50,8 @@ namespace Ast
         {
             String message;
             LogType type = LogType::None;
+
+            LogLine(String message, LogType type) : message{std::move(message)}, type(type) {}
         };
 
         using Container = std::vector<LogLine>;
