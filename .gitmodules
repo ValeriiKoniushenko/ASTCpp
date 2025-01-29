@@ -1,4 +1,4 @@
-[submodule "dependencies/Utils"]
-	path = dependencies/Utils
-	url = git@github.com:ValeriiKoniushenko/Utils.git
-	branch = develop
+
+[submodule "dependencies/AST"]
+	path = dependencies/AST
+	url = git@github.com:ValeriiKoniushenko/AST.git
