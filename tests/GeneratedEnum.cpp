@@ -22,19 +22,61 @@
 
 #include <gtest/gtest.h>
 
+// ============== EXAMPLE OF GENERATED DECL CODE ============
+#pragma once
+#include "Ast/CommonTypes.h"
+
+#include <type_traits>
+#include <unordered_set>
+#include <unordered_map>
+#include <vector>
+
+// ======= !!!WARNING!!! ========
+// This file was generated automatically, don't change it,
+// because it will be replaced with the next generation
+enum class ExampleEnum : int;
+
+namespace Reflect::Enum
+{
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, const Ast::String&> Name();
+
+    [[nodiscard]] inline const Ast::String& ToString(const ExampleEnum value);
+
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::optional<ExampleEnum>> FromString(const Ast::String& value);
+
+    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, uint32_t> Size() noexcept;
+
+    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::vector<ExampleEnum>> ToVector();
+
+    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_set<ExampleEnum>> ToSet();
+
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_map<ExampleEnum, Ast::String>> ToMap();
+
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, Ast::String> ToJsonString();
+
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, Ast::String> ToXmlString();
+} // namespace Reflect::Enum
+// =================================================
+
+
 // ============== THE PART OF THE INPUT FILE ============
 enum class ExampleEnum : int
 {
     Hello,
     World
 };
+// =================================================
 
-// ============== EXAMPLE OF GENERATED CODE ============
-#include "Ast/CommonTypes.h"
 
-#include <unordered_set>
-#include <vector>
-
+// ============== EXAMPLE OF GENERATED IMPL CODE ============
 // ======= !!!WARNING!!! ========
 // This file was generated automatically, don't change it,
 // because it will be replaced with the next generation

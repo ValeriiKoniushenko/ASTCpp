@@ -271,7 +271,7 @@ namespace Ast
         }
 
         auto path = _path;
-        path.replace_extension(generatedSuffix + _path.extension().string());
+        path.replace_extension(generatedSuffixDecl + _path.extension().string());
         return path;
     }
 
@@ -299,7 +299,7 @@ namespace Ast
                 {
                     return false;
                 }
-                return tmp.extension().string() == generatedSuffix;
+                return tmp.extension().string() == generatedSuffixDecl;
             }
         }
         return false;
