@@ -228,7 +228,7 @@ namespace Ast
     private:
         // ======================= PIMPLs =======================
 
-        template<class FuncT, IsLexer Lexer = void, bool IsConst = false, bool onlyMarked = false>
+        template<class FuncT, IsLexer Lexer = void, bool IsConst = false, bool OnlyMarked = false>
         static bool ForEachImpl(FuncT&& callback, BaseLexer::AdaptiveRawPtr<IsConst> base, Params& params)
         {
             if (!base)
@@ -249,7 +249,7 @@ namespace Ast
                 }
             }
 
-            if (onlyMarked && isNeedToInvoke)
+            if (OnlyMarked)
             {
                 isNeedToInvoke = base->IsMarked();
             }
@@ -293,7 +293,7 @@ namespace Ast
                 {
                     if (child)
                     {
-                        ForEachImpl<FuncT, Lexer, IsConst>(std::forward<decltype(callback)>(callback), child.get(), params);
+                        ForEachImpl<FuncT, Lexer, IsConst, OnlyMarked>(std::forward<decltype(callback)>(callback), child.get(), params);
                     }
                 }
                 --params.nesting;
