@@ -18,9 +18,7 @@ if "%isInGitSafeDir%"=="0" (
 )
 
 rem Check and update git submodules
-echo ssssssssssss %ERRORLEVEL%
 if not exist dependencies mkdir dependencies
-echo ssssssssssss %ERRORLEVEL%
 
 set count=0
 for %%x in (dependencies/*) do set /a count+=1
