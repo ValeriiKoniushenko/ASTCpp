@@ -29,12 +29,13 @@ int main(int argc, char *argv[])
 {
     using namespace Ast;
 
-    if (std::filesystem::exists("small_project"))
+    if (argc != 2)
     {
-        std::filesystem::remove_all("small_project");
+        std::cerr << "Usage: " << argv[0] << " <path_to_project_root>" << std::endl;
+        return 1;
     }
-    std::filesystem::copy(PATH_TO_TEST_PROJECT + std::string("small_project"), "small_project",
-                          std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+
+    std::filesystem::path project_path(argv[1]);
 
     auto project = ProjectTree::Create();
     project->GetLogCollector()->onValidationEvent.Subscribe(
@@ -45,8 +46,12 @@ int main(int argc, char *argv[])
         });
 
     project->SetFileExtensions({ "*.cpp", ".h" });
-    project->SetTargetProject("small_project");
-    project->ExcludeFromProject("excludedDirs");
+    project->SetTargetProject(project_path);
+    project->ExcludeFromProject(".git");
+    project->ExcludeFromProject(".idea");
+    project->ExcludeFromProject(".vs");
+    project->ExcludeFromProject("dependencies");
+    project->ExcludeFromProject("cmake-build-debug-visual-studio");
     project->Process();
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
