@@ -23,6 +23,9 @@
 #include <gtest/gtest.h>
 
 // ============== EXAMPLE OF GENERATED DECL CODE ============
+// ======= !!!WARNING!!! ========
+// This file was generated automatically, don't change it,
+// because it will be replaced with the next generation
 #pragma once
 #include "Ast/CommonTypes.h"
 
@@ -31,9 +34,6 @@
 #include <unordered_map>
 #include <vector>
 
-// ======= !!!WARNING!!! ========
-// This file was generated automatically, don't change it,
-// because it will be replaced with the next generation
 enum class ExampleEnum : int;
 
 namespace Reflect::Enum

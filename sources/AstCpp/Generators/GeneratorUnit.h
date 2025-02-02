@@ -24,12 +24,20 @@
 
 namespace Ast::Cpp
 {
-    class GeneratorUnitDecl : public Ast::GeneratorUnit
+    class AbstractGeneratorUnit
+    {
+    public:
+        [[nodiscard]] virtual bool IsDeclaration() const = 0;
+        [[nodiscard]] bool IsImplementation() const { return !IsDeclaration(); }
+    };
+
+    class GeneratorUnitDecl : public Ast::GeneratorUnit, public AbstractGeneratorUnit
     {
     public:
         using Code = ITextSourceReader::Code;
 
         inline static const char* namespaceName = "Reflect";
+        [[nodiscard]] bool IsDeclaration() const override { return true; }
 
     protected:
         template<IsLexer Lexer>
@@ -63,11 +71,14 @@ namespace Ast::Cpp
         std::vector<String> _includes;
     };
 
-    class GeneratorUnitImpl : public Ast::GeneratorUnit
+    class GeneratorUnitImpl : public Ast::GeneratorUnit, public AbstractGeneratorUnit
     {
     public:
         using Decl = GeneratorUnitDecl;
         using Code = ITextSourceReader::Code;
+
+    public:
+        [[nodiscard]] bool IsDeclaration() const override { return false; }
 
     protected:
         template<IsLexer Lexer>

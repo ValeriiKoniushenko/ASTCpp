@@ -27,26 +27,32 @@ namespace Ast::Cpp
     {
         auto out = GeneratorUnitDecl::OnGenerate(lexer);
 
-        out += String(R"(template<class T>
-    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, const Ast::String&> Name();
+        out += String(R"(   enum class REPLACE_WITH_ENUM_NAME : REPLACE_WITH_ENUM_TYPE;
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, const Ast::String&> Name();
 
-    [[nodiscard]] inline const Ast::String& ToString(const ExampleEnum value);
+    [[nodiscard]] inline const Ast::String& ToString(const REPLACE_WITH_ENUM_NAME value);
 
     template<class T>
-    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::optional<ExampleEnum>> FromString(const Ast::String& value);
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::optional<REPLACE_WITH_ENUM_NAME>> FromString(const Ast::String& value);
 
     template<class T>
-    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, uint32_t> Size() noexcept;
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, uint32_t> Size() noexcept;
 
     template<class T>
-    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::vector<ExampleEnum>> ToVector();
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::vector<REPLACE_WITH_ENUM_NAME>> ToVector();
 
     template<class T>
-    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_set<ExampleEnum>> ToSet();
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::unordered_set<REPLACE_WITH_ENUM_NAME>> ToSet();
 
     template<class T>
-    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_map<ExampleEnum, Ast::String>> ToMap();)") +
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::unordered_map<REPLACE_WITH_ENUM_NAME, Ast::String>> ToMap();)") +
                Code::Endl() + Code::Endl();
+
+        auto enumLexer = lexer->CastTo<EnumClassLexer>();
+
+        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", enumLexer->GetLexerName());
+        out.ReplaceAll("REPLACE_WITH_ENUM_TYPE", enumLexer->GetType());
 
         return out;
     }
