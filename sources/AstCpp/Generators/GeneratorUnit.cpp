@@ -18,31 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "EnumClassGenerator.h"
+#include "GeneratorUnit.h"
 
 namespace Ast::Cpp
 {
-
-    String EnumClassGenerator::OnGenerate(const BaseLexer* lexer) const
+    String GeneratorUnit::PreGenerate(const BaseLexer* lexer) const
     {
-        String out;
-
-        out += GenerateName(lexer) + Code::Endl() + Code::Endl();
-
-        return out;
+        return "namespace {}::{}{}{{}"_f << namespaceName << _nestedNamespace << Code::Endl() << "{" << Code::Endl();
     }
-
-    String EnumClassGenerator::GenerateName(const BaseLexer* lexer) const
+    String GeneratorUnit::PostGenerate(const BaseLexer* lexer) const
     {
-        auto l = lexer->CastTo<EnumClassLexer>();
-        String out = R"(template<class T>
-[[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_NAME>, const Ast::String&> Name()
-{
-    static const auto returnValue = "REPLACE_WITH_NAME"_atom;
-    return returnValue;
-})";
-        out.ReplaceAll("REPLACE_WITH_NAME", l->GetLexerName());
-        return out;
+        return "} // namespace {}::{}{}"_f << namespaceName << _nestedNamespace << Code::Endl();
     }
 
 } // namespace Ast::Cpp

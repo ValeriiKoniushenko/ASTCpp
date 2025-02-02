@@ -20,37 +20,31 @@
 
 #pragma once
 
+#include "GeneratorUnit.h"
 #include "../Lexers/EnumClassLexer.h"
-#include "Ast/Generators/GeneratorUnit.h"
 
 namespace Ast::Cpp
 {
 
-    class EnumClassGenerator : public GeneratorUnit
+    class EnumClassGenerator : public Cpp::GeneratorUnit
     {
     public:
         AST_CLASS(EnumClassGenerator)
 
         using Code = ITextSourceReader::Code;
 
-        // TODO: fix it. Add new layer Cpp::GeneratorUnit
         inline static const char* namespaceName = "Enum";
 
         EnumClassGenerator()
-            : GeneratorUnit(GeneratorUnit::Create<EnumClassLexer>())
+            : GeneratorUnit(GeneratorUnit::Create<EnumClassLexer>(namespaceName))
         {
         }
+
         ~EnumClassGenerator() override = default;
 
         [[nodiscard]] static Ptr Create() { return new EnumClassGenerator(); }
 
         [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
-
-    protected:
-        // TODO: fix it. Add new layer Cpp::GeneratorUnit
-        [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
-        // TODO: fix it. Add new layer Cpp::GeneratorUnit
-        [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
 
     private:
         [[nodiscard]] String GenerateName(const BaseLexer* lexer) const;

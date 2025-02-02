@@ -18,31 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "EnumClassGenerator.h"
+#pragma once
+
+#include "Ast/Generators/GeneratorUnit.h"
 
 namespace Ast::Cpp
 {
-
-    String EnumClassGenerator::OnGenerate(const BaseLexer* lexer) const
+    class GeneratorUnit : public Ast::GeneratorUnit
     {
-        String out;
+    public:
+        using Code = ITextSourceReader::Code;
 
-        out += GenerateName(lexer) + Code::Endl() + Code::Endl();
+        inline static const char* namespaceName = "Reflect";
 
-        return out;
-    }
+    protected:
+        template<IsLexer Lexer>
+        [[nodiscard]] static GeneratorUnit Create(const String& nestedNamespace)
+        {
+            return GeneratorUnit(Lexer::typeName, nestedNamespace);
+        }
 
-    String EnumClassGenerator::GenerateName(const BaseLexer* lexer) const
-    {
-        auto l = lexer->CastTo<EnumClassLexer>();
-        String out = R"(template<class T>
-[[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_NAME>, const Ast::String&> Name()
-{
-    static const auto returnValue = "REPLACE_WITH_NAME"_atom;
-    return returnValue;
-})";
-        out.ReplaceAll("REPLACE_WITH_NAME", l->GetLexerName());
-        return out;
-    }
+        [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
+        [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
 
+        GeneratorUnit(const String& type, const String& nestedNamespace) :
+            Ast::GeneratorUnit(type),
+            _nestedNamespace{ nestedNamespace }
+        {
+        }
+
+    protected:
+        const String _nestedNamespace;
+    };
 } // namespace Ast::Cpp
