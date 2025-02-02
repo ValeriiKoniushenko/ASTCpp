@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
     Generator generator;
-    generator.AddGenerator<Cpp::EnumClassGenerator>();
+    generator.AddGenerator<Cpp::EnumClassGeneratorDecl>();
 
     generator.SetTargetProject(project);
     generator.ForEachOverRegenerateableUnits(

@@ -24,7 +24,7 @@
 
 namespace Ast::Cpp
 {
-    class GeneratorUnit : public Ast::GeneratorUnit
+    class GeneratorUnitDecl : public Ast::GeneratorUnit
     {
     public:
         using Code = ITextSourceReader::Code;
@@ -33,17 +33,55 @@ namespace Ast::Cpp
 
     protected:
         template<IsLexer Lexer>
-        [[nodiscard]] static GeneratorUnit Create(const String& nestedNamespace)
+        [[nodiscard]] static GeneratorUnitDecl Create(const String& nestedNamespace)
         {
-            return GeneratorUnit(Lexer::typeName, nestedNamespace);
+            return GeneratorUnitDecl(Lexer::typeName, nestedNamespace);
+        }
+
+        [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
+        [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
+        [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
+
+        GeneratorUnitDecl(const String& type, const String& nestedNamespace)
+            : Ast::GeneratorUnit(type),
+              _nestedNamespace{ nestedNamespace }
+        {
+        }
+
+        /**
+         * @brief Will add local include. Pass str(e.g Smth.h) -> you will get #include "Smth.h"
+         */
+        void AddLocalInclude(String str);
+
+        /**
+         * @brief Will add global include. Pass str(e.g Smth.h) -> you will get #include <Smth.h>
+         */
+        void AddGlobalInclude(String str);
+
+    protected:
+        const String _nestedNamespace;
+        std::vector<String> _includes;
+    };
+
+    class GeneratorUnitImpl : public Ast::GeneratorUnit
+    {
+    public:
+        using Decl = GeneratorUnitDecl;
+        using Code = ITextSourceReader::Code;
+
+    protected:
+        template<IsLexer Lexer>
+        [[nodiscard]] static GeneratorUnitImpl Create(const String& nestedNamespace)
+        {
+            return GeneratorUnitImpl(Lexer::typeName, nestedNamespace);
         }
 
         [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
         [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
 
-        GeneratorUnit(const String& type, const String& nestedNamespace) :
-            Ast::GeneratorUnit(type),
-            _nestedNamespace{ nestedNamespace }
+        GeneratorUnitImpl(const String& type, const String& nestedNamespace)
+            : Ast::GeneratorUnit(type),
+              _nestedNamespace{ nestedNamespace }
         {
         }
 

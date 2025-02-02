@@ -26,35 +26,30 @@
 namespace Ast::Cpp
 {
 
-    class EnumClassGenerator : public Cpp::GeneratorUnit
+    class EnumClassGeneratorDecl : public GeneratorUnitDecl
     {
     public:
-        AST_CLASS(EnumClassGenerator)
+        AST_CLASS(EnumClassGeneratorDecl)
 
         using Code = ITextSourceReader::Code;
 
         inline static const char* namespaceName = "Enum";
 
-        EnumClassGenerator()
-            : GeneratorUnit(GeneratorUnit::Create<EnumClassLexer>(namespaceName))
+        EnumClassGeneratorDecl()
+            : GeneratorUnitDecl(GeneratorUnitDecl::Create<EnumClassLexer>(namespaceName))
         {
+            AddLocalInclude("Ast/CommonTypes.h");
+            AddGlobalInclude("type_traits");
+            AddGlobalInclude("vector");
+            AddGlobalInclude("unordered_map");
+            AddGlobalInclude("unordered_set");
         }
 
-        ~EnumClassGenerator() override = default;
+        ~EnumClassGeneratorDecl() override = default;
 
-        [[nodiscard]] static Ptr Create() { return new EnumClassGenerator(); }
+        [[nodiscard]] static Ptr Create() { return new EnumClassGeneratorDecl(); }
 
         [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
-
-    private:
-        [[nodiscard]] String GenerateName(const BaseLexer* lexer) const;
-        [[nodiscard]] String GenerateToString(const BaseLexer* lexer) const;
-        [[nodiscard]] String GenerateFromString(const BaseLexer* lexer) const;
-        [[nodiscard]] String GenerateSize(const BaseLexer* lexer) const;
-        [[nodiscard]] String GenerateToVector(const BaseLexer* lexer) const;
-        [[nodiscard]] String GenerateToSet(const BaseLexer* lexer) const;
-        [[nodiscard]] String GenerateToMap(const BaseLexer* lexer) const;
-        [[nodiscard]] String GenerateToJsonString(const BaseLexer* lexer) const;
     };
 
 } // namespace Ast::Cpp

@@ -23,25 +23,31 @@
 namespace Ast::Cpp
 {
 
-    String EnumClassGenerator::OnGenerate(const BaseLexer* lexer) const
+    String EnumClassGeneratorDecl::OnGenerate(const BaseLexer* lexer) const
     {
-        String out;
+        auto out = GeneratorUnitDecl::OnGenerate(lexer);
 
-        out += GenerateName(lexer) + Code::Endl() + Code::Endl();
+        out += String(R"(template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, const Ast::String&> Name();
 
-        return out;
-    }
+    [[nodiscard]] inline const Ast::String& ToString(const ExampleEnum value);
 
-    String EnumClassGenerator::GenerateName(const BaseLexer* lexer) const
-    {
-        auto l = lexer->CastTo<EnumClassLexer>();
-        String out = R"(template<class T>
-[[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_NAME>, const Ast::String&> Name()
-{
-    static const auto returnValue = "REPLACE_WITH_NAME"_atom;
-    return returnValue;
-})";
-        out.ReplaceAll("REPLACE_WITH_NAME", l->GetLexerName());
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::optional<ExampleEnum>> FromString(const Ast::String& value);
+
+    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, uint32_t> Size() noexcept;
+
+    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::vector<ExampleEnum>> ToVector();
+
+    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_set<ExampleEnum>> ToSet();
+
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, ExampleEnum>, std::unordered_map<ExampleEnum, Ast::String>> ToMap();)") +
+               Code::Endl() + Code::Endl();
+
         return out;
     }
 

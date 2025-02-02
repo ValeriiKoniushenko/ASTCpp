@@ -22,13 +22,66 @@
 
 namespace Ast::Cpp
 {
-    String GeneratorUnit::PreGenerate(const BaseLexer* lexer) const
+    String GeneratorUnitDecl::OnGenerate(const BaseLexer* lexer) const
+    {
+        String out;
+        out += "#pragma once" + Code::Endl();
+        for (const auto& incl : _includes)
+        {
+            out += "#include " + incl + Code::Endl();
+        }
+        out += Code::Endl() + Code::Endl();
+
+        return out;
+    }
+
+    String GeneratorUnitDecl::PreGenerate(const BaseLexer* lexer) const
     {
         return "namespace {}::{}{}{{}"_f << namespaceName << _nestedNamespace << Code::Endl() << "{" << Code::Endl();
     }
-    String GeneratorUnit::PostGenerate(const BaseLexer* lexer) const
+    String GeneratorUnitDecl::PostGenerate(const BaseLexer* lexer) const
     {
         return "} // namespace {}::{}{}"_f << namespaceName << _nestedNamespace << Code::Endl();
     }
+
+    void GeneratorUnitDecl::AddLocalInclude(String str)
+    {
+        if (str.IsEmpty())
+        {
+            return;
+        }
+
+        str.Trim(' ');
+        str.TrimStart('<');
+        str.TrimEnd('>');
+        str.Trim('"');
+        str = '"' + str + '"';
+        _includes.push_back(std::move(str));
+    }
+
+    void GeneratorUnitDecl::AddGlobalInclude(String str)
+    {
+        if (str.IsEmpty())
+        {
+            return;
+        }
+
+        str.Trim(' ');
+        str.TrimStart('<');
+        str.TrimEnd('>');
+        str.Trim('"');
+        str = '<' + str + '>';
+        _includes.push_back(std::move(str));
+    }
+
+    String GeneratorUnitImpl::PreGenerate(const BaseLexer* lexer) const
+    {
+        return "namespace {}::{}{}{{}"_f << Decl::namespaceName << _nestedNamespace << Code::Endl() << "{" << Code::Endl();
+    }
+    String GeneratorUnitImpl::PostGenerate(const BaseLexer* lexer) const
+    {
+        return "} // namespace {}::{}{}"_f << Decl::namespaceName << _nestedNamespace << Code::Endl();
+    }
+
 
 } // namespace Ast::Cpp
