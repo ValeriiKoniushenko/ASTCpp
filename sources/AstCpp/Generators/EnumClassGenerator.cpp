@@ -57,4 +57,169 @@ namespace Ast::Cpp
         return out;
     }
 
+    String EnumClassGeneratorImpl::OnGenerate(const BaseLexer* lexer) const
+    {
+        auto out = GeneratorUnitImpl::OnGenerate(lexer);
+
+        const auto* realLexer = dynamic_cast<const EnumClassLexer*>(lexer);
+        if (!Verify(realLexer, "Was met not expected lexer"))
+        {
+            return {};
+        }
+
+        out += GenerateNameImpl(realLexer);
+
+        return out;
+    }
+
+    String EnumClassGeneratorImpl::GenerateNameImpl(const EnumClassLexer* lexer) const
+    {
+        String out = R"(    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, const Ast::String&> Name()
+    {
+        static const auto returnValue = "REPLACE_WITH_ENUM_NAME"_atom;
+        return returnValue;
+    })";
+        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+
+        return out;
+    }
+
+    String EnumClassGeneratorImpl::GenerateToStringImpl(const EnumClassLexer* lexer) const
+    {
+        String out = R"(    [[nodiscard]] inline const Ast::String& ToString(const REPLACE_WITH_ENUM_NAME value)
+    {
+        REPLACE_WITH_IFS
+
+        static const auto returnValue = ""_atom;
+        return returnValue;
+    })";
+        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+
+        String ifs;
+        for (const auto& c : lexer->GetConstants())
+        {
+            ifs += R"(  if (value == {}::{})
+    {
+        static const auto returnValue = "{}"_atom;
+        return returnValue;
+    }{})"_f
+            << lexer->GetLexerName() << c.name << c.name << Code::Endl();
+        }
+
+        out.ReplaceAll("REPLACE_WITH_IFS", ifs);
+
+        return out;
+    }
+
+    String EnumClassGeneratorImpl::GenerateFromStringImpl(const EnumClassLexer* lexer) const
+    {
+        String out = R"(    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::optional<REPLACE_WITH_ENUM_NAME>> FromString(const Ast::String& value)
+    {
+        REPLACE_WITH_IFS
+
+        return std::nullopt;
+    })";
+        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+
+        String ifs;
+        for (const auto& c : lexer->GetConstants())
+        {
+            ifs += R"(  if (value == "{}"_atom)
+        {
+            return {}::Hello;
+        }{})"_f
+            << c.name << lexer->GetLexerName() << Code::Endl();
+        }
+
+        out.ReplaceAll("REPLACE_WITH_IFS", ifs);
+
+
+        return out;
+    }
+
+    String EnumClassGeneratorImpl::GenerateSizeImpl(const EnumClassLexer* lexer) const
+    {
+        String out = R"(    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, uint32_t> Size() noexcept
+    {
+        return REPLACE_WITH_ENUM_SIZE;
+    })";
+        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+        out.ReplaceAll("REPLACE_WITH_ENUM_SIZE", String::MakeFrom(lexer->GetConstants().size()));
+
+        return out;
+    }
+
+    String EnumClassGeneratorImpl::GenerateToVectorImpl(const EnumClassLexer* lexer) const
+    {
+        String out = R"(    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::vector<REPLACE_WITH_ENUM_NAME>> ToVector()
+    {
+        return { REPLACE_WITH_ENUM_VALUE_LIST };
+    })";
+        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+
+        String values;
+        for (const auto& c : lexer->GetConstants())
+        {
+            values += "{}::{},{}"_f << lexer->GetLexerName() << c.name << Code::Endl();
+        }
+        values.TrimEnd('\n');
+        values.TrimEnd('\r');
+        values.TrimEnd('\n');
+        values.TrimEnd('\r');
+        values.TrimEnd(',');
+        out.ReplaceAll("REPLACE_WITH_ENUM_VALUE_LIST", values);
+
+        return out;
+    }
+
+    String EnumClassGeneratorImpl::GenerateToSetImpl(const EnumClassLexer* lexer) const
+    {
+        String out = R"(    template<class T>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::unordered_set<REPLACE_WITH_ENUM_NAME>> ToSet()
+    {
+        return { REPLACE_WITH_ENUM_VALUE_LIST };
+    })";
+        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+
+        String values;
+        for (const auto& c : lexer->GetConstants())
+        {
+            values += "{}::{},{}"_f << lexer->GetLexerName() << c.name << Code::Endl();
+        }
+        values.TrimEnd('\n');
+        values.TrimEnd('\r');
+        values.TrimEnd('\n');
+        values.TrimEnd('\r');
+        values.TrimEnd(',');
+        out.ReplaceAll("REPLACE_WITH_ENUM_VALUE_LIST", values);
+
+        return out;
+    }
+
+    String EnumClassGeneratorImpl::GenerateToMapImpl(const EnumClassLexer* lexer) const
+    {
+        String out = R"(    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::unordered_map<REPLACE_WITH_ENUM_NAME, Ast::String>> ToMap()
+    {
+        return { REPLACE_WITH_ENUM_TOKENS };
+    })";
+        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+
+        String tokens;
+        for (const auto& c : lexer->GetConstants())
+        {
+            String token = R"({ NAME::CONST_NAME, "CONST_NAME"_atom })";
+            token.ReplaceAll("NAME", lexer->GetLexerName());
+            token.ReplaceAll("CONST_NAME", c.name);
+        }
+
+        out.ReplaceAll("REPLACE_WITH_ENUM_TOKENS", tokens);
+
+        return out;
+    }
+
 } // namespace Ast::Cpp

@@ -24,7 +24,7 @@
 #include "Ast/Readers/ContentStream.h"
 #include "Ast/Utils/Scopes.h"
 #include "Ast/Utils/String.h"
-#include "AstCpp/TemplateLexer/CheckForTemplateLexer.h"
+#include "AstCpp/Utils/CheckForTemplateLexer.h"
 
 namespace Ast::Cpp
 {

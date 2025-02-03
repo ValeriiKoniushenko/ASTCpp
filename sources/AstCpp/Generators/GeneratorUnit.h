@@ -24,14 +24,27 @@
 
 namespace Ast::Cpp
 {
+    template<class FinalGeneratorT = void>
     class AbstractGeneratorUnit
     {
     public:
+        virtual ~AbstractGeneratorUnit() = default;
+
+        inline static const char* generatedSuffixImpl = ".impl";
         [[nodiscard]] virtual bool IsDeclaration() const = 0;
         [[nodiscard]] bool IsImplementation() const { return !IsDeclaration(); }
+        static bool IsSelf(const Ast::GeneratorUnit::Ptr& unit)
+        {
+            if (Verify(!!unit, "Was passed nullptr unit"))
+            {
+                return dynamic_cast<const FinalGeneratorT*>(unit.get());
+            }
+            return false;
+        };
+
     };
 
-    class GeneratorUnitDecl : public Ast::GeneratorUnit, public AbstractGeneratorUnit
+    class GeneratorUnitDecl : public Ast::GeneratorUnit, public AbstractGeneratorUnit<GeneratorUnitDecl>
     {
     public:
         using Code = ITextSourceReader::Code;
@@ -46,6 +59,7 @@ namespace Ast::Cpp
             return GeneratorUnitDecl(Lexer::typeName, nestedNamespace);
         }
 
+        [[nodiscard]] bool OnEqual(const GeneratorUnit& other) const override;
         [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
         [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
         [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
@@ -71,7 +85,7 @@ namespace Ast::Cpp
         std::vector<String> _includes;
     };
 
-    class GeneratorUnitImpl : public Ast::GeneratorUnit, public AbstractGeneratorUnit
+    class GeneratorUnitImpl : public Ast::GeneratorUnit, public AbstractGeneratorUnit<GeneratorUnitImpl>
     {
     public:
         using Decl = GeneratorUnitDecl;
@@ -87,6 +101,7 @@ namespace Ast::Cpp
             return GeneratorUnitImpl(Lexer::typeName, nestedNamespace);
         }
 
+        [[nodiscard]] bool OnEqual(const GeneratorUnit& other) const override;
         [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
         [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
 

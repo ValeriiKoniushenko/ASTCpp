@@ -25,7 +25,7 @@
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 #include "AstCpp/Rules/EnumClassRules.h"
-#include "AstCpp/TemplateLexer/CheckForTemplateLexer.h"
+#include "AstCpp/Utils/CheckForTemplateLexer.h"
 
 #include <gtest/gtest.h>
 

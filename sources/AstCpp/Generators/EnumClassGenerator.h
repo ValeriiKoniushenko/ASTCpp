@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "GeneratorUnit.h"
 #include "../Lexers/EnumClassLexer.h"
+#include "GeneratorUnit.h"
 
 namespace Ast::Cpp
 {
@@ -50,6 +50,35 @@ namespace Ast::Cpp
         [[nodiscard]] static Ptr Create() { return new EnumClassGeneratorDecl(); }
 
         [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
+    };
+
+    class EnumClassGeneratorImpl : public GeneratorUnitImpl
+    {
+    public:
+        AST_CLASS(EnumClassGeneratorImpl)
+
+        using Code = ITextSourceReader::Code;
+
+        inline static const char* namespaceName = "Enum";
+
+        EnumClassGeneratorImpl()
+            : GeneratorUnitImpl(GeneratorUnitImpl::Create<EnumClassLexer>(namespaceName))
+        {
+        }
+        ~EnumClassGeneratorImpl() override = default;
+
+        [[nodiscard]] static Ptr Create() { return new EnumClassGeneratorImpl(); }
+
+        [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
+
+    private:
+        [[nodiscard]] String GenerateNameImpl(const EnumClassLexer* lexer) const;
+        [[nodiscard]] String GenerateToStringImpl(const EnumClassLexer* lexer) const;
+        [[nodiscard]] String GenerateFromStringImpl(const EnumClassLexer* lexer) const;
+        [[nodiscard]] String GenerateSizeImpl(const EnumClassLexer* lexer) const;
+        [[nodiscard]] String GenerateToVectorImpl(const EnumClassLexer* lexer) const;
+        [[nodiscard]] String GenerateToSetImpl(const EnumClassLexer* lexer) const;
+        [[nodiscard]] String GenerateToMapImpl(const EnumClassLexer* lexer) const;
     };
 
 } // namespace Ast::Cpp

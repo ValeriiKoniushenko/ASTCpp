@@ -22,6 +22,11 @@
 
 namespace Ast::Cpp
 {
+    bool GeneratorUnitDecl::OnEqual(const GeneratorUnit& other) const
+    {
+        return dynamic_cast<const GeneratorUnitDecl*>(&other);
+    }
+
     String GeneratorUnitDecl::OnGenerate(const BaseLexer* lexer) const
     {
         String out;
@@ -72,6 +77,11 @@ namespace Ast::Cpp
         str.Trim('"');
         str = '<' + str + '>';
         _includes.push_back(std::move(str));
+    }
+
+    bool GeneratorUnitImpl::OnEqual(const GeneratorUnit& other) const
+    {
+        return dynamic_cast<const GeneratorUnitImpl*>(&other);
     }
 
     String GeneratorUnitImpl::PreGenerate(const BaseLexer* lexer) const
