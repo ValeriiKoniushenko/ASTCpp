@@ -42,7 +42,7 @@ namespace Ast::Cpp
 
     String GeneratorUnitDecl::PreGenerate(const BaseLexer* lexer) const
     {
-        return "namespace {}::{}{}{{}"_f << namespaceName << _nestedNamespace << Code::Endl() << "{" << Code::Endl();
+        return "namespace {}::{}{}{{}"_f << namespaceName << _nestedNamespace << Code::Endl() << Code::Endl();
     }
     String GeneratorUnitDecl::PostGenerate(const BaseLexer* lexer) const
     {
