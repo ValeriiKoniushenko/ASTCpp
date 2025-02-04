@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
 
     Generator generator;
     generator.AddGenerator<Cpp::EnumClassGeneratorDecl>();
+    generator.AddGenerator<Cpp::EnumClassGeneratorImpl>();
 
     generator.SetTargetProject(project);
     generator.ForEachOverRegenerateableUnits(
