@@ -230,6 +230,7 @@ namespace Ast::Cpp
             String token = R"({ NAME::CONST_NAME, "CONST_NAME"_atom })";
             token.ReplaceAll("NAME", lexer->GetLexerName());
             token.ReplaceAll("CONST_NAME", c.name);
+            tokens += std::move(token);
         }
 
         out.ReplaceAll("REPLACE_WITH_ENUM_TOKENS", tokens);
