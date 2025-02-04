@@ -27,8 +27,7 @@ namespace Ast::Cpp
     {
         auto out = GeneratorUnitDecl::OnGenerate(lexer);
 
-        out += String(R"(   enum class REPLACE_WITH_ENUM_NAME : REPLACE_WITH_ENUM_TYPE;
-    template<class T>
+        out += String(R"(    template<class T>
     [[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, const Ast::String&> Name();
 
     [[nodiscard]] inline const Ast::String& ToString(const REPLACE_WITH_ENUM_NAME value);
@@ -57,6 +56,20 @@ namespace Ast::Cpp
         return out;
     }
 
+    String EnumClassGeneratorImpl::PreGenerate(const BaseLexer* lexer) const
+    {
+        auto out = GeneratorUnitImpl::PreGenerate(lexer);
+
+        const auto* realLexer = dynamic_cast<const EnumClassLexer*>(lexer);
+        if (!Verify(realLexer, "Was met not expected lexer"))
+        {
+            return {};
+        }
+
+        out += "enum class {} : {};{}"_f << realLexer->GetLexerName() << realLexer->GetType() << Code::Endl();
+
+        return out;
+    }
     String EnumClassGeneratorImpl::OnGenerate(const BaseLexer* lexer) const
     {
         auto out = GeneratorUnitImpl::OnGenerate(lexer);
