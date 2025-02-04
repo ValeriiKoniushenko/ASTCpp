@@ -88,7 +88,7 @@ namespace Ast::Cpp
 
     String GeneratorUnitImpl::PreGenerate(const BaseLexer* lexer) const
     {
-        return "namespace {}::{}{}{{}"_f << Decl::namespaceName << _nestedNamespace << Code::Endl() << "{" << Code::Endl();
+        return "namespace {}::{}{}{{}"_f << Decl::namespaceName << _nestedNamespace << Code::Endl() << Code::Endl();
     }
     String GeneratorUnitImpl::PostGenerate(const BaseLexer* lexer) const
     {

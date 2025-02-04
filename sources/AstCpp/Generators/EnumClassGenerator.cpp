@@ -68,6 +68,12 @@ namespace Ast::Cpp
         }
 
         out += GenerateNameImpl(realLexer);
+        out += GenerateToStringImpl(realLexer);
+        out += GenerateFromStringImpl(realLexer);
+        out += GenerateSizeImpl(realLexer);
+        out += GenerateToVectorImpl(realLexer);
+        out += GenerateToSetImpl(realLexer);
+        out += GenerateToMapImpl(realLexer);
 
         return out;
     }
