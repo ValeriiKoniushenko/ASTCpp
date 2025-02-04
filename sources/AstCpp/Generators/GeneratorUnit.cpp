@@ -34,13 +34,7 @@ namespace Ast::Cpp
 
     String GeneratorUnitDecl::PreGenerate(const BaseLexer* lexer) const
     {
-        String out;
-        out += "#pragma once" + Code::Endl();
-        for (const auto& incl : _includes)
-        {
-            out += "#include " + incl + Code::Endl();
-        }
-        out += Code::Endl() + Code::Endl();
+        String out = GenerateNeededStartOfFile(lexer);
 
         out += "namespace {}::{}{}{{}"_f << namespaceName << _nestedNamespace << Code::Endl() << Code::Endl();
 
@@ -79,6 +73,19 @@ namespace Ast::Cpp
         str.Trim('"');
         str = '<' + str + '>';
         _includes.push_back(std::move(str));
+    }
+
+    String GeneratorUnitDecl::GenerateNeededStartOfFile(const BaseLexer* lexer) const
+    {
+        String out;
+        out += "#pragma once" + Code::Endl();
+        for (const auto& incl : _includes)
+        {
+            out += "#include " + incl + Code::Endl();
+        }
+        out += Code::Endl() + Code::Endl();
+        out += OnFinishGenerateNeededStartOfFile(lexer);
+        return out;
     }
 
     bool GeneratorUnitImpl::OnEqual(const GeneratorUnit& other) const

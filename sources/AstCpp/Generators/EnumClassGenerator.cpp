@@ -23,6 +23,17 @@
 namespace Ast::Cpp
 {
 
+    String EnumClassGeneratorDecl::OnFinishGenerateNeededStartOfFile(const BaseLexer* lexer) const
+    {
+        const auto* realLexer = dynamic_cast<const EnumClassLexer*>(lexer);
+        if (!Verify(realLexer, "Was met not expected lexer"))
+        {
+            return {};
+        }
+
+        return "enum class {} : {};{}"_f << realLexer->GetLexerName() << realLexer->GetType() << Code::Endl();
+    }
+
     String EnumClassGeneratorDecl::OnGenerate(const BaseLexer* lexer) const
     {
         auto out = GeneratorUnitDecl::OnGenerate(lexer);
@@ -56,20 +67,6 @@ namespace Ast::Cpp
         return out;
     }
 
-    String EnumClassGeneratorImpl::PreGenerate(const BaseLexer* lexer) const
-    {
-        auto out = GeneratorUnitImpl::PreGenerate(lexer);
-
-        const auto* realLexer = dynamic_cast<const EnumClassLexer*>(lexer);
-        if (!Verify(realLexer, "Was met not expected lexer"))
-        {
-            return {};
-        }
-
-        out += "enum class {} : {};{}"_f << realLexer->GetLexerName() << realLexer->GetType() << Code::Endl();
-
-        return out;
-    }
     String EnumClassGeneratorImpl::OnGenerate(const BaseLexer* lexer) const
     {
         auto out = GeneratorUnitImpl::OnGenerate(lexer);
@@ -122,8 +119,8 @@ namespace Ast::Cpp
     {
         static const auto returnValue = "{}"_atom;
         return returnValue;
-    }{})"_f
-            << lexer->GetLexerName() << c.name << c.name << Code::Endl();
+    }{})"_f << lexer->GetLexerName()
+            << c.name << c.name << Code::Endl();
         }
 
         out.ReplaceAll("REPLACE_WITH_IFS", ifs);
@@ -148,12 +145,11 @@ namespace Ast::Cpp
             ifs += R"(  if (value == "{}"_atom)
         {
             return {}::Hello;
-        }{})"_f
-            << c.name << lexer->GetLexerName() << Code::Endl();
+        }{})"_f << c.name
+                << lexer->GetLexerName() << Code::Endl();
         }
 
         out.ReplaceAll("REPLACE_WITH_IFS", ifs);
-
 
         return out;
     }

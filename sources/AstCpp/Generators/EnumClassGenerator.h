@@ -49,6 +49,7 @@ namespace Ast::Cpp
 
         [[nodiscard]] static Ptr Create() { return new EnumClassGeneratorDecl(); }
 
+        [[nodiscard]] String OnFinishGenerateNeededStartOfFile(const BaseLexer* lexer) const override;
         [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
     };
 
@@ -69,7 +70,6 @@ namespace Ast::Cpp
 
         [[nodiscard]] static Ptr Create() { return new EnumClassGeneratorImpl(); }
 
-        [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
         [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
 
     private:

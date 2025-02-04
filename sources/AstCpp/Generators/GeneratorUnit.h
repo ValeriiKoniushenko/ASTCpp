@@ -63,6 +63,7 @@ namespace Ast::Cpp
         [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
         [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
         [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
+        [[nodiscard]] virtual String OnFinishGenerateNeededStartOfFile(const BaseLexer* lexer) const {return {}; }
 
         GeneratorUnitDecl(const String& type, const String& nestedNamespace)
             : Ast::GeneratorUnit(type),
@@ -83,6 +84,9 @@ namespace Ast::Cpp
     protected:
         const String _nestedNamespace;
         std::vector<String> _includes;
+
+    private:
+        [[nodiscard]] String GenerateNeededStartOfFile(const BaseLexer* lexer) const;
     };
 
     class GeneratorUnitImpl : public Ast::GeneratorUnit, public AbstractGeneratorUnit<GeneratorUnitImpl>
