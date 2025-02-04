@@ -44,7 +44,7 @@ namespace Ast::Cpp
                         auto declGenerator = GetGeneratorUnitFor(*lexer, GeneratorUnitDecl::IsSelf);
                         if (!Verify(!!declGenerator))
                         {
-                            _projectTree->GetLogCollector()->AddLog({ "Generator wasn't found for lexer: '{}' by the next path: {}"_f
+                            _projectTree->GetLogCollector()->AddLog({ "Generator(declaration) wasn't found for lexer: '{}' by the next path: {}"_f
                                                                           << lexer->GetLexerType() << lexer->GetFullPath().first,
                                                                       LogCollector::LogType::Error });
                         }
@@ -56,22 +56,27 @@ namespace Ast::Cpp
                         auto implGenerator = GetGeneratorUnitFor(*lexer, GeneratorUnitImpl::IsSelf);
                         if (!Verify(!!declGenerator))
                         {
-                            _projectTree->GetLogCollector()->AddLog({ "Generator wasn't found for lexer: '{}' by the next path: {}"_f
+                            _projectTree->GetLogCollector()->AddLog({ "Generator(implementation) wasn't found for lexer: '{}' by the next path: {}"_f
                                                                           << lexer->GetLexerType() << lexer->GetFullPath().first,
                                                                       LogCollector::LogType::Error });
                         }
                         else
                         {
-                            declSource += declGenerator->Generate(lexer) + Code::Endl();
+                            implSource += implGenerator->Generate(lexer) + Code::Endl();
                         }
-
                     });
 
-                std::ofstream outDecl(unit->GetGeneratedSiblingFilePath());
-                outDecl << declSource.c_str();
+                if (!declSource.IsEmpty())
+                {
+                    std::ofstream outDecl(unit->GetGeneratedSiblingFilePath());
+                    outDecl << declSource.c_str();
+                }
 
-                std::ofstream outImpl(GetGeneratedSiblingImplFilePath(*unit));
-                outImpl << implSource.c_str();
+                if (!implSource.IsEmpty())
+                {
+                    std::ofstream outImpl(GetGeneratedSiblingImplFilePath(*unit));
+                    outImpl << implSource.c_str();
+                }
             });
     }
 } // namespace Ast::Cpp
