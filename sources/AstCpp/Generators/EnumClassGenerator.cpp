@@ -227,8 +227,8 @@ namespace Ast::Cpp
         String tokens;
         for (const auto& c : lexer->GetConstants())
         {
-            String token = R"({ NAME::CONST_NAME, "CONST_NAME"_atom })";
-            token.ReplaceAll("NAME", lexer->GetLexerName());
+            String token = R"({ LEXER_NAME::CONST_NAME, "CONST_NAME"_atom })";
+            token.ReplaceAll("LEXER_NAME", lexer->GetLexerName());
             token.ReplaceAll("CONST_NAME", c.name);
             tokens += std::move(token);
         }
