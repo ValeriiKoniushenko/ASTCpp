@@ -29,6 +29,11 @@ namespace Ast::Cpp
 
     String GeneratorUnitDecl::OnGenerate(const BaseLexer* lexer) const
     {
+        return {};
+    }
+
+    String GeneratorUnitDecl::PreGenerate(const BaseLexer* lexer) const
+    {
         String out;
         out += "#pragma once" + Code::Endl();
         for (const auto& incl : _includes)
@@ -37,12 +42,9 @@ namespace Ast::Cpp
         }
         out += Code::Endl() + Code::Endl();
 
-        return out;
-    }
+        out += "namespace {}::{}{}{{}"_f << namespaceName << _nestedNamespace << Code::Endl() << Code::Endl();
 
-    String GeneratorUnitDecl::PreGenerate(const BaseLexer* lexer) const
-    {
-        return "namespace {}::{}{}{{}"_f << namespaceName << _nestedNamespace << Code::Endl() << Code::Endl();
+        return out;
     }
     String GeneratorUnitDecl::PostGenerate(const BaseLexer* lexer) const
     {
