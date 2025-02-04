@@ -77,13 +77,13 @@ namespace Ast::Cpp
             return {};
         }
 
-        out += GenerateNameImpl(realLexer);
-        out += GenerateToStringImpl(realLexer);
-        out += GenerateFromStringImpl(realLexer);
-        out += GenerateSizeImpl(realLexer);
-        out += GenerateToVectorImpl(realLexer);
-        out += GenerateToSetImpl(realLexer);
-        out += GenerateToMapImpl(realLexer);
+        out += GenerateNameImpl(realLexer) + Code::Endl();
+        out += GenerateToStringImpl(realLexer) + Code::Endl();
+        out += GenerateFromStringImpl(realLexer) + Code::Endl();
+        out += GenerateSizeImpl(realLexer) + Code::Endl();
+        out += GenerateToVectorImpl(realLexer) + Code::Endl();
+        out += GenerateToSetImpl(realLexer) + Code::Endl();
+        out += GenerateToMapImpl(realLexer) + Code::Endl();
 
         return out;
     }
@@ -144,9 +144,9 @@ namespace Ast::Cpp
         {
             ifs += R"(  if (value == "{}"_atom)
         {
-            return {}::Hello;
+            return {}::{};
         }{})"_f << c.name
-                << lexer->GetLexerName() << Code::Endl();
+                << lexer->GetLexerName() << c.name << Code::Endl();
         }
 
         out.ReplaceAll("REPLACE_WITH_IFS", ifs);
