@@ -33,6 +33,7 @@ namespace Ast::Cpp
         {
             String finalExt = AbstractGeneratorUnit<>::generatedSuffixImpl;
             finalExt += ProjectTree::Unit::generatedSuffixDecl;
+            finalExt += mainExt.string();
 
             path.replace_extension(finalExt.c_str());
             return path;
