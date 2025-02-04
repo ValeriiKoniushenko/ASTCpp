@@ -227,11 +227,14 @@ namespace Ast::Cpp
         String tokens;
         for (const auto& c : lexer->GetConstants())
         {
-            String token = R"({ LEXER_NAME::CONST_NAME, "CONST_NAME"_atom })";
+            String token = R"({ LEXER_NAME::CONST_NAME, "CONST_NAME"_atom }, )";
             token.ReplaceAll("LEXER_NAME", lexer->GetLexerName());
             token.ReplaceAll("CONST_NAME", c.name);
             tokens += std::move(token);
         }
+
+        tokens.TrimEnd(' ');
+        tokens.TrimEnd(',');
 
         out.ReplaceAll("REPLACE_WITH_ENUM_TOKENS", tokens);
 
