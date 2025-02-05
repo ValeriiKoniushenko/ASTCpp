@@ -20,7 +20,7 @@
 
 #include "Generator.h"
 
-#include "AstCpp/Utils/FileUnits.h"
+#include "AstCpp/Utils/UnitBridge.h"
 #include "GeneratorUnit.h"
 
 #include <fstream>
@@ -74,7 +74,9 @@ namespace Ast::Cpp
 
                 if (!implSource.IsEmpty())
                 {
-                    std::ofstream outImpl(GetGeneratedSiblingImplFilePath(*unit));
+                    ConstUnitBridge bridge(unit);
+
+                    std::ofstream outImpl(bridge.GetGeneratedSiblingImplFilePath());
                     outImpl << implSource.c_str();
                 }
             });
