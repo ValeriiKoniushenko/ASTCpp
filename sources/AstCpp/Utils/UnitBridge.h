@@ -265,7 +265,6 @@ namespace Ast::Cpp
             {
                 lines.push_back(std::move(str));
             }
-            lines.push_back(std::move(str));
             readFile.close();
 
             uint64_t offset = 0;
