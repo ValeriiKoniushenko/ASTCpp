@@ -98,7 +98,8 @@ namespace Ast::Cpp
                     const auto path = GetGeneratedDeclFilePath();
                     if (Verify(!path.empty() && path.has_filename()))
                     {
-                        shouldBeInserted.emplace_back(line, String::MakeFrom(path.filename()));
+                        auto include = R"({}// Next include must be below of all your includes{}#include "{}")"_f << Unit::Code::Endl() << Unit::Code::Endl() << String::MakeFrom(path.filename());
+                        shouldBeInserted.emplace_back(line, std::move(include));
                     }
                 }
 
@@ -108,9 +109,14 @@ namespace Ast::Cpp
                     const auto path = GetGeneratedImplFilePath();
                     if (Verify(!path.empty() && path.has_filename()))
                     {
-                        shouldBeInserted.emplace_back(line, String::MakeFrom(path.filename()));
+                        auto include = R"(// Next include must be in the end of this file{}#include "{}")"_f << Unit::Code::Endl() << String::MakeFrom(path.filename());
+                        shouldBeInserted.emplace_back(line, std::move(include));
                     }
                 }
+
+                const auto linesInFile = String::GetLinesCountInText(data);
+
+                InsertAtLineOfFile(_unit->GetPath(), std::move(shouldBeInserted));
             }
         }
 
@@ -244,7 +250,7 @@ namespace Ast::Cpp
         }
 
 
-        void InsertAtLineOfFile(const std::filesystem::path& path, const std::vector<std::pair<uint64_t, String>>& data)
+        void InsertAtLineOfFile(const std::filesystem::path& path, std::vector<std::pair<uint64_t, String>> data) const
         {
             std::ifstream readFile(path.string());
             if (!readFile.is_open())
@@ -266,7 +272,7 @@ namespace Ast::Cpp
             {
                 if (line >= lines.size())
                 {
-                    Assert();
+                    Assert("Invalid line number. File doesn't have such line. File: {}"_f << path.string());
                     continue;
                 }
 
