@@ -27,7 +27,6 @@
 
 namespace Ast::Cpp
 {
-
     template<bool IsConst>
     class BaseUnitBridge : public Utils::CopyableAndMoveable
     {
@@ -98,7 +97,8 @@ namespace Ast::Cpp
                     const auto path = GetGeneratedDeclFilePath();
                     if (Verify(!path.empty() && path.has_filename()))
                     {
-                        auto include = R"({}// Next include must be below of all your includes{}#include "{}")"_f << Unit::Code::Endl() << Unit::Code::Endl() << String::MakeFrom(path.filename());
+                        auto include = R"(#include "{}" // This include must be below of all your includes{})"_f << String::MakeFrom(path.filename())
+                                                                                                                 << Unit::Code::Endl();
                         shouldBeInserted.emplace_back(line, std::move(include));
                     }
                 }
@@ -109,7 +109,8 @@ namespace Ast::Cpp
                     const auto path = GetGeneratedImplFilePath();
                     if (Verify(!path.empty() && path.has_filename()))
                     {
-                        auto include = R"({}// Next include must be in the end of this file{}#include "{}")"_f << Unit::Code::Endl() << Unit::Code::Endl() << String::MakeFrom(path.filename());
+                        auto include = R"({}#include "{}" // This include must be in the end of this file)"_f << Unit::Code::Endl()
+                                                                                                              << String::MakeFrom(path.filename());
                         shouldBeInserted.emplace_back(line, std::move(include));
                     }
                 }
@@ -195,27 +196,31 @@ namespace Ast::Cpp
             const auto* begin = data.c_str();
             const auto* end = data.c_str() + data.Size();
 
-
             const auto* firstInclude = String::Toolset::StrStr(begin, "#include");
 
             uint64_t line = firstInclude ? String::GetLinesCountInText(begin, firstInclude + 1) : 0;
             uint64_t validLine = firstInclude ? line : 0;
             const auto* i = firstInclude ? firstInclude : begin;
 
-
+            auto* nextLine = String::FindNextLine(i);
             while (i && i < end)
             {
+                if (nextLine == nullptr)
+                {
+                    nextLine = end;
+                }
+
                 // just skip a blank line
-                if (std::regex_match(i, end, std::regex(R"(^\s*$)")))
+                if (std::regex_match(i, nextLine - 1, std::regex(R"(^\s*$)")))
                 {
                     ++line;
-                    i = String::FindNextLine(i);
+                    i = nextLine;
+                    nextLine = String::FindNextLine(i);
                     continue;
                 }
 
                 // trying to find #include or #pragma once
-                if (std::regex_match(i, end, std::regex(R"(^\s*#include)")) ||
-                    std::regex_match(i, end, std::regex(R"(^\s*#pragma\s+once)")))
+                if (std::regex_match(i, nextLine - 1, std::regex(R"(\s*#include.*)", std::regex_constants::ECMAScript)))
                 {
                     validLine = line + 1;
                 }
@@ -224,14 +229,15 @@ namespace Ast::Cpp
                     break;
                 }
 
-                i = String::FindNextLine(i);
+                i = nextLine;
+                nextLine = String::FindNextLine(i);
                 if (i)
                 {
                     ++line;
                 }
             }
 
-            return validLine;
+            return validLine != 0 ? validLine - 1 : 0;
         }
 
         [[nodiscard]] uint64_t GetInsertLineOfImplInclude(const String& data) const
@@ -264,7 +270,6 @@ namespace Ast::Cpp
             return ~0ull;
         }
 
-
         void InsertAtLineOfFile(const std::filesystem::path& path, std::vector<std::pair<uint64_t, String>> data) const
         {
             std::ifstream readFile(path.string());
@@ -285,7 +290,7 @@ namespace Ast::Cpp
             uint64_t offset = 0;
             for (const auto& [line, str] : data)
             {
-                if (line >= lines.size())
+                if (line > lines.size())
                 {
                     Assert("Invalid line number. File doesn't have such line. File: {}"_f << path.string());
                     continue;
@@ -306,11 +311,9 @@ namespace Ast::Cpp
             {
                 writeFile << line << endl;
             }
-
         }
     };
 
     using UnitBridge = BaseUnitBridge<false>;
     using ConstUnitBridge = const BaseUnitBridge<true>;
-
 } // namespace Ast::Cpp
