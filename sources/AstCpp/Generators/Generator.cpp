@@ -89,7 +89,7 @@ namespace Ast::Cpp
                     std::ofstream outImpl(bridge.GetGeneratedImplFilePath());
                     if (outImpl.is_open())
                     {
-                        outImpl << declSource.c_str();
+                        outImpl << implSource.c_str();
                     }
                     else
                     {
