@@ -214,7 +214,7 @@ namespace Ast::Cpp
                 }
 
                 // trying to find #include or #pragma once
-                if (std::regex_match(i, end, std::regex(R"(^\s*(#include)|(#pragma\s+once))")))
+                if (std::regex_match(i, end, std::regex(R"(^\s*(#include)|(#pragma\s+once))", std::regex::flag_type::ECMAScript)))
                 {
                     validLine = line + 1;
                 }
