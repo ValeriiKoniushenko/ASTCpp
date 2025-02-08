@@ -98,7 +98,7 @@ namespace Ast::Cpp
                     const auto path = GetGeneratedDeclFilePath();
                     if (Verify(!path.empty() && path.has_filename()))
                     {
-                        auto include = R"({}{}// Next include must be below of all your includes{}#include "{}")"_f << Unit::Code::Endl() << Unit::Code::Endl() << Unit::Code::Endl() << String::MakeFrom(path.filename());
+                        auto include = R"({}// Next include must be below of all your includes{}#include "{}")"_f << Unit::Code::Endl() << Unit::Code::Endl() << String::MakeFrom(path.filename());
                         shouldBeInserted.emplace_back(line, std::move(include));
                     }
                 }
@@ -109,7 +109,7 @@ namespace Ast::Cpp
                     const auto path = GetGeneratedImplFilePath();
                     if (Verify(!path.empty() && path.has_filename()))
                     {
-                        auto include = R"(// Next include must be in the end of this file{}#include "{}")"_f << Unit::Code::Endl() << String::MakeFrom(path.filename());
+                        auto include = R"({}// Next include must be in the end of this file{}#include "{}")"_f << Unit::Code::Endl() << Unit::Code::Endl() << String::MakeFrom(path.filename());
                         shouldBeInserted.emplace_back(line, std::move(include));
                     }
                 }
@@ -210,8 +210,8 @@ namespace Ast::Cpp
                     continue;
                 }
 
-                // trying to find #include
-                if (std::regex_match(i, end, std::regex(R"(^\s#include)")))
+                // trying to find #include or #pragma once
+                if (std::regex_match(i, end, std::regex(R"((^\s*#include)|(^\s*#pragma\s+once))")))
                 {
                     validLine = line + 1;
                 }
