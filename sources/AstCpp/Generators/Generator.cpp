@@ -75,6 +75,13 @@ namespace Ast::Cpp
                     {
                         outDecl << declSource.c_str();
                     }
+                    else
+                    {
+                        if (auto logs = _projectTree->GetLogCollector())
+                        {
+                            logs->AddLog({"Impossible to open for write the generated file: "_f << bridge.GetGeneratedDeclFilePath().string(), LogCollector::LogType::Error });
+                        }
+                    }
                 }
 
                 if (!implSource.IsEmpty())
@@ -84,7 +91,16 @@ namespace Ast::Cpp
                     {
                         outImpl << declSource.c_str();
                     }
+                    else
+                    {
+                        if (auto logs = _projectTree->GetLogCollector())
+                        {
+                            logs->AddLog({"Impossible to open for write the generated file: "_f << bridge.GetGeneratedImplFilePath().string(), LogCollector::LogType::Error });
+                        }
+                    }
                 }
+
+                bridge.TryToAddNeededIncludes();
             });
     }
 } // namespace Ast::Cpp

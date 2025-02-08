@@ -66,7 +66,7 @@ namespace Ast::Cpp
             return {};
         }
 
-        void TryToAddNeededIncludes()
+        void TryToAddNeededIncludes() const
         {
             if (!Verify(IsValid()))
             {
@@ -229,37 +229,40 @@ namespace Ast::Cpp
             {
                 return ~0ull;
             }
+
+            const auto totalLines = String::GetLinesCountInText(data);
+
             const auto* begin = data.c_str();
             const auto* end = data.c_str() + data.Size();
 
-            uint64_t validLine = 0;
+            uint64_t validLine = totalLines;
 
-            uint64_t line = 0;
-            const auto* i = begin;
+            uint64_t line = totalLines;
+            const auto* i = String::FindPrevLine(begin);
 
-            while (i && i < end)
+            while (i && i >= begin)
             {
                 // just skip a blank line
                 if (std::regex_match(i, end, std::regex(R"(^\s*$)")))
                 {
-                    ++line;
+                    --line;
                     continue;
                 }
 
                 // trying to find #include
                 if (std::regex_match(i, end, std::regex(R"(^\s#include)")))
                 {
-                    validLine = line + 1;
+                    validLine = line - 1;
                 }
                 else
                 {
                     break;
                 }
 
-                i = String::FindNextLine(i);
+                i = String::FindPrevLine(i);
                 if (i)
                 {
-                    ++line;
+                    --line;
                 }
             }
 
