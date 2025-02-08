@@ -98,7 +98,7 @@ namespace Ast::Cpp
                     const auto path = GetGeneratedDeclFilePath();
                     if (Verify(!path.empty() && path.has_filename()))
                     {
-                        auto include = R"({}// Next include must be below of all your includes{}#include "{}")"_f << Unit::Code::Endl() << Unit::Code::Endl() << String::MakeFrom(path.filename());
+                        auto include = R"({}{}// Next include must be below of all your includes{}#include "{}")"_f << Unit::Code::Endl() << Unit::Code::Endl() << Unit::Code::Endl() << String::MakeFrom(path.filename());
                         shouldBeInserted.emplace_back(line, std::move(include));
                     }
                 }
