@@ -202,8 +202,8 @@ namespace Ast::Cpp
 
         const auto* closedBracket = Utils::FindClosedBracket(openedBracket, '}', '{');
 
-        _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data(), openedBracket) };
-        _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data(), closedBracket) };
+        _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data().c_str(), openedBracket) };
+        _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data().c_str(), closedBracket) };
 
         if (!RecognizeConstants(logCollector))
         {

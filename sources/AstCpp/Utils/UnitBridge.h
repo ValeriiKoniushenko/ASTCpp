@@ -114,7 +114,7 @@ namespace Ast::Cpp
                     }
                 }
 
-                const auto linesInFile = String::GetLinesCountInText(data);
+                const auto linesInFile = String::GetLinesCountInText(data.c_str());
 
                 InsertAtLineOfFile(_unit->GetPath(), std::move(shouldBeInserted));
             }
@@ -240,7 +240,7 @@ namespace Ast::Cpp
                 return ~0ull;
             }
 
-            const auto totalCountOfLines = String::GetLinesCountInText(data);
+            const auto totalCountOfLines = String::GetLinesCountInText(data.c_str());
             const auto* begin = data.c_str();
             const auto* end = data.c_str() + data.Size();
 
