@@ -46,7 +46,7 @@ Ast::ProjectTree::Ptr SafeGetSmallProject()
     auto project = ProjectTree::Ptr(new ProjectTree());
     project->SetFileExtensions({"*.cpp", ".h"});
     project->SetTargetProject("small_project");
-    project->ExcludeFromProject("excludedDirs");
+    project->ExcludeFromProject("excludedDir");
     project->Process();
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
@@ -58,13 +58,16 @@ Ast::String ValidateAllProjectTree(Ast::ProjectTree& project)
     using namespace Ast;
 
     Core::StringAtom error;
-    project.ForEach([&error](ProjectTree::Unit* unit)
+    bool wasIterated = false;
+    project.ForEach([&error, &wasIterated](ProjectTree::Unit* unit)
     {
         if (!unit)
         {
             error = Core::StringAtom("Unit is nullptr");
             return false;
         }
+
+        wasIterated = true;
 
         auto content = unit->GetFileContentStream();
         if (!content)
@@ -171,6 +174,11 @@ Ast::String ValidateAllProjectTree(Ast::ProjectTree& project)
 
         return true;
     });
+
+    if (!wasIterated)
+    {
+        error = String("Looks like project tree is empty");
+    }
 
     return error;
 }
@@ -291,47 +299,29 @@ TEST(ASTProjectTest, CheckingForEnumClass)
     ASSERT_TRUE(foundAtLeastOne);
 }
 
-TEST(ASTProjectTest, ReflectEnumClass)
+TEST(ASTProjectTest, TrashCode)
 {
     using namespace Ast;
 
-    auto project = SafeGetSmallProject();
+    std::filesystem::copy(smallProjectPath, "small_project",
+        std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive
+        );
 
-    Cpp::EnumClassLexer::Ptr found;
-    project->ForEach([&found](ProjectTree::Unit* unit)
-    {
-        auto tree = unit->GetTree();
-        found = tree->FindIfAs<Cpp::EnumClassLexer>([&found](Ast::BaseLexer* lexer)
-        {
-            return lexer->GetFullPath().first == "Utils::Unit";
-        });
+    auto project = ProjectTree::Ptr(new ProjectTree());
+    project->SetFileExtensions({"*.cpp", ".h"});
+    project->SetTargetProject("111small_project");
+    project->SetTargetProject("222small_project");
+    project->SetTargetProject("small_project");
+    project->ExcludeFromProject("excludedDir");
+    project->ExcludeFromProject("333excludedDirs");
+    project->ExcludeFromProject("444excludedDirs");
+    project->ExcludeFromProject("../444excludedDirs");
+    project->ExcludeFromProject("555excludedDirs");
+    project->ExcludeFromProject("");
+    project->ExcludeFromProject(".");
+    project->Process();
+    project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
-        return !found;
-    });
-
-    ASSERT_TRUE(found);
-
-    std::cout << found->GetTextSource() << std::endl;
-    Generator generator;
-    generator.SetTargetProject(project);
-    auto a = generator.IsNeedRegenerate();
-    //generator.SetTargetProject(project);
-
-    //if (generator.IsNeedRegenerate())
-    //{
-    //    std::cout << "Code generation will be run for next units:" << std::endl;
-    //    for (const auto&& info : generator.GetPregenerateInfo())
-    //    {
-    //        std::cout << "\tFile: " << info.GetFilePath().string() << std::endl;
-
-    //        for (const auto&& lexer : info.GetParticipantLexers())
-    //        {
-    //            std::cout << "\t\tLexer: " << lexer->GetLexerType() << " " << lexer->GetLexerName() << std::endl;
-    //        }
-    //    }
-
-    //    std::cout << "Running" << std::endl;
-    //    generator.GenerateEnums();
-    //    std::cout << "Generation was produced" << std::endl;
-    //}
+    auto error = ValidateAllProjectTree(*project);
+    ASSERT_TRUE(error.IsEmpty()) << error.c_str();
 }

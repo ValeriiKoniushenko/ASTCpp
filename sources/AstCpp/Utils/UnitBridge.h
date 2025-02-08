@@ -23,6 +23,8 @@
 #include "AstCpp/Generators/GeneratorUnit.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 
+#include <fstream>
+
 namespace Ast::Cpp
 {
 
@@ -41,9 +43,9 @@ namespace Ast::Cpp
 
         [[nodiscard]] bool IsValid() const { return _unit; }
 
-        [[nodiscard]] std::filesystem::path GetGeneratedSiblingImplFilePath()
+        [[nodiscard]] std::filesystem::path GetGeneratedImplFilePath() const
         {
-            if (!IsValid())
+            if (!Verify(IsValid()))
             {
                 return {};
             }
@@ -64,11 +66,251 @@ namespace Ast::Cpp
             return {};
         }
 
+        void TryToAddNeededIncludes()
+        {
+            if (!Verify(IsValid()))
+            {
+                return;
+            }
+
+            const bool hasDeclInclude = HasDeclInclude();
+            const bool hasImplInclude = HasDeclInclude();
+
+            if (!hasDeclInclude || !hasImplInclude)
+            {
+                const auto& stream = _unit->GetFileContentStream();
+                if (!Verify(!!stream))
+                {
+                    return;
+                }
+
+                const auto& data = stream->Data();
+                if (!Verify(!data.IsEmpty()))
+                {
+                    return;
+                }
+
+                const std::vector<std::pair<uint64_t, String>> shouldBeInserted;
+
+                if (hasDeclInclude)
+                {
+                    const auto line = GetInsertLineOfDeclInclude(data);
+                    const auto path = GetGeneratedDeclFilePath();
+                    if (Verify(!path.empty() && path.has_filename()))
+                    {
+                        shouldBeInserted.emplace_back(line, String::MakeFrom(path.filename()));
+                    }
+                }
+
+                if (hasImplInclude)
+                {
+                    const auto line = GetInsertLineOfImplInclude(data);
+                    const auto path = GetGeneratedImplFilePath();
+                    if (Verify(!path.empty() && path.has_filename()))
+                    {
+                        shouldBeInserted.emplace_back(line, String::MakeFrom(path.filename()));
+                    }
+                }
+            }
+        }
+
+        [[nodiscard]] std::filesystem::path GetGeneratedDeclFilePath() const
+        {
+            if (!Verify(IsValid()))
+            {
+                return {};
+            }
+
+            return _unit->GetGeneratedSiblingFilePath();
+        }
+
+    protected:
+        [[nodiscard]] bool HasDeclInclude() const
+        {
+            if (!Verify(IsValid()))
+            {
+                return false;
+            }
+
+            auto stream = _unit->GetFileContentStream();
+            if (!Verify(!!stream))
+            {
+                return false;
+            }
+
+            const auto& data = stream->Data();
+            if (!Verify(!data.IsEmpty()))
+            {
+                return false;
+            }
+
+            const String declExpr = R"(^\s*#include.*{}{}{})"_f << _unit->GetPath().filename().string() << Unit::generatedSuffixDecl
+                                                                << _unit->GetPath().extension().string();
+
+            return !data.FindRegex(declExpr).empty();
+        }
+
+        [[nodiscard]] bool HasImplInclude() const
+        {
+            if (!Verify(IsValid()))
+            {
+                return false;
+            }
+
+            auto stream = _unit->GetFileContentStream();
+            if (!Verify(!!stream))
+            {
+                return false;
+            }
+
+            const auto& data = stream->Data();
+            if (!Verify(!data.IsEmpty()))
+            {
+                return false;
+            }
+
+            const String implExpr = R"(^\s*#include\s*"{}{}{}{}")"_f << _unit->GetPath().filename().string()
+                                                                     << AbstractGeneratorUnit<>::generatedSuffixImpl << Unit::generatedSuffixDecl
+                                                                     << _unit->GetPath().extension().string();
+
+            return !data.FindRegex(implExpr).empty();
+        }
+
     protected:
         UnitPtr _unit;
+
+    private:
+        [[nodiscard]] uint64_t GetInsertLineOfDeclInclude(const String& data) const
+        {
+            if (data.IsEmpty())
+            {
+                return ~0ull;
+            }
+            const auto* begin = data.c_str();
+            const auto* end = data.c_str() + data.Size();
+
+            uint64_t validLine = 0;
+
+            uint64_t line = 0;
+            const auto* i = begin;
+
+            while (i && i < end)
+            {
+                // just skip a blank line
+                if (std::regex_match(i, end, std::regex(R"(^\s*$)")))
+                {
+                    ++line;
+                    continue;
+                }
+
+                // trying to find #include
+                if (std::regex_match(i, end, std::regex(R"(^\s#include)")))
+                {
+                    validLine = line + 1;
+                }
+                else
+                {
+                    break;
+                }
+
+                i = String::FindNextLine(i);
+                if (i)
+                {
+                    ++line;
+                }
+            }
+
+            return validLine;
+        }
+
+        [[nodiscard]] uint64_t GetInsertLineOfImplInclude(const String& data) const
+        {
+            if (data.IsEmpty())
+            {
+                return ~0ull;
+            }
+            const auto* begin = data.c_str();
+            const auto* end = data.c_str() + data.Size();
+
+            uint64_t validLine = 0;
+
+            uint64_t line = 0;
+            const auto* i = begin;
+
+            while (i && i < end)
+            {
+                // just skip a blank line
+                if (std::regex_match(i, end, std::regex(R"(^\s*$)")))
+                {
+                    ++line;
+                    continue;
+                }
+
+                // trying to find #include
+                if (std::regex_match(i, end, std::regex(R"(^\s#include)")))
+                {
+                    validLine = line + 1;
+                }
+                else
+                {
+                    break;
+                }
+
+                i = String::FindNextLine(i);
+                if (i)
+                {
+                    ++line;
+                }
+            }
+
+            return validLine;
+        }
+
+
+        void InsertAtLineOfFile(const std::filesystem::path& path, const std::vector<std::pair<uint64_t, String>>& data)
+        {
+            std::ifstream readFile(path.string());
+            if (!readFile.is_open())
+            {
+                Assert();
+                return;
+            }
+
+            std::vector<std::string> lines;
+            std::string str;
+            while (std::getline(readFile, str))
+            {
+                lines.push_back(std::move(str));
+            }
+            readFile.close();
+
+            uint64_t offset = 0;
+            for (const auto& [line, str] : data)
+            {
+                if (line >= lines.size())
+                {
+                    Assert();
+                    continue;
+                }
+
+                lines.insert(lines.begin() + line + offset++, str.ToStdString());
+            }
+
+            std::ofstream writeFile(path.string());
+            if (!writeFile.is_open())
+            {
+                Assert();
+                return;
+            }
+
+            for (const auto& line : lines)
+            {
+                writeFile << line;
+            }
+        }
     };
 
     using UnitBridge = BaseUnitBridge<false>;
-    using ConstUnitBridge = BaseUnitBridge<true>;
+    using ConstUnitBridge = const BaseUnitBridge<true>;
 
 } // namespace Ast::Cpp

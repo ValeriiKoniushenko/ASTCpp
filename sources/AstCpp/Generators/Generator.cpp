@@ -66,18 +66,24 @@ namespace Ast::Cpp
                         }
                     });
 
+                ConstUnitBridge bridge(unit);
+
                 if (!declSource.IsEmpty())
                 {
-                    std::ofstream outDecl(unit->GetGeneratedSiblingFilePath());
-                    outDecl << declSource.c_str();
+                    std::ofstream outDecl(bridge.GetGeneratedDeclFilePath());
+                    if (outDecl.is_open())
+                    {
+                        outDecl << declSource.c_str();
+                    }
                 }
 
                 if (!implSource.IsEmpty())
                 {
-                    ConstUnitBridge bridge(unit);
-
-                    std::ofstream outImpl(bridge.GetGeneratedSiblingImplFilePath());
-                    outImpl << implSource.c_str();
+                    std::ofstream outImpl(bridge.GetGeneratedImplFilePath());
+                    if (outImpl.is_open())
+                    {
+                        outImpl << declSource.c_str();
+                    }
                 }
             });
     }
