@@ -144,7 +144,7 @@ namespace Ast::Cpp
                 return false;
             }
 
-            const String declExpr = R"(^\s*#include.*{}{}{})"_f << _unit->GetPath().filename().string() << Unit::generatedSuffixDecl
+            const String declExpr = R"(^\s*#include.*{}{}{})"_f << _unit->GetPath().stem().string() << Unit::generatedSuffixDecl
                                                                 << _unit->GetPath().extension().string();
 
             return !data.FindRegex(declExpr).empty();
@@ -169,7 +169,7 @@ namespace Ast::Cpp
                 return false;
             }
 
-            const String implExpr = R"(^\s*#include\s*"{}{}{}{}")"_f << _unit->GetPath().filename().string()
+            const String implExpr = R"(^\s*#include\s*"{}{}{}{}")"_f << _unit->GetPath().stem().string()
                                                                      << AbstractGeneratorUnit<>::generatedSuffixImpl << Unit::generatedSuffixDecl
                                                                      << _unit->GetPath().extension().string();
 
