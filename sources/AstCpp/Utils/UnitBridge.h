@@ -247,7 +247,7 @@ namespace Ast::Cpp
                 if (std::regex_match(i, end, std::regex(R"(^\s*$)")))
                 {
                     --line;
-                    i = String::FindPrevLine(begin, i);
+                    i = String::FindPrevLine(begin, i - 1);
                     continue;
                 }
 
@@ -261,7 +261,7 @@ namespace Ast::Cpp
                     break;
                 }
 
-                i = String::FindPrevLine(begin, i);
+                i = String::FindPrevLine(begin, i - 1);
                 if (i)
                 {
                     --line;
