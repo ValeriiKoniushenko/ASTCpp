@@ -195,10 +195,13 @@ namespace Ast::Cpp
             const auto* begin = data.c_str();
             const auto* end = data.c_str() + data.Size();
 
-            uint64_t validLine = 0;
 
-            uint64_t line = 0;
-            const auto* i = begin;
+            const auto* firstInclude = String::Toolset::StrStr(begin, "#include");
+
+            uint64_t line = firstInclude ? String::GetLinesCountInText(begin, firstInclude + 1) : 0;
+            uint64_t validLine = firstInclude ? line : 0;
+            const auto* i = firstInclude ? firstInclude : begin;
+
 
             while (i && i < end)
             {
