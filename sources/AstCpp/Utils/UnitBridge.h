@@ -90,7 +90,7 @@ namespace Ast::Cpp
                     return;
                 }
 
-                const std::vector<std::pair<uint64_t, String>> shouldBeInserted;
+                std::vector<std::pair<uint64_t, String>> shouldBeInserted;
 
                 if (hasDeclInclude)
                 {
