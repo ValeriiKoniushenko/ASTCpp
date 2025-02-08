@@ -297,10 +297,12 @@ namespace Ast::Cpp
                 return;
             }
 
+            static const auto endl = Unit::Code::Endl().ToStdString();
             for (const auto& line : lines)
             {
-                writeFile << line;
+                writeFile << line << endl;
             }
+
         }
     };
 
