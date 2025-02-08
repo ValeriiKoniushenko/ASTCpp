@@ -231,44 +231,16 @@ namespace Ast::Cpp
                 return ~0ull;
             }
 
-            const auto totalLines = String::GetLinesCountInText(data);
-
             const auto* begin = data.c_str();
             const auto* end = data.c_str() + data.Size();
 
-            uint64_t validLine = totalLines;
-
-            uint64_t line = totalLines;
             const auto* i = String::FindPrevLine(begin);
-
-            while (i && i >= begin)
+            if (std::regex_match(i, end, std::regex(R"(^\s*$)")))
             {
-                // just skip a blank line
-                if (std::regex_match(i, end, std::regex(R"(^\s*$)")))
-                {
-                    --line;
-                    i = String::FindPrevLine(begin, i - 1);
-                    continue;
-                }
-
-                // trying to find #include
-                if (std::regex_match(i, end, std::regex(R"(^\s#include)")))
-                {
-                    validLine = line - 1;
-                }
-                else
-                {
-                    break;
-                }
-
-                i = String::FindPrevLine(begin, i - 1);
-                if (i)
-                {
-                    --line;
-                }
+                return String::GetLinesCountInText(data) - 1;
             }
 
-            return validLine;
+            return ~0ull;
         }
 
 
