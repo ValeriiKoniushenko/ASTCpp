@@ -74,7 +74,7 @@ namespace Ast::Cpp
             }
 
             const bool hasDeclInclude = HasDeclInclude();
-            const bool hasImplInclude = HasDeclInclude();
+            const bool hasImplInclude = HasImplInclude();
 
             if (!hasDeclInclude || !hasImplInclude)
             {
