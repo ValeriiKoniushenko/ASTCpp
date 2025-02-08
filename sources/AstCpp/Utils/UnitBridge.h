@@ -92,7 +92,7 @@ namespace Ast::Cpp
 
                 std::vector<std::pair<uint64_t, String>> shouldBeInserted;
 
-                if (hasDeclInclude)
+                if (!hasDeclInclude)
                 {
                     const auto line = GetInsertLineOfDeclInclude(data);
                     const auto path = GetGeneratedDeclFilePath();
@@ -102,7 +102,7 @@ namespace Ast::Cpp
                     }
                 }
 
-                if (hasImplInclude)
+                if (!hasImplInclude)
                 {
                     const auto line = GetInsertLineOfImplInclude(data);
                     const auto path = GetGeneratedImplFilePath();
