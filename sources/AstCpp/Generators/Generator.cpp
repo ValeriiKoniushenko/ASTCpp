@@ -38,7 +38,11 @@ namespace Ast::Cpp
                 decltype(declSource) implSource;
 
                 const auto tree = unit->GetTree();
-                tree->ForEachOverMarked(
+                tree->ForEachOverSameType([](std::vector<const BaseLexer*>& units)
+                {
+                    int i = 1;
+                }, [](const BaseLexer* l) { return l->IsMarked(); });
+                /*tree->ForEachOverMarked(
                     [&](const BaseLexer* lexer)
                     {
                         auto declGenerator = GetGeneratorUnitFor(*lexer, GeneratorUnitDecl::IsSelf);
@@ -64,7 +68,7 @@ namespace Ast::Cpp
                         {
                             implSource += implGenerator->Generate(lexer) + Code::Endl();
                         }
-                    });
+                    });*/
 
                 ConstUnitBridge bridge(unit);
 

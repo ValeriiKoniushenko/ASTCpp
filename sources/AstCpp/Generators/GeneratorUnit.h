@@ -49,7 +49,6 @@ namespace Ast::Cpp
     public:
         using Code = ITextSourceReader::Code;
 
-        inline static const char* namespaceName = "Reflect";
         [[nodiscard]] bool IsDeclaration() const override { return true; }
 
     protected:
@@ -117,5 +116,17 @@ namespace Ast::Cpp
 
     protected:
         const String _nestedNamespace;
+    };
+
+    // TODO: move to another file
+    // TODO: create base class for it
+    class FileBasedGeneratorForUnitDecl : public Utils::NotCopyableButMoveable
+    {
+    public:
+        inline static const char* namespaceName = "Reflect";
+
+    public:
+        FileBasedGeneratorForUnitDecl() = default;
+        ~FileBasedGeneratorForUnitDecl() override = default;
     };
 } // namespace Ast::Cpp
