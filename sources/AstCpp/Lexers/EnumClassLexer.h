@@ -41,8 +41,9 @@ namespace Ast::Cpp
             [[nodiscard]] String GetTextSource() override;
 
             Constant() = default;
-            Constant(String name, std::optional<unsigned long long> value) :
-                name{std::move(name)}, value{std::move(value)}
+            Constant(String name, std::optional<unsigned long long> value)
+                : name{ std::move(name) },
+                  value{ std::move(value) }
             {
             }
 
@@ -51,12 +52,9 @@ namespace Ast::Cpp
         };
 
         inline static const auto typeName = "enum class"_atom;
-    public:
 
-        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
-        {
-            return { new EnumClassLexer(fileReader) };
-        }
+    public:
+        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader) { return { new EnumClassLexer(fileReader) }; }
 
         ~EnumClassLexer() override = default;
 

@@ -78,7 +78,6 @@ namespace Ast::Cpp
          */
         void AddGlobalInclude(String str);
 
-
     protected:
         [[nodiscard]] String OnGenerate(LogCollector* logCollector) const override;
         [[nodiscard]] String PreGenerate(LogCollector* logCollector) const override;

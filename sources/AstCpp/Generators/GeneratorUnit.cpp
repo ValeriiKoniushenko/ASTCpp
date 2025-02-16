@@ -137,5 +137,4 @@ namespace Ast::Cpp
         return "} // namespace {}::{}{}"_f << Decl::namespaceName << _nestedNamespace << Code::Endl();
     }*/
 
-
 } // namespace Ast::Cpp
