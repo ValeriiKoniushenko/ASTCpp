@@ -28,9 +28,12 @@ namespace Ast::Cpp
     class AbstractGeneratorUnit
     {
     public:
+        inline static const char* generatedSuffixImpl = ".impl";
+        inline static const char* mainNamespace = "Reflect";
+
+    public:
         virtual ~AbstractGeneratorUnit() = default;
 
-        inline static const char* generatedSuffixImpl = ".impl";
         [[nodiscard]] virtual bool IsDeclaration() const = 0;
         [[nodiscard]] bool IsImplementation() const { return !IsDeclaration(); }
         static bool IsSelf(const Ast::GeneratorUnit::Ptr& unit)
@@ -41,7 +44,6 @@ namespace Ast::Cpp
             }
             return false;
         };
-
     };
 
     class GeneratorUnitDecl : public Ast::GeneratorUnit, public AbstractGeneratorUnit<GeneratorUnitDecl>
@@ -59,10 +61,6 @@ namespace Ast::Cpp
         }
 
         [[nodiscard]] bool OnEqual(const GeneratorUnit& other) const override;
-        [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
-        [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
-        [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
-        [[nodiscard]] virtual String OnFinishGenerateNeededStartOfFile(const BaseLexer* lexer) const {return {}; }
 
         GeneratorUnitDecl(const String& type, const String& nestedNamespace)
             : Ast::GeneratorUnit(type),
@@ -80,18 +78,21 @@ namespace Ast::Cpp
          */
         void AddGlobalInclude(String str);
 
+
+    protected:
+        [[nodiscard]] String OnGenerate(LogCollector* logCollector) const override;
+        [[nodiscard]] String PreGenerate(LogCollector* logCollector) const override;
+        [[nodiscard]] String PostGenerate(LogCollector* logCollector) const override;
+        [[nodiscard]] std::filesystem::path GetGenerationPath(LogCollector* logCollector) const override;
+
     protected:
         const String _nestedNamespace;
         std::vector<String> _includes;
-
-    private:
-        [[nodiscard]] String GenerateNeededStartOfFile(const BaseLexer* lexer) const;
     };
 
     class GeneratorUnitImpl : public Ast::GeneratorUnit, public AbstractGeneratorUnit<GeneratorUnitImpl>
     {
     public:
-        using Decl = GeneratorUnitDecl;
         using Code = ITextSourceReader::Code;
 
     public:
@@ -105,8 +106,6 @@ namespace Ast::Cpp
         }
 
         [[nodiscard]] bool OnEqual(const GeneratorUnit& other) const override;
-        [[nodiscard]] String PreGenerate(const BaseLexer* lexer) const override;
-        [[nodiscard]] String PostGenerate(const BaseLexer* lexer) const override;
 
         GeneratorUnitImpl(const String& type, const String& nestedNamespace)
             : Ast::GeneratorUnit(type),
@@ -115,18 +114,13 @@ namespace Ast::Cpp
         }
 
     protected:
+        [[nodiscard]] String OnGenerate(LogCollector* logCollector) const override;
+        [[nodiscard]] String PreGenerate(LogCollector* logCollector) const override;
+        [[nodiscard]] String PostGenerate(LogCollector* logCollector) const override;
+        [[nodiscard]] std::filesystem::path GetGenerationPath(LogCollector* logCollector) const override;
+
+    protected:
         const String _nestedNamespace;
     };
 
-    // TODO: move to another file
-    // TODO: create base class for it
-    class FileBasedGeneratorForUnitDecl : public Utils::NotCopyableButMoveable
-    {
-    public:
-        inline static const char* namespaceName = "Reflect";
-
-    public:
-        FileBasedGeneratorForUnitDecl() = default;
-        ~FileBasedGeneratorForUnitDecl() override = default;
-    };
 } // namespace Ast::Cpp

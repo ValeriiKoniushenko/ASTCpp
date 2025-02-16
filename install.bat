@@ -33,38 +33,28 @@ dependencies/AST/install.bat
 if %ERRORLEVEL% NEQ 0 echo Error: Was met some error while trying to install AST && pause && exit 1
 
 set rootCd=%cd%
-cd scripts || (pause && exit 2)
+cd scripts || (echo Error: Can't cd to 'scripts' directory && pause && exit 2)
 
+if not exist check.py mklink check.py ..\dependencies\AST\dependencies\Utils\scripts\check.py
 
-set defaultCd=%cd%
-install_boost.bat && (
-    cd %defaultCd%
+if not exist file_validator.py mklink file_validator.py ..\dependencies\AST\dependencies\Utils\scripts\file_validator.py
 
-    if not exist check.py mklink check.py ..\dependencies\AST\dependencies\Utils\scripts\check.py
+if not exist project_config.py mklink project_config.py ..\dependencies\AST\dependencies\Utils\scripts\project_config.py
 
-    if not exist file_validator.py mklink file_validator.py ..\dependencies\AST\dependencies\Utils\scripts\file_validator.py
-    
-    if not exist project_config.py mklink project_config.py ..\dependencies\AST\dependencies\Utils\scripts\project_config.py
-    
-    if not exist project_utils.py mklink project_utils.py ..\dependencies\AST\dependencies\Utils\scripts\project_utils.py
-    
-    if not exist project_validator.py mklink project_validator.py ..\dependencies\AST\dependencies\Utils\scripts\project_validator.py
-    
-    if not exist string_utils.py mklink string_utils.py ..\dependencies\AST\dependencies\Utils\scripts\string_utils.py
-    
-    if not exist git_hooks mklink /d git_hooks ..\dependencies\AST\dependencies\Utils\scripts\git_hooks
-    
-    python check.py --root %rootCd% && (
-        echo Install is success!
-    ) || (
-        pause
-        exit 1
-    )
+if not exist project_utils.py mklink project_utils.py ..\dependencies\AST\dependencies\Utils\scripts\project_utils.py
 
-    ) || (
-        echo Error: Was met some error while trying to install Boost
-        pause
-        exit 1
-    )
+if not exist project_validator.py mklink project_validator.py ..\dependencies\AST\dependencies\Utils\scripts\project_validator.py
+
+if not exist string_utils.py mklink string_utils.py ..\dependencies\AST\dependencies\Utils\scripts\string_utils.py
+
+if not exist git_hooks mklink /d git_hooks ..\dependencies\AST\dependencies\Utils\scripts\git_hooks
+
+python check.py --root %rootCd% && (
+    echo Install is success!
+) || (
+    pause
+    exit 1
+)
+
 
 pause

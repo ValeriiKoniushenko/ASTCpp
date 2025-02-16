@@ -23,7 +23,7 @@
 namespace Ast::Cpp
 {
 
-    String EnumClassGeneratorDecl::OnFinishGenerateNeededStartOfFile(const BaseLexer* lexer) const
+    /*String EnumClassGeneratorDecl::OnFinishGenerateNeededStartOfFile(const BaseLexer* lexer) const
     {
         const auto* realLexer = dynamic_cast<const EnumClassLexer*>(lexer);
         if (!Verify(realLexer, "Was met not expected lexer"))
@@ -44,7 +44,8 @@ namespace Ast::Cpp
     [[nodiscard]] inline const Ast::String& ToString(const REPLACE_WITH_ENUM_NAME value);
 
     template<class T>
-    [[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::optional<REPLACE_WITH_ENUM_NAME>> FromString(const Ast::String& value);
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, std::optional<REPLACE_WITH_ENUM_NAME>> FromString(const Ast::String&
+    value);
 
     template<class T>
     [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, REPLACE_WITH_ENUM_NAME>, uint32_t> Size() noexcept;
@@ -86,7 +87,7 @@ namespace Ast::Cpp
         out += GenerateToMapImpl(realLexer) + Code::Endl();
 
         return out;
-    }
+    }*/
 
     String EnumClassGeneratorImpl::GenerateNameImpl(const EnumClassLexer* lexer) const
     {

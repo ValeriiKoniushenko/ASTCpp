@@ -27,12 +27,7 @@ namespace Ast::Cpp
         return dynamic_cast<const GeneratorUnitDecl*>(&other);
     }
 
-    String GeneratorUnitDecl::OnGenerate(const BaseLexer* lexer) const
-    {
-        return {};
-    }
-
-    String GeneratorUnitDecl::PreGenerate(const BaseLexer* lexer) const
+    /*String GeneratorUnitDecl::PreGenerate(const BaseLexer* lexer) const
     {
         String out = GenerateNeededStartOfFile(lexer);
 
@@ -43,7 +38,7 @@ namespace Ast::Cpp
     String GeneratorUnitDecl::PostGenerate(const BaseLexer* lexer) const
     {
         return "} // namespace {}::{}{}"_f << namespaceName << _nestedNamespace << Code::Endl();
-    }
+    }*/
 
     void GeneratorUnitDecl::AddLocalInclude(String str)
     {
@@ -75,7 +70,52 @@ namespace Ast::Cpp
         _includes.push_back(std::move(str));
     }
 
-    String GeneratorUnitDecl::GenerateNeededStartOfFile(const BaseLexer* lexer) const
+    String GeneratorUnitDecl::OnGenerate(LogCollector* logCollector) const
+    {
+        return {};
+    }
+
+    String GeneratorUnitDecl::PreGenerate(LogCollector* logCollector) const
+    {
+        return {};
+    }
+
+    String GeneratorUnitDecl::PostGenerate(LogCollector* logCollector) const
+    {
+        return {};
+    }
+
+    std::filesystem::path GeneratorUnitDecl::GetGenerationPath(LogCollector* logCollector) const
+    {
+        return {};
+    }
+
+    bool GeneratorUnitImpl::OnEqual(const GeneratorUnit& other) const
+    {
+        return dynamic_cast<const GeneratorUnitImpl*>(&other);
+    }
+
+    String GeneratorUnitImpl::OnGenerate(LogCollector* logCollector) const
+    {
+        return {};
+    }
+
+    String GeneratorUnitImpl::PreGenerate(LogCollector* logCollector) const
+    {
+        return {};
+    }
+
+    String GeneratorUnitImpl::PostGenerate(LogCollector* logCollector) const
+    {
+        return {};
+    }
+
+    std::filesystem::path GeneratorUnitImpl::GetGenerationPath(LogCollector* logCollector) const
+    {
+        return {};
+    }
+
+    /*String GeneratorUnitDecl::GenerateNeededStartOfFile(const BaseLexer* lexer) const
     {
         String out;
         out += "#pragma once" + Code::Endl();
@@ -86,21 +126,16 @@ namespace Ast::Cpp
         out += Code::Endl() + Code::Endl();
         out += OnFinishGenerateNeededStartOfFile(lexer);
         return out;
-    }
+    }*/
 
-    bool GeneratorUnitImpl::OnEqual(const GeneratorUnit& other) const
-    {
-        return dynamic_cast<const GeneratorUnitImpl*>(&other);
-    }
-
-    String GeneratorUnitImpl::PreGenerate(const BaseLexer* lexer) const
+    /*String GeneratorUnitImpl::PreGenerate(const BaseLexer* lexer) const
     {
         return "namespace {}::{}{}{{}"_f << Decl::namespaceName << _nestedNamespace << Code::Endl() << Code::Endl();
     }
     String GeneratorUnitImpl::PostGenerate(const BaseLexer* lexer) const
     {
         return "} // namespace {}::{}{}"_f << Decl::namespaceName << _nestedNamespace << Code::Endl();
-    }
+    }*/
 
 
 } // namespace Ast::Cpp

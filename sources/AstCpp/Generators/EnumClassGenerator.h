@@ -47,10 +47,8 @@ namespace Ast::Cpp
 
         ~EnumClassGeneratorDecl() override = default;
 
+    public:
         [[nodiscard]] static Ptr Create() { return new EnumClassGeneratorDecl(); }
-
-        [[nodiscard]] String OnFinishGenerateNeededStartOfFile(const BaseLexer* lexer) const override;
-        [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
     };
 
     class EnumClassGeneratorImpl : public GeneratorUnitImpl
@@ -69,8 +67,6 @@ namespace Ast::Cpp
         ~EnumClassGeneratorImpl() override = default;
 
         [[nodiscard]] static Ptr Create() { return new EnumClassGeneratorImpl(); }
-
-        [[nodiscard]] String OnGenerate(const BaseLexer* lexer) const override;
 
     private:
         [[nodiscard]] String GenerateNameImpl(const EnumClassLexer* lexer) const;

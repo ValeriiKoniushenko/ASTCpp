@@ -50,8 +50,8 @@ namespace Ast::Cpp
             std::optional<unsigned long long> value;
         };
 
-    public:
         inline static const auto typeName = "enum class"_atom;
+    public:
 
         [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
         {
