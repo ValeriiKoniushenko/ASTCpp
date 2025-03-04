@@ -20,11 +20,11 @@
 
 #include "ClassLexer.h"
 
-#include "Ast/LogCollector.h"
 #include "Ast/Readers/ContentStream.h"
 #include "Ast/Utils/Scopes.h"
 #include "Ast/Utils/String.h"
 #include "AstCpp/Utils/CheckForTemplateLexer.h"
+#include "spdlog/spdlog.h"
 
 namespace Ast::Cpp
 {
@@ -195,7 +195,6 @@ namespace Ast::Cpp
                               classSource += Code::Tab() + unit.GetTextSource() + Code::Endl();
                           });
 
-
         classSource += "};" + Code::Endl();
 
         source.source.Insert(pos, classSource.c_str());
@@ -209,11 +208,11 @@ namespace Ast::Cpp
     {
     }
 
-    bool ClassLexer::DoParse(LogCollector& logCollector)
+    bool ClassLexer::DoParse()
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
-            logCollector.AddLog({ "ClassLexer: Impossible to work with an invalid token", LogCollector::LogType::Error });
+            spdlog::error("ClassLexer: Impossible to work with an invalid token");
             return false;
         }
 
@@ -222,7 +221,7 @@ namespace Ast::Cpp
         string.Trim(' ');
         if (string.IsEmpty())
         {
-            logCollector.AddLog({ String::Format("Impossible to parse the class token at {}", _token.startLine), LogCollector::LogType::Error });
+            spdlog::error(("Impossible to parse the class token at {}"_f << _token.startLine).ToStdStringView());
             return false;
         }
 
@@ -239,7 +238,7 @@ namespace Ast::Cpp
         }
         else
         {
-            logCollector.AddLog({ "Impossible to parse class token at {}"_f << _token.startLine, LogCollector::LogType::Warning });
+            spdlog::warn(( "Impossible to parse class token at {}"_f << _token.startLine).ToStdStringView());
             return false;
         }
 
@@ -301,9 +300,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool ClassLexer::DoScopeParse(LogCollector& logCollector)
+    bool ClassLexer::DoScopeParse()
     {
-        if (!BaseLexer::DoScopeParse(logCollector))
+        if (!BaseLexer::DoScopeParse())
         {
             return false;
         }
@@ -311,7 +310,7 @@ namespace Ast::Cpp
         const auto* openedBracket = _token.endData - 1; // -1 - to back to the '{' correspoinding to regex expr
         if (!Verify(*openedBracket == '{', "Impossible to define an class scope."))
         {
-            logCollector.AddLog({ String::Format("Impossible to define an class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
+            spdlog::error(("Impossible to define an class scope '{}'"_f << _lexerName.c_str()).ToStdStringView());
             return false;
         }
 
@@ -323,9 +322,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool ClassLexer::DoMarkingParse(LogCollector& logCollector)
+    bool ClassLexer::DoMarkingParse()
     {
-        if (!BaseLexer::DoMarkingParse(logCollector))
+        if (!BaseLexer::DoMarkingParse())
         {
             return false;
         }
@@ -385,21 +384,21 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool ClassLexer::DoPostParse(LogCollector& logCollector)
+    bool ClassLexer::DoPostParse()
     {
-        if (!BaseLexer::DoPostParse(logCollector))
+        if (!BaseLexer::DoPostParse())
         {
             return false;
         }
 
-        TryToFindTemplate(logCollector);
+        TryToFindTemplate();
 
-        RecognizeFields(logCollector);
+        RecognizeFields();
 
         return true;
     }
 
-    void ClassLexer::TryToFindTemplate(LogCollector& logCollector)
+    void ClassLexer::TryToFindTemplate()
     {
         auto* begin = _token.beginData;
 
@@ -439,7 +438,7 @@ namespace Ast::Cpp
         }
     }
 
-    void ClassLexer::RecognizeFields(LogCollector& logCollector)
+    void ClassLexer::RecognizeFields()
     {
         String body(_openScope->string, _closeScope->string - _openScope->string);
         body.Trim('{').Trim('}');
@@ -450,99 +449,99 @@ namespace Ast::Cpp
         const auto protecteds = body.FindRegex(R"(^\s*protected\s*\:)", 0, std::regex_constants::match_default);
         const auto privates = body.FindRegex(R"(^\s*private\s*\:)", 0, std::regex_constants::match_default);
 
-        body.IterateRegex(R"(^\s*((static\s+)|(constexpr\s+)|(const\s+)|(constinit\s+))*[\w:]+(\<.*\>)?\s+\w+(((\s*=).*)|(;)))",
-                          [&](const String::StdRegexMatchResults& field)
-                          {
-                              auto str = String(field.str());
-                              str.RegexReplace(R"([\s;]*$)", "");
-                              str.RegexReplace(R"(^\s*)", "");
+        body.IterateRegex(
+            R"(^\s*((static\s+)|(constexpr\s+)|(const\s+)|(constinit\s+))*[\w:]+(\<.*\>)?\s+\w+(((\s*=).*)|(;)))",
+            [&](const String::StdRegexMatchResults& field)
+            {
+                auto str = String(field.str());
+                str.RegexReplace(R"([\s;]*$)", "");
+                str.RegexReplace(R"(^\s*)", "");
 
-                              Field tempField;
+                Field tempField;
 
-                              if (auto match = str.FindRegex(R"(static\s+)"); !match.empty())
-                              {
-                                  tempField.isStatic = true;
-                                  str.RegexReplace(R"(static\s+)", "", std::regex_constants::format_first_only);
-                              }
-                              if (auto match = str.FindRegex(R"(const\s+)"); !match.empty())
-                              {
-                                  tempField.isConst = true;
-                                  str.RegexReplace(R"(const\s+)", "", std::regex_constants::format_first_only);
-                              }
-                              if (auto match = str.FindRegex(R"(constexpr\s+)"); !match.empty())
-                              {
-                                  tempField.isConstexpr = true;
-                                  str.RegexReplace(R"(constexpr\s+)", "", std::regex_constants::format_first_only);
-                              }
-                              if (auto match = str.FindRegex(R"(constinit\s+)"); !match.empty())
-                              {
-                                  tempField.isConstinit = true;
-                                  str.RegexReplace(R"(constinit\s+)", "", std::regex_constants::format_first_only);
-                              }
+                if (auto match = str.FindRegex(R"(static\s+)"); !match.empty())
+                {
+                    tempField.isStatic = true;
+                    str.RegexReplace(R"(static\s+)", "", std::regex_constants::format_first_only);
+                }
+                if (auto match = str.FindRegex(R"(const\s+)"); !match.empty())
+                {
+                    tempField.isConst = true;
+                    str.RegexReplace(R"(const\s+)", "", std::regex_constants::format_first_only);
+                }
+                if (auto match = str.FindRegex(R"(constexpr\s+)"); !match.empty())
+                {
+                    tempField.isConstexpr = true;
+                    str.RegexReplace(R"(constexpr\s+)", "", std::regex_constants::format_first_only);
+                }
+                if (auto match = str.FindRegex(R"(constinit\s+)"); !match.empty())
+                {
+                    tempField.isConstinit = true;
+                    str.RegexReplace(R"(constinit\s+)", "", std::regex_constants::format_first_only);
+                }
 
-                              if (auto matchType = str.FindRegex(R"(^[\w:]+(\<.*\>)?)"); Verify(!matchType.empty()))
-                              {
-                                  tempField.type = matchType.str();
-                                  tempField.type.ShrinkToFit();
-                                  str.RegexReplace(R"(^[\w:]+(\<.*\>)?)", "");
-                                  str.TrimStart(' ');
-                              }
-                              else
-                              {
-                                  logCollector.AddLog({ String::Format("Impossible to define a class's field type. Class: '{}'", _lexerName.c_str()),
-                                                        LogCollector::LogType::Error });
-                                  return true;
-                              }
+                if (auto matchType = str.FindRegex(R"(^[\w:]+(\<.*\>)?)"); Verify(!matchType.empty()))
+                {
+                    tempField.type = matchType.str();
+                    tempField.type.ShrinkToFit();
+                    str.RegexReplace(R"(^[\w:]+(\<.*\>)?)", "");
+                    str.TrimStart(' ');
+                }
+                else
+                {
+                    spdlog::error(("Impossible to define a class's field type. Class: '{}'"_f << _lexerName.c_str()).ToStdStringView());
+                    return true;
+                }
 
-                              if (auto matchName = str.FindRegex(R"(^\w+)"); Verify(!matchName.empty()))
-                              {
-                                  tempField.name = matchName.str();
-                                  tempField.name.ShrinkToFit();
-                                  str.RegexReplace(R"(^\w+)", "");
-                                  str.TrimStart(' ');
-                              }
-                              else
-                              {
-                                  logCollector.AddLog({ String::Format("Impossible to define a class's field name. Class: '{}'", _lexerName.c_str()),
-                                                        LogCollector::LogType::Error });
-                                  return true;
-                              }
+                if (auto matchName = str.FindRegex(R"(^\w+)"); Verify(!matchName.empty()))
+                {
+                    tempField.name = matchName.str();
+                    tempField.name.ShrinkToFit();
+                    str.RegexReplace(R"(^\w+)", "");
+                    str.TrimStart(' ');
+                }
+                else
+                {
+                    spdlog::error(("Impossible to define a class's field name. Class: '{}'"_f << _lexerName.c_str()).ToStdStringView());
+                    return true;
+                }
 
-                              long long minDistance = (std::numeric_limits<long long>::max)();
-                              AccessSpecifier accessSpecifier = AccessSpecifier::Private;
-                              for (auto&& token : publics)
-                              {
-                                  const auto distance = std::distance(token.first, field.begin()->first);
-                                  if (distance >= 0 && distance < minDistance)
-                                  {
-                                      minDistance = distance;
-                                      accessSpecifier = AccessSpecifier::Public;
-                                  }
-                              }
-                              for (auto&& token : protecteds)
-                              {
-                                  const auto distance = std::distance(token.first, field.begin()->first);
-                                  if (distance >= 0 && distance < minDistance)
-                                  {
-                                      minDistance = distance;
-                                      accessSpecifier = AccessSpecifier::Protected;
-                                  }
-                              }
-                              for (auto&& token : privates)
-                              {
-                                  const auto distance = std::distance(token.first, field.begin()->first);
-                                  if (distance >= 0 && distance < minDistance)
-                                  {
-                                      minDistance = distance;
-                                      accessSpecifier = AccessSpecifier::Private;
-                                  }
-                              }
-                              tempField.accessSpecifier = accessSpecifier;
+                long long minDistance = (std::numeric_limits<long long>::max)();
+                AccessSpecifier accessSpecifier = AccessSpecifier::Private;
+                for (auto&& token : publics)
+                {
+                    const auto distance = std::distance(token.first, field.begin()->first);
+                    if (distance >= 0 && distance < minDistance)
+                    {
+                        minDistance = distance;
+                        accessSpecifier = AccessSpecifier::Public;
+                    }
+                }
+                for (auto&& token : protecteds)
+                {
+                    const auto distance = std::distance(token.first, field.begin()->first);
+                    if (distance >= 0 && distance < minDistance)
+                    {
+                        minDistance = distance;
+                        accessSpecifier = AccessSpecifier::Protected;
+                    }
+                }
+                for (auto&& token : privates)
+                {
+                    const auto distance = std::distance(token.first, field.begin()->first);
+                    if (distance >= 0 && distance < minDistance)
+                    {
+                        minDistance = distance;
+                        accessSpecifier = AccessSpecifier::Private;
+                    }
+                }
+                tempField.accessSpecifier = accessSpecifier;
 
-                              _fields.push_back(std::move(tempField));
+                _fields.push_back(std::move(tempField));
 
-                              return true;
-                          }, 0, std::regex_constants::match_default);
+                return true;
+            },
+            0, std::regex_constants::match_default);
     }
 
     void ClassLexer::RemoveNestedScopes(String& body)

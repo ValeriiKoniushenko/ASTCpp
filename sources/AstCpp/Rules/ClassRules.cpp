@@ -22,20 +22,19 @@
 
 #include "Ast/Lexers/BaseLexer.h"
 #include "AstCpp/Lexers/ClassLexer.h"
+#include "spdlog/spdlog.h"
 
 namespace Ast::Cpp::Class
 {
 
-    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
+    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage /* = nullptr*/) const
     {
         if (lexer->IsTypeOf<ClassLexer>())
         {
             return true;
         }
 
-        logCollector.AddLog(
-            { String::Format("ClassRule: invalid class type. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
-              LogCollector::LogType::Error });
+        spdlog::error( ("ClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView() );
 
         return false;
     }

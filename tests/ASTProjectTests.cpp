@@ -312,12 +312,13 @@ TEST(ASTProjectTest, TrashCode)
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 
     auto project = ProjectTree::Ptr(new ProjectTree());
-    project->GetLogCollector()->onValidationEvent.Subscribe(
+    spdlog::error("FIX ME 315");
+    /*project->GetLogCollector()->onValidationEvent.Subscribe(
         [](const LogCollector::LogLine& log)
         {
             using namespace std;
             cout << log.GetHumanTime() << " ASTCpp: [" << log.type.ToStr() << "]: " << log.message.CStr() << endl;
-        });
+        });*/
 
     project->SetFileExtensions({ "*.cpp", ".h" });
     project->SetTargetProject("111small_project");
@@ -336,12 +337,13 @@ TEST(ASTProjectTest, TrashCode)
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
-    project->GetLogCollector()->onValidationEvent.Subscribe(
+    spdlog::error("FIX ME 340");
+    /*project->GetLogCollector()->onValidationEvent.Subscribe(
         [](const LogCollector::LogLine& log)
         {
             using namespace std;
             cout << log.GetHumanTime() << " ASTCpp: [" << log.type.ToStr() << "]: " << log.message.CStr() << endl;
-        });
+        });*/
 
     auto error = ValidateAllProjectTree(*project);
     ASSERT_TRUE(error.IsEmpty()) << error.c_str();

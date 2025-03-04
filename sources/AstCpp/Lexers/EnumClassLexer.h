@@ -70,13 +70,13 @@ namespace Ast::Cpp
     protected:
         explicit EnumClassLexer(const ContentStream::Ptr& fileReader);
 
-        bool DoParse(LogCollector& logCollector) override;
-        bool DoScopeParse(LogCollector& logCollector) override;
-        bool DoMarkingParse(LogCollector& logCollector) override;
-        void ValidateMark(LogCollector& logCollector) override;
+        bool DoParse() override;
+        bool DoScopeParse() override;
+        bool DoMarkingParse() override;
+        void ValidateMark() override;
 
     private:
-        bool RecognizeConstants(LogCollector& logCollector);
+        bool RecognizeConstants();
 
     private:
         String _type = "int"_atom;

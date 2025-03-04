@@ -79,10 +79,10 @@ namespace Ast::Cpp
         void AddGlobalInclude(String str);
 
     protected:
-        [[nodiscard]] String OnGenerate(LogCollector* logCollector) const override;
-        [[nodiscard]] String PreGenerate(LogCollector* logCollector) const override;
-        [[nodiscard]] String PostGenerate(LogCollector* logCollector) const override;
-        [[nodiscard]] std::filesystem::path GetGenerationPath(LogCollector* logCollector) const override;
+        [[nodiscard]] String OnGenerate() const override;
+        [[nodiscard]] String PreGenerate() const override;
+        [[nodiscard]] String PostGenerate() const override;
+        [[nodiscard]] std::filesystem::path GetGenerationPath() const override;
 
     protected:
         const String _nestedNamespace;
@@ -113,10 +113,10 @@ namespace Ast::Cpp
         }
 
     protected:
-        [[nodiscard]] String OnGenerate(LogCollector* logCollector) const override;
-        [[nodiscard]] String PreGenerate(LogCollector* logCollector) const override;
-        [[nodiscard]] String PostGenerate(LogCollector* logCollector) const override;
-        [[nodiscard]] std::filesystem::path GetGenerationPath(LogCollector* logCollector) const override;
+        [[nodiscard]] String OnGenerate() const override;
+        [[nodiscard]] String PreGenerate() const override;
+        [[nodiscard]] String PostGenerate() const override;
+        [[nodiscard]] std::filesystem::path GetGenerationPath() const override;
 
     protected:
         const String _nestedNamespace;

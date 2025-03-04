@@ -153,14 +153,14 @@ namespace Ast::Cpp
     protected:
         explicit ClassLexer(const ContentStream::Ptr& fileReader);
 
-        bool DoParse(LogCollector& logCollector) override;
-        bool DoScopeParse(LogCollector& logCollector) override;
-        bool DoMarkingParse(LogCollector& logCollector) override;
-        bool DoPostParse(LogCollector& logCollector) override;
+        bool DoParse() override;
+        bool DoScopeParse() override;
+        bool DoMarkingParse() override;
+        bool DoPostParse() override;
 
     private:
-        void TryToFindTemplate(LogCollector& logCollector);
-        void RecognizeFields(LogCollector& logCollector);
+        void TryToFindTemplate();
+        void RecognizeFields();
         void RemoveNestedScopes(String& body);
 
         void IterateOverChilds(AccessSpecifier accessSpecifier, std::function<void(ITextSourceReader&)>&& callback);

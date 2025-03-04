@@ -22,20 +22,19 @@
 
 #include "Ast/Lexers/BaseLexer.h"
 #include "AstCpp/Lexers/EnumClassLexer.h"
+#include "spdlog/spdlog.h"
 
 namespace Ast::Cpp::EnumClass
 {
 
-    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
+    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage /* = nullptr*/) const
     {
         if (lexer->IsTypeOf<EnumClassLexer>())
         {
             return true;
         }
 
-        logCollector.AddLog(
-            { String::Format("EnumClassRule: invalid class type. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
-              LogCollector::LogType::Error });
+        spdlog::error(("EnumClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
 
         return false;
     }

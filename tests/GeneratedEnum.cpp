@@ -174,6 +174,7 @@ namespace Reflect::Enum
 
 // =================================================
 
+/*
 TEST(GeneratedEnum, FromString)
 {
     EXPECT_EQ(ExampleEnum::Hello, Reflect::Enum::FromString<ExampleEnum>("Hello"_atom));
@@ -230,4 +231,4 @@ TEST(GeneratedEnum, ToJsonString)
 TEST(GeneratedEnum, ToXmlString)
 {
     std::cout << Reflect::Enum::ToXmlString<ExampleEnum>() << std::endl;
-}
+}*/

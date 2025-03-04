@@ -20,7 +20,7 @@
 
 #include "NamespaceLexer.h"
 
-#include "Ast/LogCollector.h"
+#include "spdlog/spdlog.h"
 #include "Ast/Readers/ContentStream.h"
 #include "Ast/Utils/Scopes.h"
 
@@ -72,11 +72,11 @@ namespace Ast::Cpp
     {
     }
 
-    bool NamespaceLexer::DoParse(LogCollector& logCollector)
+    bool NamespaceLexer::DoParse()
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
-            logCollector.AddLog({ "NamespaceLexer: Impossible to work with an invalid token", LogCollector::LogType::Error });
+            spdlog::error("NamespaceLexer: Impossible to work with an invalid token");
             return false;
         }
 
@@ -85,7 +85,7 @@ namespace Ast::Cpp
         string.Trim(' ');
         if (string.IsEmpty())
         {
-            logCollector.AddLog({ String::Format("Impossible to parse namespace token at {}", _token.startLine), LogCollector::LogType::Error });
+            spdlog::error(("Impossible to parse namespace token at {}"_f << _token.startLine).ToStdStringView());
             return false;
         }
 
@@ -99,9 +99,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool NamespaceLexer::DoScopeParse(LogCollector& logCollector)
+    bool NamespaceLexer::DoScopeParse()
     {
-        if (!BaseLexer::DoScopeParse(logCollector))
+        if (!BaseLexer::DoScopeParse())
         {
             return false;
         }
@@ -113,7 +113,7 @@ namespace Ast::Cpp
         }
         if (!Verify(*openedBracket == '{', "Impossible to define a namespace scope."))
         {
-            logCollector.AddLog({ String::Format("Impossible to define a namespace scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
+            spdlog::error(("Impossible to define a namespace scope '{}'"_f << _lexerName.c_str()).ToStdStringView());
             return false;
         }
 

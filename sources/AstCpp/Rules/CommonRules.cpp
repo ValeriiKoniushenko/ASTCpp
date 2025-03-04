@@ -22,6 +22,7 @@
 
 #include "Ast/Lexers/BaseLexer.h"
 #include "AstCpp/Lexers/ClassLexer.h"
+#include "spdlog/spdlog.h"
 
 namespace Ast::Cpp
 {
@@ -31,7 +32,7 @@ namespace Ast::Cpp
         SetMaxLineCount(max);
     }
 
-    bool LineCountRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage) const
+    bool LineCountRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage) const
     {
         if (!Verify(lexer))
         {
@@ -46,9 +47,8 @@ namespace Ast::Cpp
             }
         }
 
-        logCollector.AddLog(
-            { String::Format("ClassRule: invalid class name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
-              GetLogType() });
+        // TODO: fix it with smart errors
+        spdlog::error(("ClassRule: invalid class name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
 
         return false;
     }
@@ -66,7 +66,7 @@ namespace Ast::Cpp
         }
     }
 
-    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
+    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage /* = nullptr*/) const
     {
         if (const auto&& name = lexer->GetLexerName())
         {
@@ -76,8 +76,8 @@ namespace Ast::Cpp
             }
         }
 
-        logCollector.AddLog(
-            { String::Format("Rule: invalid lexer name. Additional message: '{}'", additionalMessage ? additionalMessage : "none"), GetLogType() });
+        // TODO: fix it with smart errors
+        spdlog::error(( "Rule: invalid lexer name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
 
         return false;
     }

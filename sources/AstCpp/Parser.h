@@ -43,14 +43,12 @@ namespace Ast::Cpp
         using Container = std::vector<boost::intrusive_ptr<T>>;
 
     public:
-        Parser();
-        explicit Parser(ContentStream& stream, LogCollector::Ptr logCollector = nullptr);
-        explicit Parser(ContentStream&& stream, LogCollector::Ptr logCollector = nullptr);
+        Parser() = default;
+        explicit Parser(ContentStream& stream);
+        explicit Parser(ContentStream&& stream);
         ~Parser() override = default;
 
-        void Parse(const ContentStream::Ptr& file, LogCollector::Ptr logCollector = nullptr) override;
-        [[nodiscard]] LogCollector::CPtr GetLogCollector() const { return _logCollector; }
-        [[nodiscard]] LogCollector::Ptr GetLogCollector() { return _logCollector; }
+        void Parse(const ContentStream::Ptr& file) override;
 
         void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) override;
         [[nodiscard]] ContentStream::Ptr GetContentStream() const { return _contentStream; }
@@ -64,7 +62,7 @@ namespace Ast::Cpp
             {
                 auto lexer = Lexer::Create(reader);
                 lexer->SetToken(token);
-                if (lexer->Parse(*_logCollector))
+                if (lexer->Parse())
                 {
                     container.push_back(std::move(lexer));
                 }
@@ -82,7 +80,6 @@ namespace Ast::Cpp
         Container<ClassLexer> _classLexers;
         Container<NamespaceLexer> _namespaceLexers;
         Container<EnumClassLexer> _enumClassLexers;
-        LogCollector::Ptr _logCollector;
         ContentStream::Ptr _contentStream;
     };
 

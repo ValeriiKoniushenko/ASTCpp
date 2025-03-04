@@ -22,20 +22,19 @@
 
 #include "Ast/Lexers/BaseLexer.h"
 #include "AstCpp/Lexers/NamespaceLexer.h"
+#include "spdlog/spdlog.h"
 
 namespace Ast::Cpp::Namespace
 {
 
-    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector, const char* additionalMessage /* = nullptr*/) const
+    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage /* = nullptr*/) const
     {
         if (lexer->IsTypeOf<NamespaceLexer>())
         {
             return true;
         }
 
-        logCollector.AddLog(
-            { String::Format("NamespaceRule: invalid namespace type. Additional message: '{}'", additionalMessage ? additionalMessage : "none"),
-              LogCollector::LogType::Error });
+        spdlog::error(("NamespaceRule: invalid namespace type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
 
         return false;
     }

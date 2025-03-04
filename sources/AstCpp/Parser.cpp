@@ -30,29 +30,19 @@
 namespace Ast::Cpp
 {
 
-    Parser::Parser()
+    Parser::Parser(ContentStream& stream) : Parser()
     {
-        _logCollector = LogCollector::Ptr(new LogCollector());
+        Parse(&stream);
     }
 
-    Parser::Parser(ContentStream& stream, LogCollector::Ptr logCollector) : Parser()
-    {
-        Parse(&stream, logCollector);
-    }
-
-    Parser::Parser(ContentStream&& stream, LogCollector::Ptr logCollector) : Parser()
+    Parser::Parser(ContentStream&& stream) : Parser()
     {
         _contentStream = ContentStream::Ptr(new ContentStream{ std::move(stream) });
-        Parse(_contentStream, logCollector);
+        Parse(_contentStream);
     }
 
-    void Parser::Parse(const ContentStream::Ptr& stream, LogCollector::Ptr logCollector)
+    void Parser::Parse(const ContentStream::Ptr& stream)
     {
-        if (logCollector)
-        {
-            _logCollector = logCollector;
-        }
-
         if (stream != _contentStream)
         {
             _contentStream = stream;
@@ -78,9 +68,8 @@ namespace Ast::Cpp
             lexer = MakeCorrectDependenciesForLexer(lexer);
         }
 
-        _logCollector->AddLog(
-            { String::Format("Successfully was build dependencies between lexers at file: '{}'", _contentStream->GetFilePath().c_str()),
-              LogCollector::LogType::Success });
+
+        spdlog::info(("Successfully was build dependencies between lexers at file: '{}'"_f << _contentStream->GetFilePath().c_str()).ToStdStringView());
     }
 
     void Parser::OnParse()
@@ -89,7 +78,7 @@ namespace Ast::Cpp
         {
             if (Verify(lexer))
             {
-                lexer->ValidateAfterParse(*_logCollector);
+                lexer->ValidateAfterParse();
             }
             return true;
         });

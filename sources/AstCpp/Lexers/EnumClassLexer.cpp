@@ -21,7 +21,7 @@
 #include "EnumClassLexer.h"
 
 #include "Ast/Lexers/FileLexer.h"
-#include "Ast/LogCollector.h"
+#include "spdlog/spdlog.h"
 #include "Ast/Readers/ContentStream.h"
 #include "Ast/Utils/Scopes.h"
 #include "Ast/Utils/String.h"
@@ -144,11 +144,11 @@ namespace Ast::Cpp
     {
     }
 
-    bool EnumClassLexer::DoParse(LogCollector& logCollector)
+    bool EnumClassLexer::DoParse()
     {
         if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
         {
-            logCollector.AddLog({ "EnumClassLexer: Impossible to work with an invalid token", LogCollector::LogType::Error });
+            spdlog::error("EnumClassLexer: Impossible to work with an invalid token");
             return false;
         }
 
@@ -157,7 +157,7 @@ namespace Ast::Cpp
         string.Trim(' ');
         if (string.IsEmpty())
         {
-            logCollector.AddLog({ String::Format("Impossible to parse enum class token at {}", _token.startLine), LogCollector::LogType::Error });
+            spdlog::error(("Impossible to parse enum class token at {}"_f << _token.startLine).ToStdStringView());
             return false;
         }
 
@@ -169,7 +169,7 @@ namespace Ast::Cpp
         }
         else
         {
-            logCollector.AddLog({ String::Format("Impossible to parse enum class token at {}", _token.startLine), LogCollector::LogType::Error });
+            spdlog::error(("Impossible to parse enum class token at {}"_f << _token.startLine).ToStdStringView());
             return false;
         }
 
@@ -181,9 +181,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool EnumClassLexer::DoScopeParse(LogCollector& logCollector)
+    bool EnumClassLexer::DoScopeParse()
     {
-        if (!BaseLexer::DoScopeParse(logCollector))
+        if (!BaseLexer::DoScopeParse())
         {
             return false;
         }
@@ -195,8 +195,7 @@ namespace Ast::Cpp
         }
         if (!Verify(*openedBracket == '{', "Impossible to define an enum class scope."))
         {
-            logCollector.AddLog(
-                { String::Format("Impossible to define an enum class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
+            spdlog::error(("Impossible to define an enum class scope '{}'"_f << _lexerName.c_str()).ToStdStringView());
             return false;
         }
 
@@ -205,7 +204,7 @@ namespace Ast::Cpp
         _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data().c_str(), openedBracket) };
         _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data().c_str(), closedBracket) };
 
-        if (!RecognizeConstants(logCollector))
+        if (!RecognizeConstants())
         {
             return false;
         }
@@ -213,9 +212,9 @@ namespace Ast::Cpp
         return true;
     }
 
-    bool EnumClassLexer::DoMarkingParse(LogCollector& logCollector)
+    bool EnumClassLexer::DoMarkingParse()
     {
-        if (!BaseLexer::DoMarkingParse(logCollector))
+        if (!BaseLexer::DoMarkingParse())
         {
             return false;
         }
@@ -269,7 +268,7 @@ namespace Ast::Cpp
         return true;
     }
 
-    void EnumClassLexer::ValidateMark(LogCollector& logCollector)
+    void EnumClassLexer::ValidateMark()
     {
         if (_marking)
         {
@@ -277,17 +276,17 @@ namespace Ast::Cpp
             {
                 _marking = std::nullopt;
 
-                logCollector.AddLog({ "Marking of the lexer '{}' of type '{}' is impossible. Becuase marking of this lexer available only in a file or namespace scope. It can't be marked inside '{}': '{}'"_f
-                    << _lexerName << _lexerType << _parentLexer->GetLexerType() << _parentLexer->GetLexerName(), LogCollector::LogType::Error });
+                spdlog::error(( "Marking of the lexer '{}' of type '{}' is impossible. Becuase marking of this lexer available only in a file or namespace scope. It can't be marked inside '{}': '{}'"_f
+                    << _lexerName << _lexerType << _parentLexer->GetLexerType() << _parentLexer->GetLexerName()).ToStdStringView());
             }
         }
     }
 
-    bool EnumClassLexer::RecognizeConstants(LogCollector& logCollector)
+    bool EnumClassLexer::RecognizeConstants()
     {
         if (!Verify(_openScope.has_value() && _openScope->IsValid() && _closeScope.has_value() && _closeScope->IsValid()))
         {
-            logCollector.AddLog({ String::Format("Impossible to get an enum class scope '{}'", _lexerName.c_str()), LogCollector::LogType::Error });
+            spdlog::error(("Impossible to get an enum class scope '{}'"_f << _lexerName.c_str()).ToStdStringView());
             return false;
         }
 

@@ -70,22 +70,22 @@ namespace Ast::Cpp
         _includes.push_back(std::move(str));
     }
 
-    String GeneratorUnitDecl::OnGenerate(LogCollector* logCollector) const
+    String GeneratorUnitDecl::OnGenerate() const
     {
         return {};
     }
 
-    String GeneratorUnitDecl::PreGenerate(LogCollector* logCollector) const
+    String GeneratorUnitDecl::PreGenerate() const
     {
         return {};
     }
 
-    String GeneratorUnitDecl::PostGenerate(LogCollector* logCollector) const
+    String GeneratorUnitDecl::PostGenerate() const
     {
         return {};
     }
 
-    std::filesystem::path GeneratorUnitDecl::GetGenerationPath(LogCollector* logCollector) const
+    std::filesystem::path GeneratorUnitDecl::GetGenerationPath() const
     {
         return {};
     }
@@ -95,22 +95,22 @@ namespace Ast::Cpp
         return dynamic_cast<const GeneratorUnitImpl*>(&other);
     }
 
-    String GeneratorUnitImpl::OnGenerate(LogCollector* logCollector) const
+    String GeneratorUnitImpl::OnGenerate() const
     {
         return {};
     }
 
-    String GeneratorUnitImpl::PreGenerate(LogCollector* logCollector) const
+    String GeneratorUnitImpl::PreGenerate() const
     {
         return {};
     }
 
-    String GeneratorUnitImpl::PostGenerate(LogCollector* logCollector) const
+    String GeneratorUnitImpl::PostGenerate() const
     {
         return {};
     }
 
-    std::filesystem::path GeneratorUnitImpl::GetGenerationPath(LogCollector* logCollector) const
+    std::filesystem::path GeneratorUnitImpl::GetGenerationPath() const
     {
         return {};
     }

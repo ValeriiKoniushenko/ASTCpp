@@ -29,8 +29,7 @@ namespace Ast::Cpp::Namespace
     public:
         AST_CLASS(BaseRule)
 
-        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, LogCollector& logCollector,
-                                                   const char* additionalMessage = nullptr) const override;
+        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage = nullptr) const override;
     };
 
 } // namespace Ast::Cpp::Namespace
