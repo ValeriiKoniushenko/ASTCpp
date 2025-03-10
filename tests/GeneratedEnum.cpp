@@ -20,14 +20,16 @@
 
 #define CORE_DEBUG
 
+#include "Ast/CommonTypes.h"
+
 #include <gtest/gtest.h>
 
 // ============== EXAMPLE OF GENERATED DECL CODE ============
 // ======= !!!WARNING!!! ========
 // This file was generated automatically, don't change it,
 // because it will be replaced with the next generation
-#pragma once
-#include "Ast/CommonTypes.h"
+// #pragma once
+// #include "Ast/CommonTypes.h"
 
 #include <type_traits>
 #include <unordered_set>
@@ -174,7 +176,6 @@ namespace Reflect::Enum
 
 // =================================================
 
-/*
 TEST(GeneratedEnum, FromString)
 {
     EXPECT_EQ(ExampleEnum::Hello, Reflect::Enum::FromString<ExampleEnum>("Hello"_atom));
@@ -231,4 +232,4 @@ TEST(GeneratedEnum, ToJsonString)
 TEST(GeneratedEnum, ToXmlString)
 {
     std::cout << Reflect::Enum::ToXmlString<ExampleEnum>() << std::endl;
-}*/
+}

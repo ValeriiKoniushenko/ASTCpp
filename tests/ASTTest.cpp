@@ -1,4 +1,3 @@
-/*
 // Copyright (c) 2024 Valerii Koniushenko
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,8 +30,8 @@
 #include "AstCpp/Rules/EnumClassRules.h"
 #include "AstCpp/Rules/NamespaceRules.h"
 
-#include <fstream>
 #include <gtest/gtest.h>
+#include <fstream>
 #include <unordered_set>
 
 namespace
@@ -198,6 +197,7 @@ TEST(ASTTests, SimpleParse)
     EXPECT_EQ(found->GetLexerName(), "Internal");
     ASSERT_TRUE(found->HasParent());
 }
+
 
 TEST(ASTTests, ParentsChecking)
 {
@@ -667,46 +667,29 @@ TEST(ASTTests, ApplyClassRule)
     const auto foundClass = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
     ASSERT_TRUE(foundClass);
 
-    LogCollector logCollector;
-    ASSERT_TRUE(foundClass->IsCorrespondingToRule(Cpp::Class::BaseRule{}, logCollector));
+    ASSERT_TRUE(foundClass->IsCorrespondingToRule(Cpp::Class::BaseRule{}));
 
     {
         Cpp::NameRule nameRule(R"(([A-Z_]\w*)+)");
-        nameRule.OverrideLogType(LogCollector::LogType::Warning);
-        EXPECT_TRUE(foundClass->IsCorrespondingToRule(nameRule, logCollector));
-        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
-        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
-        logCollector.ClearLogs();
+        EXPECT_TRUE(foundClass->IsCorrespondingToRule(nameRule));
     }
 
     {
         Cpp::NameRule rule(R"(([a-z_]\w*)+)");
-        rule.OverrideLogType(LogCollector::LogType::Warning);
-        EXPECT_FALSE(foundClass->IsCorrespondingToRule(rule, logCollector));
-        EXPECT_TRUE(logCollector.HasAny<LogCollector::LogType::Warning>());
-        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
-        logCollector.ClearLogs();
+        EXPECT_FALSE(foundClass->IsCorrespondingToRule(rule));
     }
 
     {
         Cpp::LineCountRule rule(1);
-        rule.OverrideLogType(LogCollector::LogType::Warning);
-        EXPECT_FALSE(foundClass->IsCorrespondingToRule(rule, logCollector));
-        EXPECT_TRUE(logCollector.HasAny<LogCollector::LogType::Warning>());
-        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
-        logCollector.ClearLogs();
+        EXPECT_FALSE(foundClass->IsCorrespondingToRule(rule));
     }
 
     {
         Cpp::LineCountRule rule(300);
-        rule.OverrideLogType(LogCollector::LogType::Warning);
-        EXPECT_TRUE(foundClass->IsCorrespondingToRule(rule, logCollector));
-        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Warning>());
-        EXPECT_FALSE(logCollector.HasAny<LogCollector::LogType::Error>());
-        logCollector.ClearLogs();
+        EXPECT_TRUE(foundClass->IsCorrespondingToRule(rule));
     }
 }
-
+/*
 TEST(ASTTests, ApplyEnumClassRule)
 {
     using namespace Ast;
@@ -1276,5 +1259,4 @@ TEST(ASTTest, NoMarkAtBeginOfFile)
 
         EXPECT_FALSE(found->GetMark());
     }
-}
-*/
+}*/

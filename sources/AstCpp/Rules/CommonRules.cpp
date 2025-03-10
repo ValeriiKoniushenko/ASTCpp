@@ -45,10 +45,12 @@ namespace Ast::Cpp
             {
                 return true;
             }
+            spdlog::log(_logLevel, ("Invalid class name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
         }
-
-        // TODO: fix it with smart errors
-        spdlog::error(("ClassRule: invalid class name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
+        else
+        {
+            spdlog::error(("Opened & closed scopes weren't found in the lexer: '{}'"_f << lexer->GetLexerName()).ToStdStringView());
+        }
 
         return false;
     }
@@ -76,8 +78,7 @@ namespace Ast::Cpp
             }
         }
 
-        // TODO: fix it with smart errors
-        spdlog::error(( "Rule: invalid lexer name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
+        spdlog::log(_logLevel, ( "Rule: invalid lexer name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
 
         return false;
     }

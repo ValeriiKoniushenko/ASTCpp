@@ -37,13 +37,15 @@ int main(int argc, char* argv[])
 
     std::filesystem::path project_path(argv[1]);
 
+    auto a = "Hello World!"_atom;
+
     auto project = ProjectTree::Create();
-    project->GetLogCollector()->onValidationEvent.Subscribe(
+    /*project->GetLogCollector()->onValidationEvent.Subscribe(
         [](const LogCollector::LogLine& log)
         {
             using namespace std;
             cout << log.GetHumanTime() << " ASTCpp: [" << log.type.ToStr() << "]: " << log.message.CStr() << endl;
-        });
+        });*/
 
     project->SetFileExtensions({ "*.cpp", ".h" });
     project->SetTargetProject(project_path);

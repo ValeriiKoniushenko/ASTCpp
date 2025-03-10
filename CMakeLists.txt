@@ -8,7 +8,6 @@ include(Flags)
 include(Features)
 include(Predefinitions)
 
-
 # ========= Base setup & Predefinitions =========
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(REQUIRED_CXX_STANDARD cxx_std_23) # read-only
