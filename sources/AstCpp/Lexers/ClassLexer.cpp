@@ -57,7 +57,7 @@ namespace Ast::Cpp
         source += " "_atom;
         source += name;
         source += " = ";
-        source += value.IsEmpty() ? "{}" : value;
+        source += value.isEmpty() ? "{}" : value;
         source += ";";
 
         return source;
@@ -140,7 +140,7 @@ namespace Ast::Cpp
                 tmp += unit.expression;
                 tmp += ", ";
             }
-            tmp.TrimEnd(' ').TrimEnd(',');
+            tmp.trimEnd(' ').trimEnd(',');
             classSource += "template<" + tmp + ">" + Code::Endl();
         }
 
@@ -159,7 +159,7 @@ namespace Ast::Cpp
             {
                 classSource += Code::Tab(3) + p.GetTextSource() + "," + Code::Endl();
             }
-            classSource.TrimEnd('\n').TrimEnd(',');
+            classSource.trimEnd('\n').trimEnd(',');
         }
 
         // =========== class body ==============
@@ -171,7 +171,7 @@ namespace Ast::Cpp
         IterateOverChilds(AccessSpecifier::Public,
                           [&classSource, &source](ITextSourceReader& unit)
                           {
-                              source.carets["write-point"_atom] = source.source.Size();
+                              source.carets["write-point"_atom] = source.source.size();
                               classSource += Code::Tab() + unit.GetTextSource() + Code::Endl();
                           });
 
@@ -181,7 +181,7 @@ namespace Ast::Cpp
         IterateOverChilds(AccessSpecifier::Protected,
                           [&classSource, &source](ITextSourceReader& unit)
                           {
-                              source.carets["write-point"_atom] = source.source.Size();
+                              source.carets["write-point"_atom] = source.source.size();
                               classSource += Code::Tab() + unit.GetTextSource() + Code::Endl();
                           });
 
@@ -191,14 +191,14 @@ namespace Ast::Cpp
         IterateOverChilds(AccessSpecifier::Private,
                           [&classSource, &source](ITextSourceReader& unit)
                           {
-                              source.carets["write-point"_atom] = source.source.Size();
+                              source.carets["write-point"_atom] = source.source.size();
                               classSource += Code::Tab() + unit.GetTextSource() + Code::Endl();
                           });
 
         classSource += "};" + Code::Endl();
 
-        source.source.Insert(pos, classSource.c_str());
-        source.carets["write-point"_atom] = source.source.Size();
+        source.source.insert(pos, classSource.c_str());
+        source.carets["write-point"_atom] = source.source.size();
 
         return true;
     }
@@ -217,37 +217,37 @@ namespace Ast::Cpp
         }
 
         String string(_token.beginData, _token.endData - _token.beginData);
-        string.RegexReplace(R"(\n|\r|(class)|\{)", " ");
-        string.Trim(' ');
-        if (string.IsEmpty())
+        string.regexReplace(R"(\n|\r|(class)|\{)", " ");
+        string.trim(' ');
+        if (string.isEmpty())
         {
-            spdlog::error(("Impossible to parse the class token at {}"_f << _token.startLine).ToStdStringView());
+            spdlog::error(("Impossible to parse the class token at {}"_f << _token.startLine).toStdStringView());
             return false;
         }
 
-        if (string.RegexReplace("\\final", ""))
+        if (string.regexReplace("\\final", ""))
         {
             _hasFinal = true;
         }
 
-        auto match = string.FindRegex("^\\w+");
-        if (Verify(!match.empty(), "Impossible to define a class name"))
+        auto match = string.regexFind("^\\w+");
+        if (Verify(!!match, "Impossible to define a class name"))
         {
-            _lexerName = match.str();
-            _lexerName.ShrinkToFit();
+            _lexerName = match.convertBasedOn(string);
+            _lexerName.shrink_to_fit();
         }
         else
         {
-            spdlog::warn(( "Impossible to parse class token at {}"_f << _token.startLine).ToStdStringView());
+            spdlog::warn(( "Impossible to parse class token at {}"_f << _token.startLine).toStdStringView());
             return false;
         }
 
-        if (string.RegexReplace(R"(^\w+\s*:)", ""))
+        if (string.regexReplace(R"(^\w+\s*:)", ""))
         {
             std::vector<String> parents;
             int bracketsCount = 0;
             String tmp;
-            for (int i = 0; i < string.Size(); ++i)
+            for (int i = 0; i < string.size(); ++i)
             {
                 if (string[i] == '<')
                 {
@@ -257,13 +257,13 @@ namespace Ast::Cpp
                 {
                     --bracketsCount;
                 }
-                tmp.PushBack(string[i]);
+                tmp.push_back(string[i]);
 
                 if (bracketsCount == 0)
                 {
                     if (string[i] == ',')
                     {
-                        tmp.Trim(',').Trim(' ');
+                        tmp.trim(',').trim(' ');
                         parents.push_back(std::move(tmp));
                     }
                 }
@@ -273,22 +273,22 @@ namespace Ast::Cpp
             for (auto&& parentStr : parents)
             {
                 InheritanceType type = InheritanceType::Private;
-                if (parentStr.RegexReplace(R"(\s*public\s*)", ""))
+                if (parentStr.regexReplace(R"(\s*public\s*)", ""))
                 {
                     type = InheritanceType::Public;
                 }
-                else if (parentStr.RegexReplace(R"(\s*protected\s*)", ""))
+                else if (parentStr.regexReplace(R"(\s*protected\s*)", ""))
                 {
                     type = InheritanceType::Protected;
                 }
                 else
                 {
-                    parentStr.RegexReplace(R"(\s*private\s*)", "");
+                    parentStr.regexReplace(R"(\s*private\s*)", "");
                     type = InheritanceType::Private;
                 }
 
-                parentStr.Trim(' ');
-                parentStr.ShrinkToFit();
+                parentStr.trim(' ');
+                parentStr.shrink_to_fit();
 
                 ParentUnit parent;
                 parent.name = std::move(parentStr);
@@ -310,7 +310,7 @@ namespace Ast::Cpp
         const auto* openedBracket = _token.endData - 1; // -1 - to back to the '{' correspoinding to regex expr
         if (!Verify(*openedBracket == '{', "Impossible to define an class scope."))
         {
-            spdlog::error(("Impossible to define an class scope '{}'"_f << _lexerName.c_str()).ToStdStringView());
+            spdlog::error(("Impossible to define an class scope '{}'"_f << _lexerName.c_str()).toStdStringView());
             return false;
         }
 
@@ -356,10 +356,10 @@ namespace Ast::Cpp
                 --begin;
             }
 
-            begin -= marker.Size();
+            begin -= marker.size();
             if (begin >= _reader->Data().c_str())
             {
-                if (String(begin, marker.Size()).RegexMatch(marker))
+                if (String(begin, marker.size()).regexMatch(marker))
                 {
                     Marker marker;
 
@@ -370,9 +370,9 @@ namespace Ast::Cpp
                     }
 
                     const auto* end = Utils::FindClosedBracket(begin, ')', '(');
-                    for (auto param : String(begin, end - begin).Split(","))
+                    for (auto param : String(begin, end - begin).split(","))
                     {
-                        param.Trim(' ').Trim('(').Trim(')');
+                        param.trim(' ').trim('(').trim(')');
                         marker.params.push_back(std::move(param));
                     }
 
@@ -406,10 +406,10 @@ namespace Ast::Cpp
         {
             _isTemplate = true;
 
-            string.Trim('<').Trim('>');
+            string.trim('<').trim('>');
             int bracketsCount = 0;
             String tmp;
-            for (int i = 0; i < string.Size(); ++i)
+            for (int i = 0; i < string.size(); ++i)
             {
                 if (string[i] == '<')
                 {
@@ -419,13 +419,13 @@ namespace Ast::Cpp
                 {
                     --bracketsCount;
                 }
-                tmp.PushBack(string[i]);
+                tmp.push_back(string[i]);
 
                 if (bracketsCount == 0)
                 {
                     if (string[i] == ',')
                     {
-                        tmp.Trim(',').Trim(' ');
+                        tmp.trim(',').trim(' ');
                         TemplateUnit templateUnit;
                         templateUnit.expression = std::move(tmp);
                         _templateUnits.push_back(std::move(templateUnit));
@@ -441,68 +441,70 @@ namespace Ast::Cpp
     void ClassLexer::RecognizeFields()
     {
         String body(_openScope->string, _closeScope->string - _openScope->string);
-        body.Trim('{').Trim('}');
+        body.trim('{').trim('}');
 
         RemoveNestedScopes(body);
 
-        const auto publics = body.FindRegex(R"(^\s*public\s*\:)", 0, std::regex_constants::match_default);
-        const auto protecteds = body.FindRegex(R"(^\s*protected\s*\:)", 0, std::regex_constants::match_default);
-        const auto privates = body.FindRegex(R"(^\s*private\s*\:)", 0, std::regex_constants::match_default);
+        const auto publics = body.regexFindAll(R"(^\s*public\s*\:)");
+        const auto protecteds = body.regexFindAll(R"(^\s*protected\s*\:)");
+        const auto privates = body.regexFindAll(R"(^\s*private\s*\:)");
 
-        body.IterateRegex(
+        body.regexIterate(
             R"(^\s*((static\s+)|(constexpr\s+)|(const\s+)|(constinit\s+))*[\w:]+(\<.*\>)?\s+\w+(((\s*=).*)|(;)))",
-            [&](const String::StdRegexMatchResults& field)
+            [&](const Core::RegexMatch::MatchedData& field)
             {
-                auto str = String(field.str());
-                str.RegexReplace(R"([\s;]*$)", "");
-                str.RegexReplace(R"(^\s*)", "");
+                auto str = field.convertBasedOn(body);
+                str.regexReplace(R"([\s;]*$)", "");
+                str.regexReplace(R"(^\s*)", "");
 
                 Field tempField;
 
-                if (auto match = str.FindRegex(R"(static\s+)"); !match.empty())
+                if (str.regexFind(R"(static\s+)"))
                 {
                     tempField.isStatic = true;
-                    str.RegexReplace(R"(static\s+)", "", std::regex_constants::format_first_only);
+                    str.regexReplace(R"(static\s+)", "", std::regex_constants::format_first_only);
                 }
-                if (auto match = str.FindRegex(R"(const\s+)"); !match.empty())
+                if (str.regexFind(R"(const\s+)"))
                 {
                     tempField.isConst = true;
-                    str.RegexReplace(R"(const\s+)", "", std::regex_constants::format_first_only);
+                    str.regexReplace(R"(const\s+)", "", std::regex_constants::format_first_only);
                 }
-                if (auto match = str.FindRegex(R"(constexpr\s+)"); !match.empty())
+                if (str.regexFind(R"(constexpr\s+)"))
                 {
                     tempField.isConstexpr = true;
-                    str.RegexReplace(R"(constexpr\s+)", "", std::regex_constants::format_first_only);
+                    str.regexReplace(R"(constexpr\s+)", "", std::regex_constants::format_first_only);
                 }
-                if (auto match = str.FindRegex(R"(constinit\s+)"); !match.empty())
+                if (str.regexFind(R"(constinit\s+)"))
                 {
                     tempField.isConstinit = true;
-                    str.RegexReplace(R"(constinit\s+)", "", std::regex_constants::format_first_only);
+                    str.regexReplace(R"(constinit\s+)", "", std::regex_constants::format_first_only);
                 }
 
-                if (auto matchType = str.FindRegex(R"(^[\w:]+(\<.*\>)?)"); Verify(!matchType.empty()))
+                if (auto matchType = str.regexFind(R"(^[\w:]+(\<.*\>)?)"))
                 {
-                    tempField.type = matchType.str();
-                    tempField.type.ShrinkToFit();
-                    str.RegexReplace(R"(^[\w:]+(\<.*\>)?)", "");
-                    str.TrimStart(' ');
+                    tempField.type = matchType.convertBasedOn(str);
+                    tempField.type.shrink_to_fit();
+                    str.regexReplace(R"(^[\w:]+(\<.*\>)?)", "");
+                    str.trimStart(' ');
                 }
                 else
                 {
-                    spdlog::error(("Impossible to define a class's field type. Class: '{}'"_f << _lexerName.c_str()).ToStdStringView());
+                    Assert();
+                    spdlog::error(("Impossible to define a class's field type. Class: '{}'"_f << _lexerName.c_str()).toStdStringView());
                     return true;
                 }
 
-                if (auto matchName = str.FindRegex(R"(^\w+)"); Verify(!matchName.empty()))
+                if (auto matchName = str.regexFind(R"(^\w+)"))
                 {
-                    tempField.name = matchName.str();
-                    tempField.name.ShrinkToFit();
-                    str.RegexReplace(R"(^\w+)", "");
-                    str.TrimStart(' ');
+                    tempField.name = matchName.convertBasedOn(str);
+                    tempField.name.shrink_to_fit();
+                    str.regexReplace(R"(^\w+)", "");
+                    str.trimStart(' ');
                 }
                 else
                 {
-                    spdlog::error(("Impossible to define a class's field name. Class: '{}'"_f << _lexerName.c_str()).ToStdStringView());
+                    Assert();
+                    spdlog::error(("Impossible to define a class's field name. Class: '{}'"_f << _lexerName.c_str()).toStdStringView());
                     return true;
                 }
 
@@ -510,7 +512,7 @@ namespace Ast::Cpp
                 AccessSpecifier accessSpecifier = AccessSpecifier::Private;
                 for (auto&& token : publics)
                 {
-                    const auto distance = std::distance(token.first, field.begin()->first);
+                    const auto distance = static_cast<int64_t>(token.offset) - static_cast<int64_t>(field.offset);
                     if (distance >= 0 && distance < minDistance)
                     {
                         minDistance = distance;
@@ -519,7 +521,7 @@ namespace Ast::Cpp
                 }
                 for (auto&& token : protecteds)
                 {
-                    const auto distance = std::distance(token.first, field.begin()->first);
+                    const auto distance = static_cast<int64_t>(token.offset) - static_cast<int64_t>(field.offset);
                     if (distance >= 0 && distance < minDistance)
                     {
                         minDistance = distance;
@@ -528,7 +530,7 @@ namespace Ast::Cpp
                 }
                 for (auto&& token : privates)
                 {
-                    const auto distance = std::distance(token.first, field.begin()->first);
+                    const auto distance = static_cast<int64_t>(token.offset) - static_cast<int64_t>(field.offset);
                     if (distance >= 0 && distance < minDistance)
                     {
                         minDistance = distance;
@@ -551,7 +553,7 @@ namespace Ast::Cpp
         {
             if (const auto* closed = Utils::FindClosedBracket(opened, '}', '{'))
             {
-                body.Erase(opened - body.c_str(), closed - body.c_str());
+                body.erase(opened - body.c_str(), closed - body.c_str());
             }
         }
     }

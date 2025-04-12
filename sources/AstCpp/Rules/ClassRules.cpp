@@ -34,7 +34,7 @@ namespace Ast::Cpp::Class
             return true;
         }
 
-        spdlog::error( ("ClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView() );
+        spdlog::error( ("ClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView() );
 
         return false;
     }

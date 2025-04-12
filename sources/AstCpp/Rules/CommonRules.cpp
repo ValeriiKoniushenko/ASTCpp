@@ -45,11 +45,11 @@ namespace Ast::Cpp
             {
                 return true;
             }
-            spdlog::log(_logLevel, ("Invalid class name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
+            spdlog::log(_logLevel, ("Invalid class name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
         }
         else
         {
-            spdlog::error(("Opened & closed scopes weren't found in the lexer: '{}'"_f << lexer->GetLexerName()).ToStdStringView());
+            spdlog::error(("Opened & closed scopes weren't found in the lexer: '{}'"_f << lexer->GetLexerName()).toStdStringView());
         }
 
         return false;
@@ -62,7 +62,7 @@ namespace Ast::Cpp
 
     void NameRule::SetRegexNameRule(const String& regexNameRule)
     {
-        if (Verify(!regexNameRule.IsEmpty()))
+        if (Verify(!regexNameRule.isEmpty()))
         {
             _regexNameRule = regexNameRule;
         }
@@ -72,13 +72,13 @@ namespace Ast::Cpp
     {
         if (const auto&& name = lexer->GetLexerName())
         {
-            if (name.RegexMatch(_regexNameRule.ToStdStringView()))
+            if (name.regexMatch(_regexNameRule.toStdStringView()))
             {
                 return true;
             }
         }
 
-        spdlog::log(_logLevel, ( "Rule: invalid lexer name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
+        spdlog::log(_logLevel, ( "Rule: invalid lexer name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
 
         return false;
     }

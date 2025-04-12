@@ -42,30 +42,30 @@ namespace Ast::Cpp
 
     void GeneratorUnitDecl::AddLocalInclude(String str)
     {
-        if (str.IsEmpty())
+        if (str.isEmpty())
         {
             return;
         }
 
-        str.Trim(' ');
-        str.TrimStart('<');
-        str.TrimEnd('>');
-        str.Trim('"');
+        str.trim(' ');
+        str.trimStart('<');
+        str.trimEnd('>');
+        str.trim('"');
         str = '"' + str + '"';
         _includes.push_back(std::move(str));
     }
 
     void GeneratorUnitDecl::AddGlobalInclude(String str)
     {
-        if (str.IsEmpty())
+        if (str.isEmpty())
         {
             return;
         }
 
-        str.Trim(' ');
-        str.TrimStart('<');
-        str.TrimEnd('>');
-        str.Trim('"');
+        str.trim(' ');
+        str.trimStart('<');
+        str.trimEnd('>');
+        str.trim('"');
         str = '<' + str + '>';
         _includes.push_back(std::move(str));
     }

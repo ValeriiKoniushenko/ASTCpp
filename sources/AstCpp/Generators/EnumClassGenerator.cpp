@@ -62,8 +62,8 @@ namespace Ast::Cpp
 
         auto enumLexer = lexer->CastTo<EnumClassLexer>();
 
-        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", enumLexer->GetLexerName());
-        out.ReplaceAll("REPLACE_WITH_ENUM_TYPE", enumLexer->GetType());
+        out.replaceAll("REPLACE_WITH_ENUM_NAME", enumLexer->GetLexerName());
+        out.replaceAll("REPLACE_WITH_ENUM_TYPE", enumLexer->GetType());
 
         return out;
     }
@@ -97,7 +97,7 @@ namespace Ast::Cpp
         static const auto returnValue = "REPLACE_WITH_ENUM_NAME"_atom;
         return returnValue;
     })";
-        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+        out.replaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
 
         return out;
     }
@@ -111,7 +111,7 @@ namespace Ast::Cpp
         static const auto returnValue = ""_atom;
         return returnValue;
     })";
-        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+        out.replaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
 
         String ifs;
         for (const auto& c : lexer->GetConstants())
@@ -124,7 +124,7 @@ namespace Ast::Cpp
             << c.name << c.name << Code::Endl();
         }
 
-        out.ReplaceAll("REPLACE_WITH_IFS", ifs);
+        out.replaceAll("REPLACE_WITH_IFS", ifs);
 
         return out;
     }
@@ -138,7 +138,7 @@ namespace Ast::Cpp
 
         return std::nullopt;
     })";
-        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+        out.replaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
 
         String ifs;
         for (const auto& c : lexer->GetConstants())
@@ -150,7 +150,7 @@ namespace Ast::Cpp
                 << lexer->GetLexerName() << c.name << Code::Endl();
         }
 
-        out.ReplaceAll("REPLACE_WITH_IFS", ifs);
+        out.replaceAll("REPLACE_WITH_IFS", ifs);
 
         return out;
     }
@@ -162,8 +162,8 @@ namespace Ast::Cpp
     {
         return REPLACE_WITH_ENUM_SIZE;
     })";
-        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
-        out.ReplaceAll("REPLACE_WITH_ENUM_SIZE", String::MakeFrom(lexer->GetConstants().size()));
+        out.replaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+        out.replaceAll("REPLACE_WITH_ENUM_SIZE", String::MakeFrom(lexer->GetConstants().size()));
 
         return out;
     }
@@ -175,19 +175,19 @@ namespace Ast::Cpp
     {
         return { REPLACE_WITH_ENUM_VALUE_LIST };
     })";
-        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+        out.replaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
 
         String values;
         for (const auto& c : lexer->GetConstants())
         {
             values += "{}::{},{}"_f << lexer->GetLexerName() << c.name << Code::Endl();
         }
-        values.TrimEnd('\n');
-        values.TrimEnd('\r');
-        values.TrimEnd('\n');
-        values.TrimEnd('\r');
-        values.TrimEnd(',');
-        out.ReplaceAll("REPLACE_WITH_ENUM_VALUE_LIST", values);
+        values.trimEnd('\n');
+        values.trimEnd('\r');
+        values.trimEnd('\n');
+        values.trimEnd('\r');
+        values.trimEnd(',');
+        out.replaceAll("REPLACE_WITH_ENUM_VALUE_LIST", values);
 
         return out;
     }
@@ -199,19 +199,19 @@ namespace Ast::Cpp
     {
         return { REPLACE_WITH_ENUM_VALUE_LIST };
     })";
-        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+        out.replaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
 
         String values;
         for (const auto& c : lexer->GetConstants())
         {
             values += "{}::{},{}"_f << lexer->GetLexerName() << c.name << Code::Endl();
         }
-        values.TrimEnd('\n');
-        values.TrimEnd('\r');
-        values.TrimEnd('\n');
-        values.TrimEnd('\r');
-        values.TrimEnd(',');
-        out.ReplaceAll("REPLACE_WITH_ENUM_VALUE_LIST", values);
+        values.trimEnd('\n');
+        values.trimEnd('\r');
+        values.trimEnd('\n');
+        values.trimEnd('\r');
+        values.trimEnd(',');
+        out.replaceAll("REPLACE_WITH_ENUM_VALUE_LIST", values);
 
         return out;
     }
@@ -223,21 +223,21 @@ namespace Ast::Cpp
     {
         return { REPLACE_WITH_ENUM_TOKENS };
     })";
-        out.ReplaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
+        out.replaceAll("REPLACE_WITH_ENUM_NAME", lexer->GetLexerName());
 
         String tokens;
         for (const auto& c : lexer->GetConstants())
         {
             String token = R"({ LEXER_NAME::CONST_NAME, "CONST_NAME"_atom }, )";
-            token.ReplaceAll("LEXER_NAME", lexer->GetLexerName());
-            token.ReplaceAll("CONST_NAME", c.name);
+            token.replaceAll("LEXER_NAME", lexer->GetLexerName());
+            token.replaceAll("CONST_NAME", c.name);
             tokens += std::move(token);
         }
 
-        tokens.TrimEnd(' ');
-        tokens.TrimEnd(',');
+        tokens.trimEnd(' ');
+        tokens.trimEnd(',');
 
-        out.ReplaceAll("REPLACE_WITH_ENUM_TOKENS", tokens);
+        out.replaceAll("REPLACE_WITH_ENUM_TOKENS", tokens);
 
         return out;
     }

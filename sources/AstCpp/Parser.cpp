@@ -69,7 +69,7 @@ namespace Ast::Cpp
         }
 
 
-        spdlog::info(("Successfully was build dependencies between lexers at file: '{}'"_f << _contentStream->GetFilePath().c_str()).ToStdStringView());
+        spdlog::info(("Successfully was build dependencies between lexers at file: '{}'"_f << _contentStream->GetFilePath().c_str()).toStdStringView());
     }
 
     void Parser::OnParse()

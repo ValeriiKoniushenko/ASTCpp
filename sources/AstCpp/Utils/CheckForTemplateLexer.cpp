@@ -34,7 +34,7 @@ namespace
         }
 
         const auto* const stopPointBegin = lexer->GetReader()->Data().c_str() - 1;
-        const auto* const stopPointEnd = lexer->GetReader()->Data().c_str() + lexer->GetReader()->Data().Size();
+        const auto* const stopPointEnd = lexer->GetReader()->Data().c_str() + lexer->GetReader()->Data().size();
 
         if (auto scope = lexer->GetTokenReader(); scope.beginData)
         {
@@ -56,8 +56,8 @@ namespace
                 }
                 ++src;
 
-                auto string = Ast::String(src, end - src + 1).Trim(' ');
-                if (string.RegexReplace(R"(^template[ ]*)", ""))
+                auto string = Ast::String(src, end - src + 1).trim(' ');
+                if (string.regexReplace(R"(^template[ ]*)", ""))
                 {
                     return { { src, string } };
                 }

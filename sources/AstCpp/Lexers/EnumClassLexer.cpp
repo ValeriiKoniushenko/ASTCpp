@@ -129,12 +129,12 @@ namespace Ast::Cpp
         {
             enumSource += Code::Tab() + constant.GetTextSource() + "," + Code::Endl();
         }
-        enumSource.TrimEnd('\r').TrimEnd('\n').TrimEnd('\r').TrimEnd(',');
+        enumSource.trimEnd('\r').trimEnd('\n').trimEnd('\r').trimEnd(',');
 
         enumSource += Code::Endl() + "};" + Code::Endl();
 
-        source.source.Insert(pos, enumSource.c_str());
-        source.carets["write-point"_atom] = source.source.Size();
+        source.source.insert(pos, enumSource.c_str());
+        source.carets["write-point"_atom] = source.source.size();
 
         return true;
     }
@@ -153,29 +153,29 @@ namespace Ast::Cpp
         }
 
         String string(_token.beginData, _token.endData - _token.beginData);
-        string.RegexReplace(R"(\n|\r|(enum class)|\{)", " ");
-        string.Trim(' ');
-        if (string.IsEmpty())
+        string.regexReplace(R"(\n|\r|(enum class)|\{)", " ");
+        string.trim(' ');
+        if (string.isEmpty())
         {
-            spdlog::error(("Impossible to parse enum class token at {}"_f << _token.startLine).ToStdStringView());
+            spdlog::error(("Impossible to parse enum class token at {}"_f << _token.startLine).toStdStringView());
             return false;
         }
 
-        auto match = string.FindRegex("^\\w+");
-        if (Verify(!match.empty(), "Impossible to define an enum class name"))
+        auto match = string.regexFind("^\\w+");
+        if (Verify(!!match, "Impossible to define an enum class name"))
         {
-            _lexerName = match.str();
-            _lexerName.ShrinkToFit();
+            _lexerName = match.convertBasedOn(string);
+            _lexerName.shrink_to_fit();
         }
         else
         {
-            spdlog::error(("Impossible to parse enum class token at {}"_f << _token.startLine).ToStdStringView());
+            spdlog::error(("Impossible to parse enum class token at {}"_f << _token.startLine).toStdStringView());
             return false;
         }
 
-        if (string.RegexReplace(R"(^\w+\s*:)", ""))
+        if (string.regexReplace(R"(^\w+\s*:)", ""))
         {
-            _type = string.Trim(' ');
+            _type = string.trim(' ');
         }
 
         return true;
@@ -195,7 +195,7 @@ namespace Ast::Cpp
         }
         if (!Verify(*openedBracket == '{', "Impossible to define an enum class scope."))
         {
-            spdlog::error(("Impossible to define an enum class scope '{}'"_f << _lexerName.c_str()).ToStdStringView());
+            spdlog::error(("Impossible to define an enum class scope '{}'"_f << _lexerName.c_str()).toStdStringView());
             return false;
         }
 
@@ -240,10 +240,10 @@ namespace Ast::Cpp
                 --begin;
             }
 
-            begin -= marker.Size();
+            begin -= marker.size();
             if (begin > limits.first)
             {
-                if (String(begin, marker.Size()).RegexMatch(marker))
+                if (String(begin, marker.size()).regexMatch(marker))
                 {
                     Marker marker;
 
@@ -254,9 +254,9 @@ namespace Ast::Cpp
                     }
 
                     const auto* end = Utils::FindClosedBracket(begin, ')', '(');
-                    for (auto param : String(begin, end - begin).Split(","))
+                    for (auto param : String(begin, end - begin).split(","))
                     {
-                        param.Trim(' ').Trim('(').Trim(')');
+                        param.trim(' ').trim('(').trim(')');
                         marker.params.push_back(std::move(param));
                     }
 
@@ -277,7 +277,7 @@ namespace Ast::Cpp
                 _marking = std::nullopt;
 
                 spdlog::error(( "Marking of the lexer '{}' of type '{}' is impossible. Becuase marking of this lexer available only in a file or namespace scope. It can't be marked inside '{}': '{}'"_f
-                    << _lexerName << _lexerType << _parentLexer->GetLexerType() << _parentLexer->GetLexerName()).ToStdStringView());
+                    << _lexerName << _lexerType << _parentLexer->GetLexerType() << _parentLexer->GetLexerName()).toStdStringView());
             }
         }
     }
@@ -286,18 +286,18 @@ namespace Ast::Cpp
     {
         if (!Verify(_openScope.has_value() && _openScope->IsValid() && _closeScope.has_value() && _closeScope->IsValid()))
         {
-            spdlog::error(("Impossible to get an enum class scope '{}'"_f << _lexerName.c_str()).ToStdStringView());
+            spdlog::error(("Impossible to get an enum class scope '{}'"_f << _lexerName.c_str()).toStdStringView());
             return false;
         }
 
         String buffer(_openScope->string, _closeScope->string - _openScope->string);
-        buffer.Trim('{').Trim('}').RegexReplace(R"(\s)", "");
-        for (auto& constant : buffer.Split(","_atom))
+        buffer.trim('{').trim('}').regexReplace(R"(\s)", "");
+        for (auto& constant : buffer.split(","_atom))
         {
-            if (auto match = constant.FindRegex(R"(^\w+)"); !match.empty())
+            if (auto match = constant.regexFind(R"(^\w+)"))
             {
-                _constants.emplace_back(String(match.str()), std::nullopt);
-                _constants.back().name.ShrinkToFit();
+                _constants.emplace_back(match.convertBasedOn(constant), std::nullopt);
+                _constants.back().name.shrink_to_fit();
             }
         }
 

@@ -29,7 +29,7 @@ namespace Ast::Cpp
 
     void NamespaceLexer::SetNamespace(const String& nameList)
     {
-        for (auto&& name : nameList.Split("::"_atom))
+        for (auto&& name : nameList.split("::"_atom))
         {
             _nameList.push_back(std::move(name));
         }
@@ -55,14 +55,14 @@ namespace Ast::Cpp
 
         for (auto& child : _childLexers)
         {
-            source.carets["write-point"_atom] = source.source.Size();
+            source.carets["write-point"_atom] = source.source.size();
             namespaceSource += child->GetTextSource() + Code::Endl();
         }
 
         namespaceSource += "}" + Code::Endl();
 
-        source.source.Insert(pos, namespaceSource.c_str());
-        source.carets["write-point"_atom] = source.source.Size();
+        source.source.insert(pos, namespaceSource.c_str());
+        source.carets["write-point"_atom] = source.source.size();
 
         return true;
     }
@@ -81,17 +81,17 @@ namespace Ast::Cpp
         }
 
         String string(_token.beginData, _token.endData - _token.beginData);
-        string.RegexReplace(R"(\n|\r|(namespace))", " ");
-        string.Trim(' ');
-        if (string.IsEmpty())
+        string.regexReplace(R"(\n|\r|(namespace))", " ");
+        string.trim(' ');
+        if (string.isEmpty())
         {
-            spdlog::error(("Impossible to parse namespace token at {}"_f << _token.startLine).ToStdStringView());
+            spdlog::error(("Impossible to parse namespace token at {}"_f << _token.startLine).toStdStringView());
             return false;
         }
 
         _lexerName = string; // absolute name
 
-        for (auto&& name : string.Split("::"_atom))
+        for (auto&& name : string.split("::"_atom))
         {
             _nameList.push_back(std::move(name));
         }
@@ -113,7 +113,7 @@ namespace Ast::Cpp
         }
         if (!Verify(*openedBracket == '{', "Impossible to define a namespace scope."))
         {
-            spdlog::error(("Impossible to define a namespace scope '{}'"_f << _lexerName.c_str()).ToStdStringView());
+            spdlog::error(("Impossible to define a namespace scope '{}'"_f << _lexerName.c_str()).toStdStringView());
             return false;
         }
 

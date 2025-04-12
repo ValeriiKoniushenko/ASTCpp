@@ -144,7 +144,7 @@ namespace
                             return false;
                         }
 
-                        if (lexer->GetLexerName().IsEmpty() || lexer->GetLexerName() == "none"_atom)
+                        if (lexer->GetLexerName().isEmpty() || lexer->GetLexerName() == "none"_atom)
                         {
                             error = "Unit's '{}' lexer doesn't have a lexer name"_f << unit->GetPath().c_str();
                             wasError = true;
@@ -214,7 +214,7 @@ TEST(ASTProjectTest, simple_parse_project_tree)
 
     auto error = ValidateAllProjectTree(project);
 
-    ASSERT_TRUE(error.IsEmpty()) << error.c_str();
+    ASSERT_TRUE(error.isEmpty()) << error.c_str();
 }
 
 TEST(ASTProjectTest, move_parse_project_tree)
@@ -233,7 +233,7 @@ TEST(ASTProjectTest, move_parse_project_tree)
 
     auto error = ValidateAllProjectTree(project);
 
-    ASSERT_TRUE(error.IsEmpty()) << error.c_str();
+    ASSERT_TRUE(error.isEmpty()) << error.c_str();
 }
 
 TEST(ASTProjectTest, project_tree_units_count)
@@ -247,7 +247,7 @@ TEST(ASTProjectTest, project_tree_units_count)
     project.ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
     auto error = ValidateAllProjectTree(project);
-    ASSERT_TRUE(error.IsEmpty()) << error.c_str();
+    ASSERT_TRUE(error.isEmpty()) << error.c_str();
 
     {
         int count = 0;
@@ -346,5 +346,5 @@ TEST(ASTProjectTest, TrashCode)
         });*/
 
     auto error = ValidateAllProjectTree(*project);
-    ASSERT_TRUE(error.IsEmpty()) << error.c_str();
+    ASSERT_TRUE(error.isEmpty()) << error.c_str();
 }

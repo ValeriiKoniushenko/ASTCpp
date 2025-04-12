@@ -84,7 +84,7 @@ namespace Ast::Cpp
                 }
 
                 const auto& data = stream->Data();
-                if (!Verify(!data.IsEmpty()))
+                if (!Verify(!data.isEmpty()))
                 {
                     return;
                 }
@@ -146,7 +146,7 @@ namespace Ast::Cpp
             }
 
             const auto& data = stream->Data();
-            if (!Verify(!data.IsEmpty()))
+            if (!Verify(!data.isEmpty()))
             {
                 return false;
             }
@@ -154,7 +154,7 @@ namespace Ast::Cpp
             const String declExpr = R"(^\s*#include.*{}{}{})"_f << _unit->GetPath().stem().string() << Unit::generatedSuffixDecl
                                                                 << _unit->GetPath().extension().string();
 
-            return !data.FindRegex(declExpr).empty();
+            return !data.regexFind(declExpr).empty();
         }
 
         [[nodiscard]] bool HasImplInclude() const
@@ -171,7 +171,7 @@ namespace Ast::Cpp
             }
 
             const auto& data = stream->Data();
-            if (!Verify(!data.IsEmpty()))
+            if (!Verify(!data.isEmpty()))
             {
                 return false;
             }
@@ -180,7 +180,7 @@ namespace Ast::Cpp
                                                                      << AbstractGeneratorUnit<>::generatedSuffixImpl << Unit::generatedSuffixDecl
                                                                      << _unit->GetPath().extension().string();
 
-            return !data.FindRegex(implExpr).empty();
+            return !data.regexFind(implExpr).empty();
         }
 
     protected:
@@ -189,12 +189,12 @@ namespace Ast::Cpp
     private:
         [[nodiscard]] uint64_t GetInsertLineOfDeclInclude(const String& data) const
         {
-            if (data.IsEmpty())
+            if (data.isEmpty())
             {
                 return ~0ull;
             }
             const auto* begin = data.c_str();
-            const auto* end = data.c_str() + data.Size();
+            const auto* end = data.c_str() + data.size();
 
             const auto* firstInclude = String::Toolset::StrStr(begin, "#include");
 
@@ -242,14 +242,14 @@ namespace Ast::Cpp
 
         [[nodiscard]] uint64_t GetInsertLineOfImplInclude(const String& data) const
         {
-            if (data.IsEmpty())
+            if (data.isEmpty())
             {
                 return ~0ull;
             }
 
             const auto totalCountOfLines = String::GetLinesCountInText(data.c_str());
             const auto* begin = data.c_str();
-            const auto* end = data.c_str() + data.Size();
+            const auto* end = data.c_str() + data.size();
 
             uint64_t validLine = totalCountOfLines;
 
@@ -296,7 +296,7 @@ namespace Ast::Cpp
                     continue;
                 }
 
-                lines.insert(lines.begin() + line + offset++, str.ToStdString());
+                lines.insert(lines.begin() + line + offset++, str.toStdString());
             }
 
             std::ofstream writeFile(path.string());
@@ -306,7 +306,7 @@ namespace Ast::Cpp
                 return;
             }
 
-            static const auto endl = Unit::Code::Endl().ToStdString();
+            static const auto endl = Unit::Code::Endl().toStdString();
             for (const auto& line : lines)
             {
                 writeFile << line << endl;

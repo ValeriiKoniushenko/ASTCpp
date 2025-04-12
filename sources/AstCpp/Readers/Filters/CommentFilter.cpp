@@ -37,16 +37,16 @@ namespace Ast::Cpp
     {
         // removing '//' comments
         static auto* const regexExpr = R"((?:\/\/(?:\\\n|[^\n])*\n))";
-        content.RegexReplace(regexExpr, "\n");
+        content.regexReplace(regexExpr, "\n");
     }
 
     void CommentFilter::RemoveMultiLineComments(String& content)
     {
         std::size_t offset = 0;
 
-        while (const auto* begin = content.Find("/*"))
+        while (const auto* begin = content.find("/*"))
         {
-            const auto* end = content.Find("*/");
+            const auto* end = content.find("*/");
 
             String endLines = "";
             for (const auto* i = begin; *i && i != end; ++i)
@@ -58,7 +58,7 @@ namespace Ast::Cpp
             }
 
             static auto* const regexExpr = R"((?:\/\*[\s\S]*?\*\/))";
-            content.RegexReplace(regexExpr, endLines, std::regex_constants::format_first_only);
+            content.regexReplace(regexExpr, endLines);
             offset = end - content.c_str();
         }
     }

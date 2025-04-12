@@ -71,7 +71,7 @@ namespace Ast::Cpp
                   name{ name }
             {
             }
-            [[nodiscard]] String GetTextSource() override { return String(type.ToStr()).ToLowerCase() + " " + name; }
+            [[nodiscard]] String GetTextSource() override { return String(type.toStr()).toLowerCase() + " " + name; }
 
             InheritanceType type = InheritanceType::Private;
             String name;

@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
         [](const LogCollector::LogLine& log)
         {
             using namespace std;
-            cout << log.GetHumanTime() << " ASTCpp: [" << log.type.ToStr() << "]: " << log.message.CStr() << endl;
+            cout << log.GetHumanTime() << " ASTCpp: [" << log.type.toStr() << "]: " << log.message.CStr() << endl;
         });*/
 
     project->SetFileExtensions({ "*.cpp", ".h" });

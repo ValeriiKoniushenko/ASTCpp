@@ -34,7 +34,7 @@ namespace Ast::Cpp::EnumClass
             return true;
         }
 
-        spdlog::error(("EnumClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
+        spdlog::error(("EnumClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
 
         return false;
     }

@@ -34,7 +34,7 @@ namespace Ast::Cpp::Namespace
             return true;
         }
 
-        spdlog::error(("NamespaceRule: invalid namespace type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).ToStdStringView());
+        spdlog::error(("NamespaceRule: invalid namespace type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
 
         return false;
     }
