@@ -219,6 +219,8 @@ namespace Ast::Cpp
         String string(_token.beginData, _token.endData - _token.beginData);
         string.regexReplace(R"(\n|\r|(class)|\{)", " ");
         string.trim(' ');
+        string.trimEnd('{');
+
         if (string.isEmpty())
         {
             spdlog::error(("Impossible to parse the class token at {}"_f << _token.startLine).toStdStringView());
@@ -287,7 +289,7 @@ namespace Ast::Cpp
                     type = InheritanceType::Private;
                 }
 
-                parentStr.trim(' ');
+                parentStr.regexReplace(R"(\s*$)", "");
                 parentStr.shrink_to_fit();
 
                 ParentUnit parent;
@@ -445,9 +447,9 @@ namespace Ast::Cpp
 
         RemoveNestedScopes(body);
 
-        const auto publics = body.regexFindAll(R"(^\s*public\s*\:)");
-        const auto protecteds = body.regexFindAll(R"(^\s*protected\s*\:)");
-        const auto privates = body.regexFindAll(R"(^\s*private\s*\:)");
+        const auto publics = body.regexFindAll(R"(^\s*public\s*\:)", 0, 0,0, PCRE2_MULTILINE);
+        const auto protecteds = body.regexFindAll(R"(^\s*protected\s*\:)", 0, 0,0, PCRE2_MULTILINE);
+        const auto privates = body.regexFindAll(R"(^\s*private\s*\:)", 0, 0,0, PCRE2_MULTILINE);
 
         body.regexIterate(
             R"(^\s*((static\s+)|(constexpr\s+)|(const\s+)|(constinit\s+))*[\w:]+(\<.*\>)?\s+\w+(((\s*=).*)|(;)))",
@@ -508,11 +510,11 @@ namespace Ast::Cpp
                     return true;
                 }
 
-                long long minDistance = (std::numeric_limits<long long>::max)();
+                int64_t minDistance = (std::numeric_limits<int64_t>::max)();
                 AccessSpecifier accessSpecifier = AccessSpecifier::Private;
                 for (auto&& token : publics)
                 {
-                    const auto distance = static_cast<int64_t>(token.offset) - static_cast<int64_t>(field.offset);
+                    const auto distance = static_cast<int64_t>(field.offset) - static_cast<int64_t>(token.offset);
                     if (distance >= 0 && distance < minDistance)
                     {
                         minDistance = distance;
@@ -521,7 +523,7 @@ namespace Ast::Cpp
                 }
                 for (auto&& token : protecteds)
                 {
-                    const auto distance = static_cast<int64_t>(token.offset) - static_cast<int64_t>(field.offset);
+                    const auto distance = static_cast<int64_t>(field.offset) - static_cast<int64_t>(token.offset);
                     if (distance >= 0 && distance < minDistance)
                     {
                         minDistance = distance;
@@ -530,7 +532,7 @@ namespace Ast::Cpp
                 }
                 for (auto&& token : privates)
                 {
-                    const auto distance = static_cast<int64_t>(token.offset) - static_cast<int64_t>(field.offset);
+                    const auto distance = static_cast<int64_t>(field.offset) - static_cast<int64_t>(token.offset);
                     if (distance >= 0 && distance < minDistance)
                     {
                         minDistance = distance;
@@ -543,7 +545,7 @@ namespace Ast::Cpp
 
                 return true;
             },
-            0, std::regex_constants::match_default);
+            0, 0, 0, PCRE2_MULTILINE);
     }
 
     void ClassLexer::RemoveNestedScopes(String& body)
