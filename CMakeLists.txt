@@ -35,4 +35,5 @@ InstallBenchmarkDependenciesTesting()
 add_subdirectory(${DEPENDENCIES_DIR}/AST)
 add_subdirectory(sources)
 add_subdirectory(tests)
+add_subdirectory(benchmarks)
 
