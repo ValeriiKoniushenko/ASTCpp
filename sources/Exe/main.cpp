@@ -50,10 +50,11 @@ int main(int argc, char* argv[])
     project->SetFileExtensions({ "*.cpp", ".h" });
     project->SetTargetProject(project_path);
     project->ExcludeFromProject(".git");
+    project->ExcludeFromProject("ASTCpp");
     project->ExcludeFromProject(".idea");
     project->ExcludeFromProject(".vs");
     project->ExcludeFromProject("dependencies");
-    project->ExcludeFromProject("cmake-build-debug-visual-studio");
+    project->ExcludeFromProject("cmake-build-debug");
     project->Process();
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 

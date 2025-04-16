@@ -82,7 +82,7 @@ namespace Ast::Cpp
         [[nodiscard]] String OnGenerate() const override;
         [[nodiscard]] String PreGenerate() const override;
         [[nodiscard]] String PostGenerate() const override;
-        [[nodiscard]] std::filesystem::path GetGenerationPath() const override;
+        [[nodiscard]] std::filesystem::path GetGenerationPath(const ProjectTree::Unit* unit) const override;
 
     protected:
         const String _nestedNamespace;
@@ -116,7 +116,7 @@ namespace Ast::Cpp
         [[nodiscard]] String OnGenerate() const override;
         [[nodiscard]] String PreGenerate() const override;
         [[nodiscard]] String PostGenerate() const override;
-        [[nodiscard]] std::filesystem::path GetGenerationPath() const override;
+        [[nodiscard]] std::filesystem::path GetGenerationPath(const ProjectTree::Unit* unit) const override;
 
     protected:
         const String _nestedNamespace;

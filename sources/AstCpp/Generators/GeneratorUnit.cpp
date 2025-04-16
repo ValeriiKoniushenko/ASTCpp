@@ -85,9 +85,15 @@ namespace Ast::Cpp
         return {};
     }
 
-    std::filesystem::path GeneratorUnitDecl::GetGenerationPath() const
+    std::filesystem::path GeneratorUnitDecl::GetGenerationPath(const ProjectTree::Unit* unit) const
     {
-        return {};
+        if (!unit)
+        {
+            return {};
+        }
+
+        auto a = unit->GetGeneratedSiblingFilePath();
+        return a;
     }
 
     bool GeneratorUnitImpl::OnEqual(const GeneratorUnit& other) const
@@ -110,9 +116,15 @@ namespace Ast::Cpp
         return {};
     }
 
-    std::filesystem::path GeneratorUnitImpl::GetGenerationPath() const
+    std::filesystem::path GeneratorUnitImpl::GetGenerationPath(const ProjectTree::Unit* unit) const
     {
-        return {};
+        if (!unit)
+        {
+            return {};
+        }
+
+        auto a = unit->GetGeneratedSiblingFilePath();
+        return a;
     }
 
     /*String GeneratorUnitDecl::GenerateNeededStartOfFile(const BaseLexer* lexer) const
