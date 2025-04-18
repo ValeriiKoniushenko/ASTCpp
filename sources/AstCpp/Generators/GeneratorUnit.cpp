@@ -27,19 +27,6 @@ namespace Ast::Cpp
         return dynamic_cast<const GeneratorUnitDecl*>(&other);
     }
 
-    /*String GeneratorUnitDecl::PreGenerate(const BaseLexer* lexer) const
-    {
-        String out = GenerateNeededStartOfFile(lexer);
-
-        out += "namespace {}::{}{}{{}"_f << namespaceName << _nestedNamespace << Code::Endl() << Code::Endl();
-
-        return out;
-    }
-    String GeneratorUnitDecl::PostGenerate(const BaseLexer* lexer) const
-    {
-        return "} // namespace {}::{}{}"_f << namespaceName << _nestedNamespace << Code::Endl();
-    }*/
-
     void GeneratorUnitDecl::AddLocalInclude(String str)
     {
         if (str.isEmpty())
@@ -85,17 +72,6 @@ namespace Ast::Cpp
         return {};
     }
 
-    std::filesystem::path GeneratorUnitDecl::GetGenerationPath(const ProjectTree::Unit* unit) const
-    {
-        if (!unit)
-        {
-            return {};
-        }
-
-        auto a = unit->GetGeneratedSiblingFilePath();
-        return a;
-    }
-
     bool GeneratorUnitImpl::OnEqual(const GeneratorUnit& other) const
     {
         return dynamic_cast<const GeneratorUnitImpl*>(&other);
@@ -115,38 +91,5 @@ namespace Ast::Cpp
     {
         return {};
     }
-
-    std::filesystem::path GeneratorUnitImpl::GetGenerationPath(const ProjectTree::Unit* unit) const
-    {
-        if (!unit)
-        {
-            return {};
-        }
-
-        auto a = unit->GetGeneratedSiblingFilePath();
-        return a;
-    }
-
-    /*String GeneratorUnitDecl::GenerateNeededStartOfFile(const BaseLexer* lexer) const
-    {
-        String out;
-        out += "#pragma once" + Code::Endl();
-        for (const auto& incl : _includes)
-        {
-            out += "#include " + incl + Code::Endl();
-        }
-        out += Code::Endl() + Code::Endl();
-        out += OnFinishGenerateNeededStartOfFile(lexer);
-        return out;
-    }*/
-
-    /*String GeneratorUnitImpl::PreGenerate(const BaseLexer* lexer) const
-    {
-        return "namespace {}::{}{}{{}"_f << Decl::namespaceName << _nestedNamespace << Code::Endl() << Code::Endl();
-    }
-    String GeneratorUnitImpl::PostGenerate(const BaseLexer* lexer) const
-    {
-        return "} // namespace {}::{}{}"_f << Decl::namespaceName << _nestedNamespace << Code::Endl();
-    }*/
 
 } // namespace Ast::Cpp

@@ -40,13 +40,8 @@ int main(int argc, char* argv[])
     auto a = "Hello World!"_atom;
 
     auto project = ProjectTree::Create();
-    /*project->GetLogCollector()->onValidationEvent.Subscribe(
-        [](const LogCollector::LogLine& log)
-        {
-            using namespace std;
-            cout << log.GetHumanTime() << " ASTCpp: [" << log.type.toStr() << "]: " << log.message.CStr() << endl;
-        });*/
 
+    project->SetPreferableExtensionForGeneration(".h");
     project->SetFileExtensions({ "*.cpp", ".h" });
     project->SetTargetProject(project_path);
     project->ExcludeFromProject(".git");
