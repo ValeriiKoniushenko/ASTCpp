@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Ast/Generators/Generator.h"
+#include "Ast/Generators/deprGenerator.h"
 #include "AstCpp/Generators/EnumClassGenerator.h"
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
@@ -39,6 +39,7 @@ int main(int argc, char* argv[])
 
     auto a = "Hello World!"_atom;
 
+#if 0
     auto project = ProjectTree::Create();
 
     project->SetPreferableExtensionForGeneration(".h");
@@ -53,6 +54,7 @@ int main(int argc, char* argv[])
     project->Process();
     project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
 
+    /*
     Generator generator;
     generator.AddGenerator<Cpp::EnumClassGeneratorDecl, Cpp::EnumClassLexer>();
     generator.AddGenerator<Cpp::EnumClassGeneratorImpl, Cpp::EnumClassLexer>();
@@ -65,6 +67,8 @@ int main(int argc, char* argv[])
         });
 
     generator.Generate();
+    */
+#endif
 
     return 0;
 }

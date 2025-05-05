@@ -25,7 +25,7 @@
 
 namespace Ast::Cpp
 {
-
+#if 0
     class EnumClassGeneratorDecl : public GeneratorUnitDecl
     {
     public:
@@ -77,5 +77,5 @@ namespace Ast::Cpp
         [[nodiscard]] String GenerateToSetImpl(const EnumClassLexer* lexer) const;
         [[nodiscard]] String GenerateToMapImpl(const EnumClassLexer* lexer) const;
     };
-
+#endif
 } // namespace Ast::Cpp

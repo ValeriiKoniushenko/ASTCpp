@@ -20,7 +20,8 @@
 
 #pragma once
 
-#include "Ast/Generators/GeneratorUnit.h"
+#if 0
+#include "Ast/Generators/deprGeneratorUnit.h"
 
 namespace Ast::Cpp
 {
@@ -121,3 +122,4 @@ namespace Ast::Cpp
     };
 
 } // namespace Ast::Cpp
+#endif 

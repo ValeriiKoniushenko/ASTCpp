@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 #pragma once
-#include "Ast/ProjectTree.h"
 #include "AstCpp/Generators/GeneratorUnit.h"
 #include "Utils/CopyableAndMoveableBehaviour.h"
 

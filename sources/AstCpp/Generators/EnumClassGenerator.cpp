@@ -22,7 +22,7 @@
 
 namespace Ast::Cpp
 {
-
+#if 0
     /*String EnumClassGeneratorDecl::OnFinishGenerateNeededStartOfFile(const BaseLexer* lexer) const
     {
         const auto* realLexer = dynamic_cast<const EnumClassLexer*>(lexer);
@@ -241,5 +241,5 @@ namespace Ast::Cpp
 
         return out;
     }
-
+#endif
 } // namespace Ast::Cpp
