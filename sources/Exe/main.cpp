@@ -26,6 +26,7 @@
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
 
+#include <algorithm>
 #include <iostream>
 
 int main(int argc, char* argv[])
@@ -40,17 +41,22 @@ int main(int argc, char* argv[])
     // std::filesystem::path project_path(argv[1]);
 
     auto project = ProjectTree::Create();
-    project->setPathToProject("/");
+    project->setPathToProject("/home/valerii/workspace/draft");
 
-    // project->addIgnorePath("ASTCpp");
-    // project->addIgnorePath("*.idea");
-    // project->addIgnorePath("*.git");
-    // project->addIgnorePath("*dependencies*");
-    // project->addIgnorePath("*build*");
+    if (!project->canBeScanned())
+    {
+        return 1;
+    }
+
+    project->addIgnorePath("ASTCpp");
+    project->addIgnorePath("*.idea");
+    project->addIgnorePath("*.git");
+    project->addIgnorePath("*dependencies*");
+    project->addIgnorePath("*build*");
 
     project->scanProject();
 
-    // project->getFSTree()->prettyPrint();
+    project->getFSTree()->prettyPrint();
 
 #if 0
     project->SetPreferableExtensionForGeneration(".h");
