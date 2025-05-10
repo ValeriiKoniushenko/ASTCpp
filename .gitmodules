@@ -2,3 +2,4 @@
 [submodule "dependencies/AST"]
 	path = dependencies/AST
 	url = git@github.com:ValeriiKoniushenko/AST.git
+    ignore = dirty
