@@ -21,6 +21,7 @@
 //  SOFTWARE.
 
 #include "Ast/Generators/deprGenerator.h"
+#include "Ast/ProjectTree.h"
 #include "AstCpp/Generators/EnumClassGenerator.h"
 #include "AstCpp/Parser.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
@@ -31,18 +32,27 @@ int main(int argc, char* argv[])
 {
     using namespace Ast;
 
-    if (argc != 2)
-    {
-        std::cerr << "Usage: " << argv[0] << " <path_to_project_root>" << std::endl;
-        return 1;
-    }
+    // if (argc != 2)
+    // {
+    //     std::cerr << "Usage: " << argv[0] << " <path_to_project_root>" << std::endl;
+    //     return 1;
+    // }
+    // std::filesystem::path project_path(argv[1]);
 
-    std::filesystem::path project_path(argv[1]);
+    auto project = ProjectTree::Create();
+    project->setPathToProject("/");
 
-    // auto project = ProjectTree::Create();
+    // project->addIgnorePath("ASTCpp");
+    // project->addIgnorePath("*.idea");
+    // project->addIgnorePath("*.git");
+    // project->addIgnorePath("*dependencies*");
+    // project->addIgnorePath("*build*");
+
+    project->scanProject();
+
+    // project->getFSTree()->prettyPrint();
 
 #if 0
-
     project->SetPreferableExtensionForGeneration(".h");
     project->SetFileExtensions({ "*.cpp", ".h" });
     project->SetTargetProject(project_path);
