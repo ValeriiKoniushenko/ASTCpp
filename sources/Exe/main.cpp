@@ -20,27 +20,13 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-#include "Ast/Generators/deprGenerator.h"
-#include "Ast/ProjectTree.h"
-#include "AstCpp/Generators/EnumClassGenerator.h"
-#include "AstCpp/Parser.h"
-#include "AstCpp/Readers/Filters/CommentFilter.h"
-
-#include <algorithm>
-#include <iostream>
+#include "AstCpp/ProjectTree.h"
 
 int main(int argc, char* argv[])
 {
     using namespace Ast;
 
-    // if (argc != 2)
-    // {
-    //     std::cerr << "Usage: " << argv[0] << " <path_to_project_root>" << std::endl;
-    //     return 1;
-    // }
-    // std::filesystem::path project_path(argv[1]);
-
-    auto project = ProjectTree::Create();
+    auto project = Cpp::ProjectTree::Create();
     project->setPathToProject("/home/valerii/workspace/draft");
 
     if (!project->canBeScanned())
@@ -54,9 +40,23 @@ int main(int argc, char* argv[])
     project->addIgnorePath("*dependencies*");
     project->addIgnorePath("*build*");
 
-    project->scanProject();
+    // Possible settings:
+    // project->setIgnoreSymlinks(true);
 
-    project->getFSTree()->prettyPrint();
+    if (!project->scanProject())
+    {
+        return 1;
+    }
+
+    project->getFSTree()->prettyPrint(
+        [](const DiskUnit* unit) -> FSTree::PrettyInfo
+        {
+            if (auto* file = dynamic_cast<const FileUnit*>(unit))
+            {
+                return { false, "L" };
+            }
+            return { true };
+        });
 
 #if 0
     project->SetPreferableExtensionForGeneration(".h");
