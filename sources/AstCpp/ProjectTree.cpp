@@ -61,15 +61,22 @@ namespace Ast::Cpp
                 {
                     return;
                 }
-                
+
                 FileContentStream::Ptr content = new FileContentStream(path);
                 content->ApplyFilters<CommentFilter>();
 
-                /*auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(content)));
+                if (content->Data().isEmpty())
+                {
+                    return;
+                }
+
+                auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(content)));
+                /*
                 if (data->tree.HasAtLeastOneMarkedLexer())
                 {
                     file->getData() = std::move(data);
-                }*/
+                }
+                 */
             });
 
         String metricsStr;

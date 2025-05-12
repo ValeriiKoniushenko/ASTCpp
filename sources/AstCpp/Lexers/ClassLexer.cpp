@@ -1,22 +1,24 @@
-// Copyright (c) 2024 Valerii Koniushenko
+//  MIT License
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+//  Copyright (c) 2019-2025 Valerii Koniushenko
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
 
 #include "ClassLexer.h"
 
@@ -217,7 +219,7 @@ namespace Ast::Cpp
         }
 
         String string(_token.beginData, _token.endData - _token.beginData);
-        string.regexReplace(R"(\n|\r|(class)|\{)", " ");
+        string.regexReplaceAll(R"(\n|\r|(class)|\{)", "", 1, 0, 0, PCRE2_MULTILINE);
         string.trim(' ');
         string.trimEnd('{');
 
@@ -320,6 +322,11 @@ namespace Ast::Cpp
 
         _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data().c_str(), openedBracket) };
         _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data().c_str(), closedBracket) };
+
+        Assert(!!_closeScope->string);
+        Assert(!!_openScope->string);
+
+        closedBracket = Utils::FindClosedBracket(openedBracket, '}', '{');
 
         return true;
     }
@@ -442,8 +449,15 @@ namespace Ast::Cpp
 
     void ClassLexer::RecognizeFields()
     {
-        String body(_openScope->string, _closeScope->string - _openScope->string);
+        Assert(!!_closeScope->string);
+        Assert(!!_openScope->string);
+        String body(_openScope->string, _closeScope->string ? _closeScope->string - _openScope->string : String::Settings::invalidSize);
         body.trim('{').trim('}');
+
+        if (_lexerName == "ClassReader")
+        {
+            int o = 1;
+        }
 
         RemoveNestedScopes(body);
 
@@ -456,8 +470,8 @@ namespace Ast::Cpp
             [&](const Core::RegexMatch::MatchedData& field)
             {
                 auto str = field.convertBasedOn(body);
-                str.regexReplace(R"([\s;]*$)", "");
-                str.regexReplace(R"(^\s*)", "");
+                str.regexReplace(R"([\s;]*$)", "", 1, 0, 0, PCRE2_MULTILINE);
+                str.regexReplace(R"(^\s*)", "", 1, 0, 0, PCRE2_MULTILINE);
 
                 Field tempField;
 
@@ -495,6 +509,8 @@ namespace Ast::Cpp
                     spdlog::error(("Impossible to define a class's field type. Class: '{}'"_f << _lexerName.c_str()).toStdStringView());
                     return true;
                 }
+
+                str.regexReplace(R"(^\s*)", "", 1, 0, 0, PCRE2_MULTILINE);
 
                 if (auto matchName = str.regexFind(R"(^\w+)"))
                 {

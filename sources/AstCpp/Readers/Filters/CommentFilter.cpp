@@ -22,6 +22,8 @@
 
 #include "CommentFilter.h"
 
+#include "Ast/Utils/Scopes.h"
+
 namespace Ast::Cpp
 {
 
@@ -38,7 +40,18 @@ namespace Ast::Cpp
     void CommentFilter::RemoveSingleLineComments(String& content)
     {
         // removing '//' comments
-        content.regexReplaceAll(R"(\/\/.*)", "", 1);
+        String out(content.size());
+
+        auto* i = content.c_str();
+
+        while (i && *i)
+        {
+            i = Utils::TryToSkipAnyQuotes(i);
+            out.push_back(*i);
+            ++i;
+        }
+
+        content = std::move(out);
     }
 
     void CommentFilter::RemoveMultiLineComments(String& content)
