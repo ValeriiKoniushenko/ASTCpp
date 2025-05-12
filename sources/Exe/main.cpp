@@ -34,10 +34,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    project->addIgnorePath("ASTCpp");
+    // project->addIgnorePath("ASTCpp");
     project->addIgnorePath("*.idea");
     project->addIgnorePath("*.git");
-    project->addIgnorePath("*dependencies*");
+    // project->addIgnorePath("*dependencies*");
     project->addIgnorePath("*build*");
 
     // Possible settings:
@@ -48,12 +48,21 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    return 0;
     project->getFSTree()->prettyPrint(
         [](const DiskUnit* unit) -> FSTree::PrettyInfo
         {
             if (auto* file = dynamic_cast<const FileUnit*>(unit))
             {
-                return { false, "L" };
+                FSTree::PrettyInfo info;
+                info.ignore = false;
+                info.prefix[0] = 'L';
+
+                auto data = boost::dynamic_pointer_cast<Ast::Cpp::FileDataContainer>(file->getData());
+
+                info.prefix[3] = data ? '0' : '1';
+
+                return info;
             }
             return { true };
         });

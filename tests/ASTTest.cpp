@@ -1,22 +1,24 @@
-// Copyright (c) 2024 Valerii Koniushenko
+//  MIT License
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+//  Copyright (c) 2019-2025 Valerii Koniushenko
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
 
 #define CORE_DEBUG
 
@@ -186,7 +188,9 @@ TEST(ASTTests, SimpleParse)
 {
     using namespace Ast;
 
-    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -203,7 +207,9 @@ TEST(ASTTests, SimpleParse)
 TEST(ASTTests, ParentsChecking)
 {
     using namespace Ast;
-    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -234,7 +240,9 @@ TEST(ASTTests, ParentsChecking)
 TEST(ASTTests, DetailedLexerClassChecking)
 {
     using namespace Ast;
-    Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -278,7 +286,9 @@ TEST(ASTTests, DetailedLexerClassChecking)
 TEST(ASTTests, DetailedBiggerLexerClassChecking)
 {
     using namespace Ast;
-    Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -408,7 +418,9 @@ TEST(ASTTests, ScopeChecking)
     Cpp::ClassLexer::Ptr lexer;
 
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         auto found = tree.FindIf(
             [](BaseLexer* lexer)
@@ -429,7 +441,9 @@ TEST(ASTTests, ScopeChecking)
 TEST(ASTTests, GetRootLexer)
 {
     using namespace Ast;
-    Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
     auto found = tree.FindIf(
         [](BaseLexer* lexer)
@@ -447,7 +461,9 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
 {
     using namespace Ast;
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         int lexersCount = 0;
         tree.ForEach(
@@ -460,7 +476,9 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        const auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         int lexersCount = 0;
         tree.ForEach(
@@ -473,7 +491,9 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -485,7 +505,9 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         const auto found = tree.FindIf(
             [](BaseLexer* lexer)
@@ -497,7 +519,9 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -512,7 +536,9 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        const auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -527,7 +553,9 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests)
     }
 
     {
-        const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        const auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         const auto found = tree.FindIfAs<Cpp::ClassLexer>(
             [](const BaseLexer* lexer)
@@ -548,7 +576,9 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
     using namespace Ast;
 
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -568,7 +598,9 @@ TEST(ASTTests, LexerConstAndNonConstMiscTests2)
     }
 
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
         const auto found = tree.FindIf(
             [](const BaseLexer* lexer)
@@ -585,30 +617,45 @@ TEST(ASTTests, TryToGetLexerByXXX)
 {
     using namespace Ast;
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
+
         auto found = tree.FindFirstByName<Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
 
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
+
         auto found = tree.FindFirstByName<Cpp::ClassLexer>("1111111111111111");
         ASSERT_FALSE(found);
     }
 
     {
-        const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        const auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
+
         const auto found = tree.FindFirstByName<Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
     {
-        Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
+
         auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
 
     {
-        const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        const auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
+
         const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
     }
@@ -618,7 +665,10 @@ TEST(ASTTests, CheckRulesForClass)
 {
     {
         using namespace Ast;
-        const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+        const auto stream = ContentStream::Create();
+        stream->Put(content);
+        auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
+
         const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("Vec2");
         ASSERT_TRUE(found);
         found->IsCorrespondingToRule(Cpp::NameRule(R"([A-Z]\w+)"));
@@ -628,7 +678,9 @@ TEST(ASTTests, CheckRulesForClass)
 TEST(ASTTests, Marks)
 {
     using namespace Ast;
-    const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    const auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
     {
         const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
@@ -663,7 +715,9 @@ TEST(ASTTests, Marks)
 TEST(ASTTests, ApplyClassRule)
 {
     using namespace Ast;
-    const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    const auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser(stream));
 
     const auto foundClass = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
     ASSERT_TRUE(foundClass);
@@ -694,7 +748,10 @@ TEST(ASTTests, ApplyClassRule)
 TEST(ASTTests, ApplyEnumClassRule)
 {
     using namespace Ast;
-    const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    const     auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser( stream ));
+
 
     const auto found = tree.FindFirstByNameAs<Cpp::EnumClassLexer>("EType");
     ASSERT_TRUE(found);
@@ -724,7 +781,10 @@ TEST(ASTTests, ApplyEnumClassRule)
 TEST(ASTTests, ApplyNamespaceRule)
 {
     using namespace Ast;
-    const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    const     auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser( stream ));
+
 
     const auto found = tree.FindFirstByNameAs<Cpp::NamespaceLexer>("Ast");
     ASSERT_TRUE(found);
@@ -1134,7 +1194,10 @@ namespace
 TEST(ASTTests, TreeForEach)
 {
     using namespace Ast;
-    const Tree tree = Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) });
+    const     auto stream = ContentStream::Create();
+    stream->Put(content);
+    auto tree = Tree<Cpp::FileLexer>::From(Cpp::Parser( stream ));
+
 
     {
         std::vector<Core::StringAtom> strings;

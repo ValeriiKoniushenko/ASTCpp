@@ -22,6 +22,7 @@
 
 #include "ProjectTree.h"
 
+#include "Core/Timer.h"
 #include "Parser.h"
 
 namespace Ast::Cpp
@@ -34,9 +35,21 @@ namespace Ast::Cpp
             return;
         }
 
-        _fstree->forEach(
-            [](DiskUnit* unit)
+        uint64_t count = 0;
+
+        Core::Repeater repeater(0.1);
+        repeater.setCallback(
+            [&count, this](auto)
             {
+                logger->info(("Status: have build dependencies for {} entries."_f << count).toStdStringView());
+            });
+
+        _fstree->forEach(
+            [&count, &repeater](DiskUnit* unit)
+            {
+                ++count;
+                repeater.startOrUpdate();
+
                 FileUnit* file = nullptr;
                 if (!unit || !unit->isValid() || !unit->isExistOnDisk() || !(file = dynamic_cast<FileUnit*>(unit)))
                 {
@@ -48,16 +61,25 @@ namespace Ast::Cpp
                 {
                     return;
                 }
+                
+                FileContentStream::Ptr content = new FileContentStream(path);
+                content->ApplyFilters<CommentFilter>();
 
-                FileContentStream content(path);
-                content.ApplyFilters<CommentFilter>();
-
-                auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(&content)));
+                /*auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(content)));
                 if (data->tree.HasAtLeastOneMarkedLexer())
                 {
                     file->getData() = std::move(data);
-                }
+                }*/
             });
+
+        String metricsStr;
+        const auto timeGap = repeater.getTimeGap();
+        if (timeGap >= 0.001)
+        {
+            metricsStr = "~{} entries per second."_f << int(static_cast<double>(count) / timeGap);
+        }
+
+        logger->info(("Was took {}s for building of {} entries. {}"_f << timeGap << count << metricsStr).toStdStringView());
     }
 
     ProjectTree::ProjectTree()

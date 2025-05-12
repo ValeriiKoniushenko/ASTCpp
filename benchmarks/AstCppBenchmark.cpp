@@ -191,7 +191,10 @@ static void BM_AstCpp_SimpleParse(benchmark::State& state)
 
     for (auto _ : state)
     {
-        benchmark::DoNotOptimize(Tree<Cpp::FileLexer>::From(Cpp::Parser{ ContentStream(content) }));
+        auto stream = ContentStream::Create();
+        stream->Put(content);
+
+        benchmark::DoNotOptimize(Tree<Cpp::FileLexer>::From(Cpp::Parser{ stream }));
     }
 }
 
