@@ -43,12 +43,30 @@ namespace Ast::Cpp
         String out(content.size());
 
         auto* i = content.c_str();
-
         while (i && *i)
         {
+            auto* old = i;
             i = Utils::TryToSkipAnyQuotes(i);
-            out.push_back(*i);
-            ++i;
+
+            // force push ALL inside quotes
+            while (old < i)
+            {
+                out.push_back(*old);
+                ++old;
+            }
+
+            while (i && i[0] && i[0] == '/' && i[1] && i[1] == '/')
+            {
+                i = String::FindNextLine(i);
+                out.push_back('\n');
+            }
+
+            if (i)
+            {
+                out.push_back(*i);
+
+                ++i;
+            }
         }
 
         content = std::move(out);

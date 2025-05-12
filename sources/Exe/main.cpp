@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     using namespace Ast;
 
     auto project = Cpp::ProjectTree::Create();
-    project->setPathToProject("/home/valerii/workspace/draft/ASTCpp/sources/AstCpp/Utils/");
+    project->setPathToProject("/home/valerii/workspace/draft");
 
     if (!project->canBeScanned())
     {
