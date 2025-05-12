@@ -61,7 +61,7 @@ namespace Ast::Cpp
                 out.push_back('\n');
             }
 
-            if (i)
+            if (i && *i)
             {
                 out.push_back(*i);
 

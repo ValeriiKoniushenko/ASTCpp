@@ -62,6 +62,12 @@ namespace Ast::Cpp
                     return;
                 }
 
+                if (path.generic_string() ==
+                    "/home/valerii/workspace/draft/ASTCpp/dependencies/AST/dependencies/boost-1.86.0/libs/wave/test/testwave/testfiles/t_5_035.cpp")
+                {
+                    int i = 1;
+                }
+
                 FileContentStream::Ptr content = new FileContentStream(path);
                 content->ApplyFilters<CommentFilter>();
 

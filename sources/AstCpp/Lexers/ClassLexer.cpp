@@ -454,11 +454,6 @@ namespace Ast::Cpp
         String body(_openScope->string, _closeScope->string ? _closeScope->string - _openScope->string : String::Settings::invalidSize);
         body.trim('{').trim('}');
 
-        if (_lexerName == "ClassReader")
-        {
-            int o = 1;
-        }
-
         RemoveNestedScopes(body);
 
         const auto publics = body.regexFindAll(R"(^\s*public\s*\:)", 0, 0,0, PCRE2_MULTILINE);
