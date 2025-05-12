@@ -52,7 +52,7 @@ namespace Ast::Cpp
                 FileContentStream content(path);
                 content.ApplyFilters<CommentFilter>();
 
-                auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser{ std::move(content) }));
+                auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(&content)));
                 if (data->tree.HasAtLeastOneMarkedLexer())
                 {
                     file->getData() = std::move(data);

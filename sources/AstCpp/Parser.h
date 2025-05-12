@@ -24,16 +24,13 @@
 
 #include "Ast/Parser.h"
 #include "Ast/Readers/BaseTokenReader.h"
+#include "Ast/Readers/ContentStream.h"
 #include "Lexers/ClassLexer.h"
 #include "Lexers/EnumClassLexer.h"
 #include "Lexers/NamespaceLexer.h"
 
+#include <utility>
 #include <vector>
-
-namespace Ast
-{
-    class ContentStream;
-} // namespace Ast
 
 namespace Ast::Cpp
 {
@@ -46,8 +43,11 @@ namespace Ast::Cpp
 
     public:
         Parser() = default;
-        explicit Parser(ContentStream& stream);
-        explicit Parser(ContentStream&& stream);
+        explicit Parser(ContentStream::Ptr stream)
+            : _contentStream(std::move(stream))
+        {
+        }
+
         ~Parser() override = default;
 
         void Parse(const ContentStream::Ptr& file) override;
