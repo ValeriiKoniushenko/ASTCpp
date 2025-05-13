@@ -50,14 +50,14 @@ namespace Ast::Cpp
 
         ~Parser() override = default;
 
-        void Parse(const ContentStream::Ptr& file) override;
+        bool Parse(const ContentStream::Ptr& file) override;
 
         void IterateOverLexers(std::function<bool(BaseLexer*)>&& callback) override;
         [[nodiscard]] ContentStream::Ptr GetContentStream() const { return _contentStream; }
 
     protected:
         template<IsLexer Lexer, IsReader ReaderT>
-        void ReadAs(Container<Lexer>& container, const ContentStream::Ptr& reader)
+        bool ReadAs(Container<Lexer>& container, const ContentStream::Ptr& reader)
         {
             ReaderT readerObject(reader);
             for (auto&& token : readerObject)
@@ -69,10 +69,11 @@ namespace Ast::Cpp
                     container.push_back(std::move(lexer));
                 }
             }
+            return true;
         }
 
     private:
-        void RawParse(const ContentStream::Ptr& file);
+        bool RawParse(const ContentStream::Ptr& file);
         void MakeCorrectDependencies();
         void OnParse();
         BaseLexer* MakeCorrectDependenciesForLexer(BaseLexer* prevLexer);

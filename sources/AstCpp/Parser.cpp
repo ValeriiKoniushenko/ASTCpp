@@ -32,23 +32,40 @@
 namespace Ast::Cpp
 {
 
-    void Parser::Parse(const ContentStream::Ptr& stream)
+    bool Parser::Parse(const ContentStream::Ptr& stream)
     {
         if (stream != _contentStream)
         {
             _contentStream = stream;
         }
 
-        RawParse(stream);
+        if (!RawParse(stream))
+        {
+            return false;
+        }
+
         MakeCorrectDependencies();
         OnParse();
+
+        return true;
     }
 
-    void Parser::RawParse(const ContentStream::Ptr& reader)
+    bool Parser::RawParse(const ContentStream::Ptr& reader)
     {
-        ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, reader);
-        ReadAs<ClassLexer, ClassReader>(_classLexers, reader);
-        ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, reader);
+        if (!ReadAs<NamespaceLexer, NamespaceReader>(_namespaceLexers, reader))
+        {
+            return false;
+        }
+        if (!ReadAs<ClassLexer, ClassReader>(_classLexers, reader))
+        {
+            return false;
+        }
+        if (!ReadAs<EnumClassLexer, EnumClassReader>(_enumClassLexers, reader))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     void Parser::MakeCorrectDependencies()

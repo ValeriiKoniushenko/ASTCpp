@@ -121,6 +121,17 @@ namespace Ast::Cpp
         }
 
         const auto* closedBracket = Utils::FindClosedBracket(openedBracket, '}', '{');
+        if (!closedBracket)
+        {
+            String file;
+            if (_reader)
+            {
+                file = "File '{}'"_f << _reader->GetFilePath();
+            }
+            logger->error(("Can't parse lexer: '{}' - '{}' - because met troubles with '{' '}' scopes. {}"_f << _lexerName << _lexerType << file)
+                              .toStdStringView());
+            return false;
+        }
 
         _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data().c_str(), openedBracket) };
         _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data().c_str(), closedBracket) };

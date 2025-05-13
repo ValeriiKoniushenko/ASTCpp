@@ -491,11 +491,12 @@ namespace Ast::Cpp
                     str.regexReplace(R"(constinit\s+)", "", 1);
                 }
 
-                if (auto matchType = str.regexFind(R"(^[\w:]+(\<.*\>)?)"))
+                const char* typeRegexExpr = R"(^[A-Za-z_\-0-9:]+(\<[A-Za-z_\-0-9:]*\>)?)";
+                if (auto matchType = str.regexFind(typeRegexExpr))
                 {
                     tempField.type = matchType.convertBasedOn(str);
                     tempField.type.shrink_to_fit();
-                    str.regexReplace(R"(^[\w:]+(\<.*\>)?)", "", 1);
+                    str.regexReplace(typeRegexExpr, "", 1);
                     str.trimStart(' ');
                 }
                 else

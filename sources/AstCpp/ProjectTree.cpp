@@ -84,7 +84,7 @@ namespace Ast::Cpp
                     return;
                 }
 
-                // auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(content)));
+                auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(content)));
                 /*
                 if (data->tree.HasAtLeastOneMarkedLexer())
                 {
