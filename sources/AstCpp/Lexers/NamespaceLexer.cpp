@@ -83,7 +83,7 @@ namespace Ast::Cpp
         }
 
         String string(_token.beginData, _token.endData - _token.beginData);
-        string.regexReplace(R"(\n|\r|(namespace))", " ");
+        string.regexReplace(R"(\n|\r|(namespace))", " ", 1);
         string.trim(' ');
         if (string.isEmpty())
         {

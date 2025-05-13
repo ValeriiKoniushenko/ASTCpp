@@ -229,7 +229,7 @@ namespace Ast::Cpp
             return false;
         }
 
-        if (string.regexReplace("\\final", ""))
+        if (string.regexReplace("\\final", "", 1))
         {
             _hasFinal = true;
         }
@@ -246,7 +246,7 @@ namespace Ast::Cpp
             return false;
         }
 
-        if (string.regexReplace(R"(^\w+\s*:)", ""))
+        if (string.regexReplace(R"(^\w+\s*:)", "", 1))
         {
             std::vector<String> parents;
             int bracketsCount = 0;
@@ -277,21 +277,21 @@ namespace Ast::Cpp
             for (auto&& parentStr : parents)
             {
                 InheritanceType type = InheritanceType::Private;
-                if (parentStr.regexReplace(R"(\s*public\s*)", ""))
+                if (parentStr.regexReplace(R"(\s*public\s*)", "", 1))
                 {
                     type = InheritanceType::Public;
                 }
-                else if (parentStr.regexReplace(R"(\s*protected\s*)", ""))
+                else if (parentStr.regexReplace(R"(\s*protected\s*)", "", 1))
                 {
                     type = InheritanceType::Protected;
                 }
                 else
                 {
-                    parentStr.regexReplace(R"(\s*private\s*)", "");
+                    parentStr.regexReplace(R"(\s*private\s*)", "", 1);
                     type = InheritanceType::Private;
                 }
 
-                parentStr.regexReplace(R"(\s*$)", "");
+                parentStr.regexReplace(R"(\s*$)", "", 1);
                 parentStr.shrink_to_fit();
 
                 ParentUnit parent;
@@ -473,29 +473,29 @@ namespace Ast::Cpp
                 if (str.regexFind(R"(static\s+)"))
                 {
                     tempField.isStatic = true;
-                    str.regexReplace(R"(static\s+)", "", std::regex_constants::format_first_only);
+                    str.regexReplace(R"(static\s+)", "", 1);
                 }
                 if (str.regexFind(R"(const\s+)"))
                 {
                     tempField.isConst = true;
-                    str.regexReplace(R"(const\s+)", "", std::regex_constants::format_first_only);
+                    str.regexReplace(R"(const\s+)", "", 1);
                 }
                 if (str.regexFind(R"(constexpr\s+)"))
                 {
                     tempField.isConstexpr = true;
-                    str.regexReplace(R"(constexpr\s+)", "", std::regex_constants::format_first_only);
+                    str.regexReplace(R"(constexpr\s+)", "", 1);
                 }
                 if (str.regexFind(R"(constinit\s+)"))
                 {
                     tempField.isConstinit = true;
-                    str.regexReplace(R"(constinit\s+)", "", std::regex_constants::format_first_only);
+                    str.regexReplace(R"(constinit\s+)", "", 1);
                 }
 
                 if (auto matchType = str.regexFind(R"(^[\w:]+(\<.*\>)?)"))
                 {
                     tempField.type = matchType.convertBasedOn(str);
                     tempField.type.shrink_to_fit();
-                    str.regexReplace(R"(^[\w:]+(\<.*\>)?)", "");
+                    str.regexReplace(R"(^[\w:]+(\<.*\>)?)", "", 1);
                     str.trimStart(' ');
                 }
                 else
@@ -511,7 +511,7 @@ namespace Ast::Cpp
                 {
                     tempField.name = matchName.convertBasedOn(str);
                     tempField.name.shrink_to_fit();
-                    str.regexReplace(R"(^\w+)", "");
+                    str.regexReplace(R"(^\w+)", "", 1);
                     str.trimStart(' ');
                 }
                 else

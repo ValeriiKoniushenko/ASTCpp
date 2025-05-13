@@ -37,7 +37,7 @@ namespace Ast::Cpp
 
         uint64_t count = 0;
 
-        Core::Repeater repeater(0.1);
+        Core::Repeater repeater(0.25);
         repeater.setCallback(
             [&count, this](auto)
             {
@@ -68,12 +68,12 @@ namespace Ast::Cpp
                     return;
                 }
 
-#ifdef AST_DEBUG
+#if AST_DEBUG == 1
                 const auto beforeCommentFilterLen = String::GetLinesCountInText(content->Data().c_str());
                 const String __firstDump = content->Data();
 #endif
                 content->ApplyFilters<CommentFilter>();
-#ifdef AST_DEBUG
+#if AST_DEBUG == 1
                 const auto afterCommentFilterLen = String::GetLinesCountInText(content->Data().c_str());
                 const String __secondDump = content->Data();
                 Assert(beforeCommentFilterLen == afterCommentFilterLen);

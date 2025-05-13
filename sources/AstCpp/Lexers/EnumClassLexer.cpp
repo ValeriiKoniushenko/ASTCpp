@@ -175,7 +175,7 @@ namespace Ast::Cpp
             return false;
         }
 
-        if (string.regexReplace(R"(^\w+\s*:)", ""))
+        if (string.regexReplace(R"(^\w+\s*:)", "", 1))
         {
             _type = string.trim(' ');
         }
@@ -294,7 +294,7 @@ namespace Ast::Cpp
         }
 
         String buffer(_openScope->string, _closeScope->string - _openScope->string);
-        buffer.trim('{').trim('}').regexReplace(R"(\s)", "");
+        buffer.trim('{').trim('}').regexReplaceAll(R"(\s)", "", 1);
         for (auto& constant : buffer.split(","_atom))
         {
             if (auto match = constant.regexFind(R"(^\w+)"))
