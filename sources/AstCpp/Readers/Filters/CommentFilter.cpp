@@ -67,7 +67,11 @@ namespace Ast::Cpp
             while (i && i[0] && i[0] == '/' && i[1] && i[1] == '/')
             {
                 i = String::FindNextLine(i);
-                out.push_back('\n');
+
+                if (i)
+                {
+                    out.push_back('\n');
+                }
                 wasSkippedComment = true;
             }
 
@@ -80,38 +84,6 @@ namespace Ast::Cpp
         }
 
         content = std::move(out);
-    }
-
-    void CommentFilter::RemoveSingleLineComments(String& content)
-    {
-        // removing '//' comments
-    }
-
-    void CommentFilter::RemoveMultiLineComments(String& content)
-    {
-        std::size_t offset = 0;
-
-        while (const auto* begin = content.find("/*"))
-        {
-            const auto* end = content.find("*/");
-
-            String endLines = "";
-            for (const auto* i = begin; *i && i != end; ++i)
-            {
-                if (*i == '\n')
-                {
-                    endLines += '\n';
-                }
-            }
-
-            static auto* const regexExpr = R"((?:\/\*[\s\S]*?\*\/))";
-            if (!content.regexReplace(regexExpr, endLines))
-            {
-                break;
-            }
-
-            offset = end - content.c_str();
-        }
     }
 
 } // namespace Ast::Cpp

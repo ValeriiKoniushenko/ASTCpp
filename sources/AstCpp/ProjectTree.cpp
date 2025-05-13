@@ -62,14 +62,22 @@ namespace Ast::Cpp
                     return;
                 }
 
-                if (path.generic_string() ==
-                    "/home/valerii/workspace/draft/ASTCpp/dependencies/AST/dependencies/boost-1.86.0/libs/spirit/classic/test/escape_char_parser_tests.cpp")
+                FileContentStream::Ptr content = new FileContentStream(path);
+                if (content->Data().isEmpty())
                 {
-                    int i = 1;
+                    return;
                 }
 
-                FileContentStream::Ptr content = new FileContentStream(path);
+#ifdef AST_DEBUG
+                const auto beforeCommentFilterLen = String::GetLinesCountInText(content->Data().c_str());
+                const String __firstDump = content->Data();
+#endif
                 content->ApplyFilters<CommentFilter>();
+#ifdef AST_DEBUG
+                const auto afterCommentFilterLen = String::GetLinesCountInText(content->Data().c_str());
+                const String __secondDump = content->Data();
+                Assert(beforeCommentFilterLen == afterCommentFilterLen);
+#endif
 
                 if (content->Data().isEmpty())
                 {
