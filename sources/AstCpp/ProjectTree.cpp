@@ -63,7 +63,7 @@ namespace Ast::Cpp
                 }
 
                 if (path.generic_string() ==
-                    "/home/valerii/workspace/draft/ASTCpp/dependencies/AST/dependencies/boost-1.86.0/libs/wave/test/testwave/testfiles/t_5_035.cpp")
+                    "/home/valerii/workspace/draft/ASTCpp/dependencies/AST/dependencies/boost-1.86.0/libs/spirit/classic/test/escape_char_parser_tests.cpp")
                 {
                     int i = 1;
                 }
@@ -76,7 +76,7 @@ namespace Ast::Cpp
                     return;
                 }
 
-                auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(content)));
+                // auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(content)));
                 /*
                 if (data->tree.HasAtLeastOneMarkedLexer())
                 {

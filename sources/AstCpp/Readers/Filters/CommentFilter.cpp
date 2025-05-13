@@ -29,17 +29,6 @@ namespace Ast::Cpp
 
     void CommentFilter::MakeTransform(String& content)
     {
-        RemoveSingleLineComments(content);
-        RemoveMultiLineComments(content);
-
-        /*std::ofstream file("file.cpp");
-        file << content.c_str();
-        file.close();*/
-    }
-
-    void CommentFilter::RemoveSingleLineComments(String& content)
-    {
-        // removing '//' comments
         String out(content.size());
 
         auto* i = content.c_str();
@@ -55,13 +44,34 @@ namespace Ast::Cpp
                 ++old;
             }
 
+            bool wasSkippedComment = false;
+            if (i && i[0] && i[1] && i[0] == '/' && i[1] == '*')
+            {
+                while (i && i[0] && i[1])
+                {
+                    if (i[0] == '*' && i[1] == '/')
+                    {
+                        i += 2;
+                        break;
+                    }
+
+                    if (i[0] == '\n')
+                    {
+                        out.push_back('\n');
+                    }
+                    wasSkippedComment = true;
+                    ++i;
+                }
+            }
+
             while (i && i[0] && i[0] == '/' && i[1] && i[1] == '/')
             {
                 i = String::FindNextLine(i);
                 out.push_back('\n');
+                wasSkippedComment = true;
             }
 
-            if (i && *i)
+            if (!wasSkippedComment && i && *i && !Utils::IsStartOfStringLiteral(i))
             {
                 out.push_back(*i);
 
@@ -70,6 +80,11 @@ namespace Ast::Cpp
         }
 
         content = std::move(out);
+    }
+
+    void CommentFilter::RemoveSingleLineComments(String& content)
+    {
+        // removing '//' comments
     }
 
     void CommentFilter::RemoveMultiLineComments(String& content)
