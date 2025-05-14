@@ -48,6 +48,8 @@ namespace Ast::Cpp
         MakeCorrectDependencies();
         OnParse();
 
+        infoLog("Successfully parsed the file: '{}'"_f << _contentStream->GetFilePath());
+
         return true;
     }
 
@@ -76,9 +78,6 @@ namespace Ast::Cpp
         {
             lexer = MakeCorrectDependenciesForLexer(lexer);
         }
-
-        logger->info(
-            ("Successfully was build dependencies between lexers at file: '{}'"_f << _contentStream->GetFilePath().c_str()).toStdStringView());
     }
 
     void Parser::OnParse()
