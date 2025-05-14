@@ -34,8 +34,9 @@
 
 namespace Ast::Cpp
 {
+    extern const char __BaseLogHeader_Parser[];
 
-    class Parser final : public Ast::Parser
+    class Parser final : public Ast::Parser, public BaseLog<__BaseLogHeader_Parser>
     {
     public:
         template<class T>

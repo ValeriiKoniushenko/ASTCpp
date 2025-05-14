@@ -106,4 +106,48 @@ namespace Ast::Cpp
         getAcceptableFileExtensions() = std::unordered_set<std::string>{ ".cpp", ".cxx", ".c++", ".h", ".hpp", ".hxx", ".H", ".hh" };
     }
 
+    void ProjectTree::generate()
+    {
+        auto root = _fstree->getRoot();
+        if (!requireAbilityToGenerate())
+        {
+            return;
+        }
+    }
+
+    bool ProjectTree::requireAbilityToGenerate() const
+    {
+        auto root = _fstree->getRoot();
+
+        if (!root->isValid())
+        {
+            logger->critical("Internal problem while generating. Root path is invalid.");
+            return false;
+        }
+
+        if (boost::dynamic_pointer_cast<DirectoryUnit>(root))
+        {
+            if (!root->isExistOnDisk())
+            {
+                logger->critical("Can't generate the code, because the passed project path doesn't exist.");
+                return false;
+            }
+            if (!root->isWriteable())
+            {
+                logger->critical("Can't generate the code, because the passed project path doesn't have needed write permissions.");
+                return false;
+            }
+        }
+        else
+        {
+            logger->critical("Can't generate the code, because while trying of creating 'generated' folder, the project path is non-folder.");
+            return false;
+        }
+
+        logger->debug(
+            ("Trying to generate a code. The root path was successfully validated: {}"_f << root->getPath().generic_string()).toStdStringView());
+
+        return true;
+    }
+
 } // namespace Ast::Cpp

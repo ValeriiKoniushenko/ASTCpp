@@ -31,6 +31,7 @@
 
 namespace Ast::Cpp
 {
+    const char __BaseLogHeader_Parser[] = "Parser";
 
     bool Parser::Parse(const ContentStream::Ptr& stream)
     {
@@ -75,8 +76,9 @@ namespace Ast::Cpp
         {
             lexer = MakeCorrectDependenciesForLexer(lexer);
         }
-        
-        spdlog::info(("Successfully was build dependencies between lexers at file: '{}'"_f << _contentStream->GetFilePath().c_str()).toStdStringView());
+
+        logger->info(
+            ("Successfully was build dependencies between lexers at file: '{}'"_f << _contentStream->GetFilePath().c_str()).toStdStringView());
     }
 
     void Parser::OnParse()

@@ -48,6 +48,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    project->generate();
+
     project->getFSTree()->prettyPrint(
         [](const DiskUnit* unit) -> FSTree::PrettyInfo
         {

@@ -54,9 +54,13 @@ namespace Ast::Cpp
         ~ProjectTree() override = default;
 
         [[nodiscard]] static Ptr Create() { return new ProjectTree(); }
+        void generate();
 
     protected:
         void onFinishScanFilesystem() override;
+
+    private:
+        [[nodiscard]] bool requireAbilityToGenerate() const;
     };
 
 } // namespace Ast::Cpp
