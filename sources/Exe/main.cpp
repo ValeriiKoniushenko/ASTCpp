@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
     // project->addIgnorePath("*dependencies*");
     project->addIgnorePath("*build*");
 
-    // Possible settings:
+    // === Possible settings: ===
     // project->setIgnoreSymlinks(true);
 
     if (!project->scanProject())

@@ -470,6 +470,11 @@ namespace Ast::Cpp
 
                 Field tempField;
 
+                if (str.regexFind(R"(^\s*(using|namespace|enum))"))
+                {
+                    return true;
+                }
+
                 if (str.regexFind(R"(static\s+)"))
                 {
                     tempField.isStatic = true;
@@ -491,12 +496,13 @@ namespace Ast::Cpp
                     str.regexReplace(R"(constinit\s+)", "", 1);
                 }
 
-                const char* typeRegexExpr = R"(^[\w:\<\>]+(\<[\w:]*\>)?)";
+                const char* typeRegexExpr = R"(^\s*[\w:\*\&]+(\<[\[\]\(\)\w ,\<\>:\*\&\.\+\-]*\>)?)";
                 if (auto matchType = str.regexFind(typeRegexExpr))
                 {
                     tempField.type = matchType.convertBasedOn(str);
                     tempField.type.shrink_to_fit();
                     str.regexReplace(typeRegexExpr, "", 1);
+                    std::cerr << tempField.type;
                     str.trimStart(' ');
                 }
                 else
@@ -514,6 +520,8 @@ namespace Ast::Cpp
                     tempField.name.shrink_to_fit();
                     str.regexReplace(R"(^\w+)", "", 1);
                     str.trimStart(' ');
+
+                    std::cerr << std::setw(50) << tempField.name << std::endl;
                 }
                 else
                 {
