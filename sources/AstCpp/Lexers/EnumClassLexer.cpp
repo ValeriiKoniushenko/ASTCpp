@@ -35,9 +35,9 @@ namespace Ast::Cpp
     String EnumClassLexer::Constant::GetTextSource()
     {
         String source = name;
-        if (value)
+        if (!value.isEmpty())
         {
-            source += " = " + String::MakeFrom(value.value());
+            source += " = " + value;
         }
 
         return source;
@@ -58,12 +58,13 @@ namespace Ast::Cpp
         return {};
     }
 
-    EnumClassLexer::Constant EnumClassLexer::GetConstant(unsigned long long value) const
+    EnumClassLexer::Constant EnumClassLexer::GetConstantByValue(const String& value) const
     {
-        auto found = std::find_if(_constants.cbegin(), _constants.cend(), [value](const Constant& a)
-        {
-            return a.value.value_or(~0ull) == value;
-        });
+        auto found = std::find_if(_constants.cbegin(), _constants.cend(),
+                                  [&value](const Constant& a)
+                                  {
+                                      return a.value == value;
+                                  });
 
         if (found != _constants.cend())
         {
@@ -73,33 +74,8 @@ namespace Ast::Cpp
         return {};
     }
 
-    bool EnumClassLexer::AddConstant(const String& name, std::optional<unsigned long long> value)
+    bool EnumClassLexer::AddConstant(const String& name, String value)
     {
-        if (!value.has_value())
-        {
-            auto max = std::max_element(_constants.cbegin(), _constants.cend(), [](const Constant& a, const Constant& b)
-            {
-                return a.value.value_or(0) < b.value.value_or(0);
-            });
-
-            if (max != _constants.cend())
-            {
-                value = max->value.value_or(0) + 1;
-            }
-            else
-            {
-                value = 0;
-            }
-        }
-
-        if (!Verify(std::find_if(_constants.cbegin(), _constants.cend(), [&value](const Constant& a)
-            {
-                return a.value.has_value() ? a.value.value_or(0) == value.value() : false;
-            }) == _constants.cend(), "Impossible to add new enum class constant, because such value already exists"))
-        {
-            return false;
-        }
-
         if (!Verify(std::find_if(_constants.cbegin(), _constants.cend(), [&name](const Constant& a)
             {
                 return a.name == name;
@@ -108,7 +84,7 @@ namespace Ast::Cpp
             return false;
         }
 
-        _constants.emplace_back(Constant{name, std::move(value) });
+        _constants.emplace_back(name, std::move(value));
         return true;
     }
 
@@ -289,19 +265,47 @@ namespace Ast::Cpp
     {
         if (!Verify(_openScope.has_value() && _openScope->IsValid() && _closeScope.has_value() && _closeScope->IsValid()))
         {
-            spdlog::error(("Impossible to get an enum class scope '{}'"_f << _lexerName.c_str()).toStdStringView());
+            spdlog::error(("Impossible to get a enum class scope '{}'"_f << _lexerName.c_str()).toStdStringView());
             return false;
         }
 
         String buffer(_openScope->string, _closeScope->string - _openScope->string);
         buffer.trim('{').trim('}').regexReplaceAll(R"(\s)", "", 1);
-        for (auto& constant : buffer.split(","_atom))
+
+        bool canParseValues = true;
+
+        auto tokens = buffer.split(","_atom);
+        _constants.clear();
+        _constants.reserve(tokens.size());
+
+        for (auto& constant : tokens)
         {
-            if (auto match = constant.regexFind(R"(^\w+)"))
+            auto splitted = constant.split("=");
+
+            if (1 > splitted.size() || splitted.size() > 2)
             {
-                _constants.emplace_back(match.convertBasedOn(constant), std::nullopt);
-                _constants.back().name.shrink_to_fit();
+                String file;
+                if (_reader)
+                {
+                    file = "File '{}'"_f << _reader->GetFilePath();
+                }
+
+                logger->error(
+                    ("The error occurred while parsing constants of the enum class: '{}' in file: {}"_f << _lexerName << file).toStdStringView());
+                Assert();
+                return false;
             }
+
+            Constant tmp;
+            tmp.name = std::move(splitted.front());
+            tmp.name.shrink_to_fit();
+
+            if (splitted.size() == 2)
+            {
+                tmp.value = std::move(splitted.back());
+                tmp.value.shrink_to_fit();
+            }
+            _constants.push_back(std::move(tmp));
         }
 
         return true;

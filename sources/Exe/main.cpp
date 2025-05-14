@@ -34,10 +34,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // project->addIgnorePath("ASTCpp");
+    project->addIgnorePath("ASTCpp");
     project->addIgnorePath("*.idea");
     project->addIgnorePath("*.git");
-    // project->addIgnorePath("*dependencies*");
+    project->addIgnorePath("*dependencies*");
     project->addIgnorePath("*build*");
 
     // === Possible settings: ===
