@@ -502,7 +502,6 @@ namespace Ast::Cpp
                     tempField.type = matchType.convertBasedOn(str);
                     tempField.type.shrink_to_fit();
                     str.regexReplace(typeRegexExpr, "", 1);
-                    std::cerr << tempField.type;
                     str.trimStart(' ');
                 }
                 else
@@ -520,8 +519,6 @@ namespace Ast::Cpp
                     tempField.name.shrink_to_fit();
                     str.regexReplace(R"(^\w+)", "", 1);
                     str.trimStart(' ');
-
-                    std::cerr << std::setw(50) << tempField.name << std::endl;
                 }
                 else
                 {

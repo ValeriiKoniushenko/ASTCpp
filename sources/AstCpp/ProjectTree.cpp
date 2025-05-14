@@ -85,12 +85,10 @@ namespace Ast::Cpp
                 }
 
                 auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(content)));
-                /*
                 if (data->tree.HasAtLeastOneMarkedLexer())
                 {
                     file->getData() = std::move(data);
                 }
-                 */
             });
 
         String metricsStr;

@@ -48,7 +48,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    return 0;
     project->getFSTree()->prettyPrint(
         [](const DiskUnit* unit) -> FSTree::PrettyInfo
         {
@@ -61,6 +60,10 @@ int main(int argc, char* argv[])
                 auto data = boost::dynamic_pointer_cast<Ast::Cpp::FileDataContainer>(file->getData());
 
                 info.prefix[3] = data ? '0' : '1';
+                if (!data)
+                {
+                    return { true };
+                }
 
                 return info;
             }
