@@ -491,7 +491,7 @@ namespace Ast::Cpp
                     str.regexReplace(R"(constinit\s+)", "", 1);
                 }
 
-                const char* typeRegexExpr = R"(^[A-Za-z_\-0-9:]+(\<[A-Za-z_\-0-9:]*\>)?)";
+                const char* typeRegexExpr = R"(^[\w:\<\>]+(\<[\w:]*\>)?)";
                 if (auto matchType = str.regexFind(typeRegexExpr))
                 {
                     tempField.type = matchType.convertBasedOn(str);
