@@ -122,6 +122,12 @@ namespace Ast::Cpp
             return;
         }
 
+        forEachFilesWithMarkedLexers(
+            [&generatedDir](FileUnit* file)
+            {
+                auto data = boost::dynamic_pointer_cast<FileDataContainer>(file->getData());
+                auto& tree = data->tree;
+            });
     }
 
     bool ProjectTree::requireAbilityToGenerate() const
@@ -157,6 +163,29 @@ namespace Ast::Cpp
             ("Trying to generate a code. The root path was successfully validated: {}"_f << root->getPath().generic_string()).toStdStringView());
 
         return true;
+    }
+
+    void ProjectTree::forEachFilesWithMarkedLexers(const std::function<void(FileUnit*)>& callback)
+    {
+        if (!callback)
+        {
+            return;
+        }
+
+        forEachFilesWithData(
+            [&callback](FileUnit* file)
+            {
+                auto data = boost::dynamic_pointer_cast<FileDataContainer>(file->getData());
+                if (!data)
+                {
+                    return;
+                }
+
+                if (data->tree.HasAtLeastOneMarkedLexer())
+                {
+                    callback(file);
+                }
+            });
     }
 
 } // namespace Ast::Cpp

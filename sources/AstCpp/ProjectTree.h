@@ -61,6 +61,8 @@ namespace Ast::Cpp
         [[nodiscard]] static Ptr Create() { return new ProjectTree(); }
         void generate();
 
+        void forEachFilesWithMarkedLexers(const std::function<void(FileUnit*)>& callback);
+
     protected:
         void onFinishScanFilesystem() override;
 
