@@ -122,8 +122,6 @@ namespace Ast::Cpp
             return;
         }
 
-        auto smth = generatedDir->addChildAndGetBack(FileUnit::Create("smth.txt"));
-        smth->putContent("Hello world!");
     }
 
     bool ProjectTree::requireAbilityToGenerate() const
