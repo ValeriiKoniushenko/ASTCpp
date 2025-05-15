@@ -37,11 +37,16 @@ namespace Ast::Cpp
         [[nodiscard]] static Ptr Create(Tree<Cpp::FileLexer>&& newTree) { return new FileDataContainer(std::move(newTree)); }
 
         explicit FileDataContainer(Tree<Cpp::FileLexer>&& newTree)
-            : tree(std::move(newTree))
+            : tree(newTree)
         {
         }
 
         Tree<Cpp::FileLexer> tree;
+    };
+
+    struct Config
+    {
+        std::filesystem::path generatedDirName = "generated";
     };
 
     class ProjectTree : public Ast::ProjectTree
@@ -61,6 +66,9 @@ namespace Ast::Cpp
 
     private:
         [[nodiscard]] bool requireAbilityToGenerate() const;
+
+    protected:
+        Config _config;
     };
 
 } // namespace Ast::Cpp

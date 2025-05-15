@@ -108,11 +108,22 @@ namespace Ast::Cpp
 
     void ProjectTree::generate()
     {
-        auto root = _fstree->getRoot();
-        if (!requireAbilityToGenerate())
+        auto root = _fstree->getRootAs<DirectoryUnit>();
+        if (!requireAbilityToGenerate() || !root)
         {
             return;
         }
+
+        auto generatedDir = root->makeOrGetDir(_config.generatedDirName);
+
+        if (!generatedDir)
+        {
+            criticalLog("Internal problem. Impossible to create '{}' dir."_f << _config.generatedDirName.generic_string());
+            return;
+        }
+
+        auto smth = generatedDir->addChildAndGetBack(FileUnit::Create("smth.txt"));
+        smth->putContent("Hello world!");
     }
 
     bool ProjectTree::requireAbilityToGenerate() const
