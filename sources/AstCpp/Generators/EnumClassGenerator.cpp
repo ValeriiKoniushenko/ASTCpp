@@ -247,15 +247,21 @@ namespace Ast::Cpp
 
     EnumClassGenerator::EnumClassGenerator()
     {
-        addToGlobalHead(R"(#include "Ast/CommonTypes.h")");
+        addToGlobalHead(R"(#include <cstring>)");
         addToGlobalHead(R"(#include <type_traits>)");
-        addToGlobalHead(R"(#include <vector>)");
-        addToGlobalHead(R"(#include <unordered_map>)");
     }
 
     String EnumClassGenerator::generateLocalHead()
     {
-        return "namespace Reflect::Enum{";
+        auto* lexer = getLexer();
+
+        String out = R"(
+enum class CHANGEME_name;
+
+namespace Reflect::Enum{)";
+        out.replaceAll("CHANGEME_name", lexer->GetLexerName());
+
+        return out;
     }
 
     String EnumClassGenerator::generateBody()

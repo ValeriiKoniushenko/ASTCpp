@@ -114,16 +114,8 @@ namespace Ast::Cpp
             return;
         }
 
-        auto generatedDir = root->makeOrGetDir(_config.generatedDirName);
-
-        if (!generatedDir)
-        {
-            criticalLog("Internal problem. Impossible to create '{}' dir."_f << _config.generatedDirName.generic_string());
-            return;
-        }
-
         forEachFilesWithMarkedLexers(
-            [&generatedDir, this](FileUnit* file)
+            [&root, this](FileUnit* file)
             {
                 auto data = boost::dynamic_pointer_cast<FileDataContainer>(file->getData());
 
@@ -134,7 +126,23 @@ namespace Ast::Cpp
                         lexers.push_back(lexer);
                     });
 
-                _composer->generate(lexers);
+                auto path = file->getPath();
+                if (path.empty())
+                {
+                    criticalLog("Impossible to extrude a path from file unit: {}"_f << file->getName());
+                    return;
+                }
+                path.replace_extension(".h");
+                path = _config.generatedDirName / path.lexically_relative(_projectPath);
+
+                auto pathToFile = path;
+                auto targetDir = root->makeOrGetDir(path.remove_filename());
+                if (!targetDir->createOnDiskIfNotExists())
+                {
+                    return;
+                }
+
+                _composer->generate(lexers, _projectPath / pathToFile);
             });
     }
 
