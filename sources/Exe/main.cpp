@@ -20,6 +20,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
+#include "AstCpp/Generators/EnumClassGenerator.h"
 #include "AstCpp/Lexers/EnumClassLexer.h"
 #include "AstCpp/ProjectTree.h"
 
@@ -50,7 +51,7 @@ int main(int argc, char* argv[])
     }
 
     auto composer = Ast::GeneratorFileComposer::Create();
-    // composer.addGenerator<EnumClassGenerator, Cpp::EnumClassLexer>();
+    composer->addGenerator<Cpp::EnumClassLexer, Cpp::EnumClassGenerator>();
 
     project->setGeneratorFileComposer(composer);
     project->generate();

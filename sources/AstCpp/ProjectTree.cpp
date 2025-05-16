@@ -123,10 +123,18 @@ namespace Ast::Cpp
         }
 
         forEachFilesWithMarkedLexers(
-            [&generatedDir](FileUnit* file)
+            [&generatedDir, this](FileUnit* file)
             {
                 auto data = boost::dynamic_pointer_cast<FileDataContainer>(file->getData());
-                int i = 1;
+
+                std::vector<BaseLexer*> lexers;
+                data->tree.ForEachOverMarked(
+                    [&lexers](BaseLexer* lexer)
+                    {
+                        lexers.push_back(lexer);
+                    });
+
+                _composer->generate(lexers);
             });
     }
 
