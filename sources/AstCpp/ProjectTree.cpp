@@ -126,7 +126,7 @@ namespace Ast::Cpp
             [&generatedDir](FileUnit* file)
             {
                 auto data = boost::dynamic_pointer_cast<FileDataContainer>(file->getData());
-                auto& tree = data->tree;
+                int i = 1;
             });
     }
 
