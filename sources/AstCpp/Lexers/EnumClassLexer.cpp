@@ -304,6 +304,9 @@ namespace Ast::Cpp
                 tmp.value = std::move(splitted.back());
                 tmp.value.shrink_to_fit();
             }
+            else
+            {
+            }
             _constants.push_back(std::move(tmp));
         }
 

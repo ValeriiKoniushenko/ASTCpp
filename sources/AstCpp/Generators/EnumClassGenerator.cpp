@@ -249,6 +249,7 @@ namespace Ast::Cpp
     {
         addToGlobalHead(R"(#include <cstring>)");
         addToGlobalHead(R"(#include <type_traits>)");
+        addToGlobalHead(R"(#include <vector>)");
     }
 
     String EnumClassGenerator::generateLocalHead()
@@ -272,8 +273,107 @@ namespace Reflect::Enum{)";
 [[nodiscard]] consteval std::enable_if_t<std::is_same_v<T, CHANGEME_name>, const char*> Name() noexcept
 {
     return "CHANGEME_name";
+}
+
+template<class T>
+[[nodiscard]] consteval std::enable_if_t<std::is_same_v<T, CHANGEME_name>, const char*> AbsoluteName() noexcept
+{
+    return "CHANGEME_absolute_name_just";
+}
+
+template<class T>
+[[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, CHANGEME_name>, const std::vector<std::string>&> AbsoluteNameAsVector() noexcept
+{
+    static const std::vector<std::string> data = { CHANGEME_absolute_name_as_vector };
+    return data;
+}
+
+template<class T>
+[[nodiscard]] consteval std::enable_if_t<std::is_same_v<T, CHANGEME_name>, int> Count() noexcept
+{
+    return CHANGEME_count;
+}
+
+[[nodiscard]] constexpr const char* ToString(const CHANGEME_name value) noexcept
+{
+    const auto casted = static_cast<std::underlying_type_t<CHANGEME_name>>(value);
+    CHANGEME_to_string_func
+
+    return nullptr;
+}
+
+template<class T>
+[[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, CHANGEME_name>, std::optional<T>> FromString(const char* value) noexcept
+{
+    CHANGEME_from_string_func
+
+    return std::nullopt;
 })";
-        out.replaceAll("CHANGEME_name", lexer->GetLexerName());
+
+        // name
+        {
+            out.replaceAll("CHANGEME_name", lexer->GetLexerName());
+        }
+
+        auto absolute = lexer->GetFullPath();
+        {
+            // absolute path as string
+            out.replaceAll("CHANGEME_absolute_name_just", absolute.first);
+
+            // absolute path as vector
+            String str(128);
+            for (auto i : absolute.first.split("::"_atom))
+            {
+                i = "\"" + i + "\", ";
+                str.push_back(std::move(i));
+            }
+            str.trimEnd(' ');
+            str.trimEnd(',');
+            out.replaceAll("CHANGEME_absolute_name_as_vector", str);
+        }
+
+        // count
+        {
+            out.replaceAll("CHANGEME_count", String::MakeFrom(lexer->GetConstants().size()));
+        }
+
+        // to string func
+        {
+            String func(512);
+            for (auto& constant : lexer->GetConstants())
+            {
+                String piece = R"(if (casted == VALUE)
+{
+    return "KEY";
+})";
+                piece.replaceAll("VALUE", constant.value);
+                piece.replaceAll("KEY", constant.name);
+
+                func += std::move(piece);
+                func += ITextSourceReader::Code::Endl();
+            }
+
+            out.replaceAll("CHANGEME_to_string_func", func);
+        }
+
+        // from string func
+        {
+            String func(512);
+            for (auto& constant : lexer->GetConstants())
+            {
+                String piece = R"(if (strcmp("KEY", value) == 0)
+{
+    return static_cast<T>(VALUE);
+})";
+                piece.replaceAll("VALUE", constant.value);
+                piece.replaceAll("KEY", constant.name);
+
+                func += std::move(piece);
+                func += ITextSourceReader::Code::Endl();
+            }
+
+            out.replaceAll("CHANGEME_from_string_func", func);
+        }
 
         return out;
     }
