@@ -49,7 +49,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // project->registerGenerator<EnumClassGenerator, Cpp::EnumClassLexer>();
+    auto composer = Ast::GeneratorFileComposer::Create();
+    // composer.addGenerator<EnumClassGenerator, Cpp::EnumClassLexer>();
+
+    project->setGeneratorFileComposer(composer);
     project->generate();
 
     project->getFSTree()->prettyPrint(

@@ -159,6 +159,20 @@ namespace Ast::Cpp
             return false;
         }
 
+        if (!_composer)
+        {
+            criticalLog("Can't generate the code, because the composer is missed.");
+            return false;
+        }
+        else
+        {
+            if (_composer->getGeneratorsCount() == 0)
+            {
+                criticalLog("Can't generate the code, because the composer doesn't have any generators. Add it and try again.");
+                return false;
+            }
+        }
+
         debugLog("Trying to generate a code. The root path was successfully validated: {}"_f << root->getPath().generic_string());
 
         return true;
