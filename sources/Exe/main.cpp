@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    project->registerGenerator<EnumClassGenerator, Cpp::EnumClassLexer>();
+    // project->registerGenerator<EnumClassGenerator, Cpp::EnumClassLexer>();
     project->generate();
 
     project->getFSTree()->prettyPrint(

@@ -41,7 +41,7 @@ namespace Ast::Cpp
         repeater.setCallback(
             [&count, this](auto)
             {
-                logger->info(("Status: have build dependencies for {} entries."_f << count).toStdStringView());
+                infoLog("Status: have build dependencies for {} entries."_f << count);
             });
 
         _fstree->forEach(
@@ -98,7 +98,7 @@ namespace Ast::Cpp
             metricsStr = "~{} entries per second."_f << int(static_cast<double>(count) / timeGap);
         }
 
-        logger->info(("Was took {}s for building of {} entries. {}"_f << timeGap << count << metricsStr).toStdStringView());
+        infoLog("Was took {}s for building of {} entries. {}"_f << timeGap << count << metricsStr);
     }
 
     ProjectTree::ProjectTree()
@@ -136,7 +136,7 @@ namespace Ast::Cpp
 
         if (!root->isValid())
         {
-            logger->critical("Internal problem while generating. Root path is invalid.");
+            criticalLog("Internal problem while generating. Root path is invalid.");
             return false;
         }
 
@@ -144,23 +144,22 @@ namespace Ast::Cpp
         {
             if (!root->isExistOnDisk())
             {
-                logger->critical("Can't generate the code, because the passed project path doesn't exist.");
+                criticalLog("Can't generate the code, because the passed project path doesn't exist.");
                 return false;
             }
             if (!root->isWriteable())
             {
-                logger->critical("Can't generate the code, because the passed project path doesn't have needed write permissions.");
+                criticalLog("Can't generate the code, because the passed project path doesn't have needed write permissions.");
                 return false;
             }
         }
         else
         {
-            logger->critical("Can't generate the code, because while trying of creating 'generated' folder, the project path is non-folder.");
+            criticalLog("Can't generate the code, because while trying of creating 'generated' folder, the project path is non-folder.");
             return false;
         }
 
-        logger->debug(
-            ("Trying to generate a code. The root path was successfully validated: {}"_f << root->getPath().generic_string()).toStdStringView());
+        debugLog("Trying to generate a code. The root path was successfully validated: {}"_f << root->getPath().generic_string());
 
         return true;
     }

@@ -34,9 +34,8 @@
 
 namespace Ast::Cpp
 {
-    extern const char __BaseLogHeader_Parser[];
 
-    class Parser final : public Ast::Parser, public BaseLog<__BaseLogHeader_Parser>
+    class Parser final : public Ast::Parser, public BaseLog
     {
     public:
         template<class T>
@@ -71,6 +70,12 @@ namespace Ast::Cpp
                 }
             }
             return true;
+        }
+
+        [[nodiscard]] spdlog::logger* getLogger() const final
+        {
+            static std::shared_ptr<spdlog::logger> logger = spdlog::stdout_color_mt("Parser");
+            return logger.get();
         }
 
     private:

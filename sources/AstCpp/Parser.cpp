@@ -31,7 +31,6 @@
 
 namespace Ast::Cpp
 {
-    const char __BaseLogHeader_Parser[] = "Parser";
 
     bool Parser::Parse(const ContentStream::Ptr& stream)
     {

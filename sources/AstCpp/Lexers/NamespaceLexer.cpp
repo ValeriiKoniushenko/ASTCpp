@@ -128,8 +128,7 @@ namespace Ast::Cpp
             {
                 file = "File '{}'"_f << _reader->GetFilePath();
             }
-            logger->error(("Can't parse lexer: '{}' - '{}' - because met troubles with '{' '}' scopes. {}"_f << _lexerName << _lexerType << file)
-                              .toStdStringView());
+            errorLog("Can't parse lexer: '{}' - '{}' - because met troubles with '{' '}' scopes. {}"_f << _lexerName << _lexerType << file);
             return false;
         }
 

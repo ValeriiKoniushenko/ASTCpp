@@ -290,8 +290,7 @@ namespace Ast::Cpp
                     file = "File '{}'"_f << _reader->GetFilePath();
                 }
 
-                logger->error(
-                    ("The error occurred while parsing constants of the enum class: '{}' in file: {}"_f << _lexerName << file).toStdStringView());
+                errorLog("The error occurred while parsing constants of the enum class: '{}' in file: {}"_f << _lexerName << file);
                 Assert();
                 return false;
             }
