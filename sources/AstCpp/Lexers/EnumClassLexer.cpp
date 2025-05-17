@@ -278,6 +278,8 @@ namespace Ast::Cpp
         _constants.clear();
         _constants.reserve(tokens.size());
 
+        String* lastValue = nullptr;
+
         for (auto& constant : tokens)
         {
             auto splitted = constant.split("=");
@@ -306,8 +308,17 @@ namespace Ast::Cpp
             }
             else
             {
+                if (lastValue)
+                {
+                    tmp.value = *lastValue + " + 1";
+                }
+                else
+                {
+                    tmp.value = "0";
+                }
             }
             _constants.push_back(std::move(tmp));
+            lastValue = &_constants.back().value;
         }
 
         return true;

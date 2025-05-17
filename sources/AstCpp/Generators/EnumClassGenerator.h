@@ -41,6 +41,10 @@ namespace Ast::Cpp
         EnumClassLexer* getLexer();
 
         [[nodiscard]] const char* getPrefix() const override { return "EnumClass"; }
+
+    private:
+        String getNamespacePath() const;
+        const String& getNamespaceStr() const;
     };
 
 #if 0

@@ -247,20 +247,34 @@ namespace Ast::Cpp
 
     EnumClassGenerator::EnumClassGenerator()
     {
+        addToGlobalHead(R"(#include <string>)");
         addToGlobalHead(R"(#include <cstring>)");
         addToGlobalHead(R"(#include <type_traits>)");
         addToGlobalHead(R"(#include <vector>)");
+        addToGlobalHead(R"(#include <optional>)");
     }
 
     String EnumClassGenerator::generateLocalHead()
     {
         auto* lexer = getLexer();
 
-        String out = R"(
-enum class CHANGEME_name;
+        String forwardDecl = "enum class " + lexer->GetLexerName();
+        if (lexer->GetType() != "int")
+        {
+            forwardDecl += " : " + lexer->GetType();
+        }
+        forwardDecl += ";";
 
-namespace Reflect::Enum{)";
-        out.replaceAll("CHANGEME_name", lexer->GetLexerName());
+        {
+            if (auto fullPath = getNamespacePath())
+            {
+                auto finalNamespaceStr = "namespace " + fullPath;
+                forwardDecl = finalNamespaceStr + "{" + forwardDecl + "}";
+            }
+        }
+        forwardDecl += ITextSourceReader::Code::Endl();
+
+        String out = forwardDecl + getNamespaceStr() + "{";
 
         return out;
     }
@@ -270,40 +284,40 @@ namespace Reflect::Enum{)";
         auto* lexer = getLexer();
 
         String out = R"(template<class T>
-[[nodiscard]] consteval std::enable_if_t<std::is_same_v<T, CHANGEME_name>, const char*> Name() noexcept
+[[nodiscard]] consteval std::enable_if_t<std::is_same_v<T, CHANGEME_absolute_name_just>, const char*> Name() noexcept
 {
     return "CHANGEME_name";
 }
 
 template<class T>
-[[nodiscard]] consteval std::enable_if_t<std::is_same_v<T, CHANGEME_name>, const char*> AbsoluteName() noexcept
+[[nodiscard]] consteval std::enable_if_t<std::is_same_v<T, CHANGEME_absolute_name_just>, const char*> AbsoluteName() noexcept
 {
     return "CHANGEME_absolute_name_just";
 }
 
 template<class T>
-[[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, CHANGEME_name>, const std::vector<std::string>&> AbsoluteNameAsVector() noexcept
+[[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, CHANGEME_absolute_name_just>, const std::vector<std::string>&> AbsoluteNameAsVector() noexcept
 {
     static const std::vector<std::string> data = { CHANGEME_absolute_name_as_vector };
     return data;
 }
 
 template<class T>
-[[nodiscard]] consteval std::enable_if_t<std::is_same_v<T, CHANGEME_name>, int> Count() noexcept
+[[nodiscard]] consteval std::enable_if_t<std::is_same_v<T, CHANGEME_absolute_name_just>, int> Count() noexcept
 {
     return CHANGEME_count;
 }
 
-[[nodiscard]] constexpr const char* ToString(const CHANGEME_name value) noexcept
+[[nodiscard]] constexpr const char* ToString(const CHANGEME_absolute_name_just value) noexcept
 {
-    const auto casted = static_cast<std::underlying_type_t<CHANGEME_name>>(value);
+    const auto casted = static_cast<std::underlying_type_t<CHANGEME_absolute_name_just>>(value);
     CHANGEME_to_string_func
 
     return nullptr;
 }
 
 template<class T>
-[[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, CHANGEME_name>, std::optional<T>> FromString(const char* value) noexcept
+[[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, CHANGEME_absolute_name_just>, std::optional<T>> FromString(const char* value) noexcept
 {
     CHANGEME_from_string_func
 
@@ -380,11 +394,26 @@ template<class T>
 
     String EnumClassGenerator::generateLocalTail()
     {
-        return "} // namespace Reflect::Enum";
+        return "} // " + getNamespaceStr();
     }
 
     EnumClassLexer* EnumClassGenerator::getLexer()
     {
         return dynamic_cast<EnumClassLexer*>(_lexer);
+    }
+
+    String EnumClassGenerator::getNamespacePath() const
+    {
+        auto fullPath = _lexer->GetFullPath().first;
+        int finalSize = fullPath.size() - _lexer->GetLexerName().size() - 2; // 2 == "::"
+        fullPath.resize(finalSize < 0 ? 0 : finalSize);
+
+        return fullPath;
+    }
+
+    const String& EnumClassGenerator::getNamespaceStr() const
+    {
+        static const String out = "namespace Reflect::Enum" + ITextSourceReader::Code::Endl();
+        return out;
     }
 } // namespace Ast::Cpp
