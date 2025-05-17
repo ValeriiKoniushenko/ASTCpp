@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    project->addIgnorePath("ASTCpp");
+    // project->addIgnorePath("ASTCpp");
     project->addIgnorePath("*.idea");
     project->addIgnorePath("*.git");
     project->addIgnorePath("*dependencies*");
@@ -60,7 +60,6 @@ int main(int argc, char* argv[])
     project->getFSTree()->prettyPrint(
         [](const DiskUnit* unit) -> FSTree::PrettyInfo
         {
-            return { true };
             if (auto* file = dynamic_cast<const FileUnit*>(unit))
             {
                 FSTree::PrettyInfo info;
