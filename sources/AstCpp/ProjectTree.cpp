@@ -114,10 +114,14 @@ namespace Ast::Cpp
             return;
         }
 
-        forEachFilesWithMarkedLexers(
-            [&root, this](FileUnit* file)
+        infoLog("All data was parser. Starting of file generation.");
+        Core::Repeater repeater(0.2);
+
+        forEachFilesWithData(
+            [&repeater, &root, this](FileUnit* file)
             {
                 auto data = boost::dynamic_pointer_cast<FileDataContainer>(file->getData());
+                repeater.startOrUpdate();
 
                 std::vector<BaseLexer*> lexers;
                 data->tree.ForEachOverMarked(
@@ -144,6 +148,8 @@ namespace Ast::Cpp
 
                 _composer->generate(lexers, _projectPath / pathToFile);
             });
+
+        infoLog("File generation is Finished! It took {} seconds."_f << repeater.getTimeGap());
     }
 
     bool ProjectTree::requireAbilityToGenerate() const
