@@ -274,7 +274,7 @@ namespace Ast::Cpp
         }
         forwardDecl += ITextSourceReader::Code::Endl();
 
-        String out = forwardDecl + getNamespaceStr() + "{";
+        String out = getLexerDeco() + forwardDecl + getNamespaceStr() + "{";
 
         return out;
     }
@@ -414,6 +414,36 @@ template<class T>
     const String& EnumClassGenerator::getNamespaceStr() const
     {
         static const String out = "namespace Reflect::Enum" + ITextSourceReader::Code::Endl();
+        return out;
+    }
+    String EnumClassGenerator::getLexerDeco() const
+    {
+        String out(512);
+
+        String name = _lexer->GetLexerName();
+
+        out += "// ╔═══════════════════════";
+        for (int i = 0; i < name.size(); ++i)
+        {
+            out += "═";
+        }
+        out += "═══════════════════════╗";
+        out += ITextSourceReader::Code::Endl();
+
+        out += "// ║                       ";
+        out += name;
+        out += "                       ║";
+        out += ITextSourceReader::Code::Endl();
+
+        out += "// ╚═══════════════════════";
+        for (int i = 0; i < name.size(); ++i)
+        {
+            out += "═";
+        }
+        out += "═══════════════════════╝";
+
+        out += ITextSourceReader::Code::Endl();
+
         return out;
     }
 } // namespace Ast::Cpp

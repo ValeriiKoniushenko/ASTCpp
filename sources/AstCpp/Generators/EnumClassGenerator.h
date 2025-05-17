@@ -28,6 +28,7 @@
 
 namespace Ast::Cpp
 {
+
     class EnumClassGenerator : public Ast::BaseGenerator
     {
     public:
@@ -45,59 +46,7 @@ namespace Ast::Cpp
     private:
         String getNamespacePath() const;
         const String& getNamespaceStr() const;
+        String getLexerDeco() const;
     };
 
-#if 0
-    class EnumClassGeneratorDecl : public GeneratorUnitDecl
-    {
-    public:
-        AST_CLASS(EnumClassGeneratorDecl)
-
-        using Code = ITextSourceReader::Code;
-
-        inline static const char* namespaceName = "Enum";
-
-        EnumClassGeneratorDecl()
-            : GeneratorUnitDecl(GeneratorUnitDecl::Create<EnumClassLexer>(namespaceName))
-        {
-            AddLocalInclude("Ast/CommonTypes.h");
-            AddGlobalInclude("type_traits");
-            AddGlobalInclude("vector");
-            AddGlobalInclude("unordered_map");
-            AddGlobalInclude("unordered_set");
-        }
-
-        ~EnumClassGeneratorDecl() override = default;
-
-    public:
-        [[nodiscard]] static Ptr Create() { return new EnumClassGeneratorDecl(); }
-    };
-
-    class EnumClassGeneratorImpl : public GeneratorUnitImpl
-    {
-    public:
-        AST_CLASS(EnumClassGeneratorImpl)
-
-        using Code = ITextSourceReader::Code;
-
-        inline static const char* namespaceName = "Enum";
-
-        EnumClassGeneratorImpl()
-            : GeneratorUnitImpl(GeneratorUnitImpl::Create<EnumClassLexer>(namespaceName))
-        {
-        }
-        ~EnumClassGeneratorImpl() override = default;
-
-        [[nodiscard]] static Ptr Create() { return new EnumClassGeneratorImpl(); }
-
-    private:
-        [[nodiscard]] String GenerateNameImpl(const EnumClassLexer* lexer) const;
-        [[nodiscard]] String GenerateToStringImpl(const EnumClassLexer* lexer) const;
-        [[nodiscard]] String GenerateFromStringImpl(const EnumClassLexer* lexer) const;
-        [[nodiscard]] String GenerateSizeImpl(const EnumClassLexer* lexer) const;
-        [[nodiscard]] String GenerateToVectorImpl(const EnumClassLexer* lexer) const;
-        [[nodiscard]] String GenerateToSetImpl(const EnumClassLexer* lexer) const;
-        [[nodiscard]] String GenerateToMapImpl(const EnumClassLexer* lexer) const;
-    };
-#endif
 } // namespace Ast::Cpp
