@@ -123,13 +123,6 @@ namespace Ast::Cpp
                 auto data = boost::dynamic_pointer_cast<FileDataContainer>(file->getData());
                 repeater.startOrUpdate();
 
-                std::vector<BaseLexer*> lexers;
-                data->tree.ForEachOverMarked(
-                    [&lexers](BaseLexer* lexer)
-                    {
-                        lexers.push_back(lexer);
-                    });
-
                 auto path = file->getPath();
                 if (path.empty())
                 {
@@ -139,14 +132,32 @@ namespace Ast::Cpp
                 path.replace_extension(".h");
                 path = _config.generatedDirName / path.lexically_relative(_projectPath);
 
-                auto pathToFile = path;
+                const auto relativePathToFile = path;
+                auto absolutePathToFile = _projectPath / relativePathToFile;
+
                 auto targetDir = root->makeOrGetDir(path.remove_filename());
                 if (!targetDir->createOnDiskIfNotExists())
                 {
                     return;
                 }
 
-                _composer->generate(lexers, _projectPath / pathToFile);
+                if (std::filesystem::exists(absolutePathToFile))
+                {
+                    auto time = _composer->getModifTimeOfOriginalFile(absolutePathToFile);
+                    if (file->getLastWriteTime() == time)
+                    {
+                        return;
+                    }
+                }
+
+                std::vector<BaseLexer*> lexers;
+                data->tree.ForEachOverMarked(
+                    [&lexers](BaseLexer* lexer)
+                    {
+                        lexers.push_back(lexer);
+                    });
+
+                _composer->generate(lexers, _projectPath / relativePathToFile, file, _projectPath);
             });
 
         infoLog("File generation is Finished! It took {} seconds."_f << repeater.getTimeGap());

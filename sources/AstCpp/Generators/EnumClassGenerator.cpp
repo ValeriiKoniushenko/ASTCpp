@@ -249,6 +249,7 @@ namespace Ast::Cpp
     {
         addToGlobalHead(R"(#include <string>)");
         addToGlobalHead(R"(#include <cstring>)");
+        addToGlobalHead(R"(#include <unordered_map>)");
         addToGlobalHead(R"(#include <type_traits>)");
         addToGlobalHead(R"(#include <vector>)");
         addToGlobalHead(R"(#include <optional>)");
@@ -312,7 +313,6 @@ template<class T>
 {
     const auto casted = static_cast<std::underlying_type_t<CHANGEME_absolute_name_just>>(value);
     CHANGEME_to_string_func
-
     return nullptr;
 }
 
@@ -320,9 +320,15 @@ template<class T>
 [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, CHANGEME_absolute_name_just>, std::optional<T>> FromString(const char* value) noexcept
 {
     CHANGEME_from_string_func
-
     return std::nullopt;
-})";
+}
+
+template<class T>
+[[nodiscard]] std::enable_if_t<std::is_same_v<T, CHANGEME_absolute_name_just>, std::unordered_map<std::string, CHANGEME_absolute_name_just>> ToMap()
+{
+    return { CHANGEME_map_values };
+}
+)";
 
         // name
         {
@@ -387,6 +393,23 @@ template<class T>
             }
 
             out.replaceAll("CHANGEME_from_string_func", func);
+        }
+
+        // { "Green", static_cast<Color>(MYDEFINE11 + 6) }
+        {
+            String func;
+            for (auto& constant : lexer->GetConstants())
+            {
+                String piece = R"({ "KEY", static_cast<ABS>(VALUE) },)";
+                piece.replaceAll("VALUE", constant.value);
+                piece.replaceAll("KEY", constant.name);
+                piece.replaceAll("ABS", absolute.first);
+
+                func += std::move(piece);
+                func += ITextSourceReader::Code::Endl();
+            }
+
+            out.replaceAll("CHANGEME_map_values", func);
         }
 
         return out;
