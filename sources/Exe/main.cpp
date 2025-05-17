@@ -101,6 +101,9 @@ int main(int argc, char* argv[])
             return { true };
         });
 
+    auto shStr = " /opt/llvm/bin/clang-format --style=file:" + (project->getProjectPath() / ".clang-format").generic_string() +
+                 " --fallback-style=llvm -i -- " + (project->getProjectPath() / "generated/main.h").generic_string();
+    system(shStr.c_str());
 #if 0
     project->SetPreferableExtensionForGeneration(".h");
     project->SetFileExtensions({ "*.cpp", ".h" });
