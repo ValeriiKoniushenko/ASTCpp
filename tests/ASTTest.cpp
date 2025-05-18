@@ -685,6 +685,7 @@ TEST(ASTTests, Marks)
     {
         const auto found = tree.FindFirstByNameAs<Cpp::ClassLexer>("GlobalClass");
         ASSERT_TRUE(found);
+        String hello = "lksdjf";
         EXPECT_FALSE(found->IsTemplate());
         ASSERT_TRUE(found->IsMarked());
         EXPECT_EQ("CLASS", found->GetMark()->rule);
