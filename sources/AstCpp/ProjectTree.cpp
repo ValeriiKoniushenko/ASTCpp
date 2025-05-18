@@ -85,7 +85,8 @@ namespace Ast::Cpp
                 }
 
                 auto data = FileDataContainer::Create(Tree<Cpp::FileLexer>::From(Cpp::Parser(content)));
-                if (data->tree.HasAtLeastOneMarkedLexer())
+
+                // if (data->tree.HasAtLeastOneMarkedLexer())
                 {
                     file->getData() = std::move(data);
                 }
@@ -114,32 +115,40 @@ namespace Ast::Cpp
             return;
         }
 
+        auto generatedDir = root->makeOrGetDir(_config.generatedDirName);
+        if (generatedDir)
+        {
+            if (!generatedDir->createOnDiskIfNotExists())
+            {
+                return;
+            }
+        }
+
         infoLog("All data was parser. Starting of file generation.");
         Core::Repeater repeater(0.2);
+        repeater.startOrUpdate();
 
         forEachFilesWithData(
             [&repeater, &root, this](FileUnit* file)
             {
                 auto data = boost::dynamic_pointer_cast<FileDataContainer>(file->getData());
-                repeater.startOrUpdate();
 
-                auto path = file->getPath();
-                if (path.empty())
+                const auto filePath = file->getPath();
+                if (filePath.empty())
                 {
                     criticalLog("Impossible to extrude a path from file unit: {}"_f << file->getName());
                     return;
                 }
-                path.replace_extension(".h");
-                path = _config.generatedDirName / path.lexically_relative(_projectPath);
 
-                const auto relativePathToFile = path;
+                auto generatedFilePath = filePath;
+                const auto finalExtension = generatedFilePath.extension().generic_string() + ".gen.h";
+                generatedFilePath.replace_extension(finalExtension);
+                generatedFilePath = _config.generatedDirName / generatedFilePath.lexically_relative(_projectPath);
+
+                const auto relativePathToFile = generatedFilePath;
                 auto absolutePathToFile = _projectPath / relativePathToFile;
 
-                auto targetDir = root->makeOrGetDir(path.remove_filename());
-                if (!targetDir->createOnDiskIfNotExists())
-                {
-                    return;
-                }
+                auto targetDir = root->makeOrGetDir(generatedFilePath.remove_filename());
 
                 if (std::filesystem::exists(absolutePathToFile))
                 {
@@ -151,13 +160,18 @@ namespace Ast::Cpp
                 }
 
                 std::vector<BaseLexer*> lexers;
-                data->tree.ForEachOverMarked(
+                data->tree.ForEach(
                     [&lexers](BaseLexer* lexer)
                     {
                         lexers.push_back(lexer);
                     });
 
-                _composer->generate(lexers, _projectPath / relativePathToFile, file, _projectPath);
+                if (lexers.empty())
+                {
+                    return;
+                }
+
+                _composer->generate(lexers, _projectPath / relativePathToFile, file, _projectPath, targetDir.get());
             });
 
         infoLog("File generation is Finished! It took {} seconds."_f << repeater.getTimeGap());
@@ -227,7 +241,7 @@ namespace Ast::Cpp
                     return;
                 }
 
-                if (data->tree.HasAtLeastOneMarkedLexer())
+                // if (data->tree.HasAtLeastOneMarkedLexer())
                 {
                     callback(file);
                 }

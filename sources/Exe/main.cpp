@@ -39,8 +39,9 @@ int main(int argc, char* argv[])
     // project->addIgnorePath("ASTCpp");
     project->addIgnorePath("*.idea");
     project->addIgnorePath("*.git");
-    project->addIgnorePath("*dependencies*");
+    // project->addIgnorePath("*dependencies*");
     project->addIgnorePath("*build*");
+    project->addIgnorePath("generated");
 
     // === Possible settings: ===
     // project->setIgnoreSymlinks(true);
@@ -60,6 +61,7 @@ int main(int argc, char* argv[])
     project->getFSTree()->prettyPrint(
         [](const DiskUnit* unit) -> FSTree::PrettyInfo
         {
+            return { true };
             if (auto* file = dynamic_cast<const FileUnit*>(unit))
             {
                 FSTree::PrettyInfo info;

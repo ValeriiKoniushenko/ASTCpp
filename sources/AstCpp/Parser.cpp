@@ -47,7 +47,7 @@ namespace Ast::Cpp
         MakeCorrectDependencies();
         OnParse();
 
-        infoLog("Successfully parsed the file: '{}'"_f << _contentStream->GetFilePath());
+        // infoLog("Successfully parsed the file: '{}'"_f << _contentStream->GetFilePath());
 
         return true;
     }
