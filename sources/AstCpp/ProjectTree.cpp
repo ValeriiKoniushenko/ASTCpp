@@ -171,7 +171,11 @@ namespace Ast::Cpp
                     return;
                 }
 
-                _composer->generate(lexers, _projectPath / relativePathToFile, file, _projectPath, targetDir.get());
+                auto targetPath = _projectPath / relativePathToFile;
+                if (_composer->generate(lexers, targetPath, file, _projectPath, targetDir.get()))
+                {
+                    onSuccessfulFileGenerate.trigger(targetPath);
+                }
             });
 
         infoLog("File generation is Finished! It took {} seconds."_f << repeater.getTimeGap());

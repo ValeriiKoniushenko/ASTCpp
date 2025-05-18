@@ -26,6 +26,7 @@
 #include "Ast/ProjectTree.h"
 #include "AstCpp/Lexers/FileLexer.h"
 #include "AstCpp/Readers/Filters/CommentFilter.h"
+#include "Core/Delegate.h"
 
 namespace Ast::Cpp
 {
@@ -62,6 +63,8 @@ namespace Ast::Cpp
         void generate();
 
         void forEachFilesWithMarkedLexers(const std::function<void(FileUnit*)>& callback);
+
+        Core::Delegate<void(std::filesystem::path)> onSuccessfulFileGenerate;
 
     protected:
         void onFinishScanFilesystem() override;
