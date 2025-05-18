@@ -36,10 +36,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // project->addIgnorePath("ASTCpp");
+    project->addIgnorePath("ASTCpp");
     project->addIgnorePath("*.idea");
     project->addIgnorePath("*.git");
-    // project->addIgnorePath("*dependencies*");
+    project->addIgnorePath("*dependencies*");
     project->addIgnorePath("*build*");
     project->addIgnorePath("generated");
 
@@ -65,66 +65,16 @@ int main(int argc, char* argv[])
     project->setGeneratorFileComposer(composer);
     project->generate();
 
-    project->getFSTree()->prettyPrint(
-        [](const DiskUnit* unit) -> FSTree::PrettyInfo
-        {
-            return { true };
-            if (auto* file = dynamic_cast<const FileUnit*>(unit))
-            {
-                FSTree::PrettyInfo info;
-                info.ignore = false;
-                info.prefix[0] = 'L';
-
-                auto data = boost::dynamic_pointer_cast<Ast::Cpp::FileDataContainer>(file->getData());
-
-                info.prefix[3] = data ? '0' : '1';
-                if (!data)
-                {
-                    return { true };
-                }
-
-                return info;
-            }
-            return { true };
-        });
-
     std::string filesStr;
     for (auto& p : touchedFiles)
     {
         filesStr += (project->getProjectPath() / p).generic_string();
         filesStr += " ";
     }
+
     auto shStr = " /opt/llvm/bin/clang-format --style=file:" + (project->getProjectPath() / ".clang-format").generic_string() +
                  " --fallback-style=llvm -i -- " + filesStr;
     system(shStr.c_str());
-#if 0
-    project->SetPreferableExtensionForGeneration(".h");
-    project->SetFileExtensions({ "*.cpp", ".h" });
-    project->SetTargetProject(project_path);
-    project->ExcludeFromProject(".git");
-    project->ExcludeFromProject("ASTCpp");
-    project->ExcludeFromProject(".idea");
-    project->ExcludeFromProject(".vs");
-    project->ExcludeFromProject("dependencies");
-    project->ExcludeFromProject("cmake-build-debug");
-    project->Process();
-    project->ParseUsing<Cpp::Parser, Cpp::CommentFilter>();
-
-    /*
-    Generator generator;
-    generator.AddGenerator<Cpp::EnumClassGeneratorDecl, Cpp::EnumClassLexer>();
-    generator.AddGenerator<Cpp::EnumClassGeneratorImpl, Cpp::EnumClassLexer>();
-
-    generator.SetTargetProject(project);
-    generator.ForEachOverRegenerateableUnits(
-        [](ProjectTree::Unit* unit)
-        {
-            std::cout << "Generated file will be [re]created for this unit: " << unit->GetPath() << std::endl;
-        });
-
-    generator.Generate();
-    */
-#endif
 
     return 0;
 }
