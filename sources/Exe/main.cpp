@@ -36,11 +36,11 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    project->addIgnorePath("ASTCpp");
-    project->addIgnorePath("*.idea");
-    project->addIgnorePath("*.git");
-    project->addIgnorePath("*dependencies*");
-    project->addIgnorePath("*build*");
+    // project->addIgnorePath("ASTCpp");
+    // project->addIgnorePath("*.idea");
+    // project->addIgnorePath("*.git");
+    // project->addIgnorePath("*dependencies*");
+    // project->addIgnorePath("*build*");
     project->addIgnorePath("generated");
 
     std::vector<std::filesystem::path> touchedFiles;
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 
     auto composer = Ast::GeneratorFileComposer::Create();
     composer->addGenerator<Cpp::EnumClassLexer, Cpp::EnumClassGenerator>();
-    composer->setFileHeader(String("\n\n#pragma once\n"));
+    composer->setFileHeader(String("#pragma once\n"));
 
     project->setGeneratorFileComposer(composer);
     project->generate();

@@ -81,14 +81,19 @@ namespace Ast::Cpp
 
     void Parser::OnParse()
     {
-        IterateOverLexers([this](BaseLexer* lexer)
-        {
-            if (Verify(lexer))
+        IterateOverLexers(
+            [](BaseLexer* lexer)
             {
-                lexer->ValidateAfterParse();
-            }
-            return true;
-        });
+                if (Verify(lexer))
+                {
+                    if (lexer->GetLexerName() == "Unit")
+                    {
+                        int i = 1;
+                    }
+                    lexer->ValidateAfterParse();
+                }
+                return true;
+            });
     }
 
     BaseLexer* Parser::MakeCorrectDependenciesForLexer(BaseLexer* prevLexer)
