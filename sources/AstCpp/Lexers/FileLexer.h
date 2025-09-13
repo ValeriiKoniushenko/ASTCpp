@@ -41,7 +41,10 @@ namespace Ast::Cpp
         void OnPutAdditionalInfoToXml(Xml& xml, XmlNode* output) const override;
         bool DoPostParse() override;
 
-        explicit FileLexer(const ContentStream::Ptr& stream) : Ast::FileLexer(stream) {}
+        explicit FileLexer(const ContentStream::Ptr& stream)
+            : Ast::FileLexer(stream)
+        {
+        }
 
     private:
         bool _hasPragmaOnce = false;

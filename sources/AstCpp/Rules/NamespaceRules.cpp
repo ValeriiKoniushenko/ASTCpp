@@ -27,14 +27,15 @@
 namespace Ast::Cpp::Namespace
 {
 
-    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage /* = nullptr*/) const
+    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, const char* additionalMessage /* = nullptr*/) const
     {
         if (lexer->IsTypeOf<NamespaceLexer>())
         {
             return true;
         }
 
-        spdlog::error(("NamespaceRule: invalid namespace type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
+        spdlog::error(("NamespaceRule: invalid namespace type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none"))
+                          .toStdStringView());
 
         return false;
     }

@@ -27,14 +27,15 @@
 namespace Ast::Cpp::Class
 {
 
-    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage /* = nullptr*/) const
+    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, const char* additionalMessage /* = nullptr*/) const
     {
         if (lexer->IsTypeOf<ClassLexer>())
         {
             return true;
         }
 
-        spdlog::error( ("ClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView() );
+        spdlog::error(
+            ("ClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
 
         return false;
     }

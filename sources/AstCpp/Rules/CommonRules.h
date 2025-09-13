@@ -33,7 +33,7 @@ namespace Ast::Cpp
 
         void SetMaxLineCount(std::size_t max) noexcept { _max = max; };
         [[nodiscard]] std::size_t GetMaxLineCount() const noexcept { return _max; }
-        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage = nullptr) const override;
+        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, const char* additionalMessage = nullptr) const override;
 
     private:
         std::size_t _max = 0;
@@ -47,7 +47,7 @@ namespace Ast::Cpp
         explicit NameRule(const String& regexNameRule);
 
         void SetRegexNameRule(const String& regexNameRule);
-        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage = nullptr) const override;
+        [[nodiscard]] bool IsCorrespondingTheRules(const BaseLexer* lexer, const char* additionalMessage = nullptr) const override;
 
     private:
         String _regexNameRule;

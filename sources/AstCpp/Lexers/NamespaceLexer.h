@@ -36,10 +36,7 @@ namespace Ast::Cpp
 
         inline static const auto typeName = "namespace"_atom;
 
-        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader)
-        {
-            return { new NamespaceLexer(fileReader) };
-        }
+        [[nodiscard]] static Ptr Create(const ContentStream::Ptr& fileReader) { return { new NamespaceLexer(fileReader) }; }
 
         ~NamespaceLexer() override = default;
 

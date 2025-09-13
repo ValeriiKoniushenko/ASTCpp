@@ -27,14 +27,15 @@
 namespace Ast::Cpp::EnumClass
 {
 
-    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage /* = nullptr*/) const
+    bool BaseRule::IsCorrespondingTheRules(const BaseLexer* lexer, const char* additionalMessage /* = nullptr*/) const
     {
         if (lexer->IsTypeOf<EnumClassLexer>())
         {
             return true;
         }
 
-        spdlog::error(("EnumClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
+        spdlog::error(
+            ("EnumClassRule: invalid class type. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
 
         return false;
     }

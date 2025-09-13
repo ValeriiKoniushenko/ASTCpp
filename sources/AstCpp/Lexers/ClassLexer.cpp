@@ -242,7 +242,7 @@ namespace Ast::Cpp
         }
         else
         {
-            spdlog::warn(( "Impossible to parse class token at {}"_f << _token.startLine).toStdStringView());
+            spdlog::warn(("Impossible to parse class token at {}"_f << _token.startLine).toStdStringView());
             return false;
         }
 
@@ -456,9 +456,9 @@ namespace Ast::Cpp
 
         RemoveNestedScopes(body);
 
-        const auto publics = body.regexFindAll(R"(^\s*public\s*\:)", 0, 0,0, PCRE2_MULTILINE);
-        const auto protecteds = body.regexFindAll(R"(^\s*protected\s*\:)", 0, 0,0, PCRE2_MULTILINE);
-        const auto privates = body.regexFindAll(R"(^\s*private\s*\:)", 0, 0,0, PCRE2_MULTILINE);
+        const auto publics = body.regexFindAll(R"(^\s*public\s*\:)", 0, 0, 0, PCRE2_MULTILINE);
+        const auto protecteds = body.regexFindAll(R"(^\s*protected\s*\:)", 0, 0, 0, PCRE2_MULTILINE);
+        const auto privates = body.regexFindAll(R"(^\s*private\s*\:)", 0, 0, 0, PCRE2_MULTILINE);
 
         body.regexIterate(
             R"(^\s*((static\s+)|(constexpr\s+)|(const\s+)|(constinit\s+))*[\w:]+(\<.*\>)?\s+\w+(((\s*=).*)|(;)))",

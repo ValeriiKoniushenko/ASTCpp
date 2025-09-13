@@ -23,11 +23,11 @@
 #include "EnumClassLexer.h"
 
 #include "Ast/Lexers/FileLexer.h"
-#include "spdlog/spdlog.h"
 #include "Ast/Readers/ContentStream.h"
 #include "Ast/Utils/Scopes.h"
 #include "Ast/Utils/String.h"
 #include "NamespaceLexer.h"
+#include "spdlog/spdlog.h"
 
 namespace Ast::Cpp
 {
@@ -45,10 +45,11 @@ namespace Ast::Cpp
 
     EnumClassLexer::Constant EnumClassLexer::GetConstant(const String& name) const
     {
-        auto found = std::find_if(_constants.cbegin(), _constants.cend(), [&name](const Constant& a)
-        {
-            return a.name == name;
-        });
+        auto found = std::find_if(_constants.cbegin(), _constants.cend(),
+                                  [&name](const Constant& a)
+                                  {
+                                      return a.name == name;
+                                  });
 
         if (found != _constants.cend())
         {
@@ -76,10 +77,12 @@ namespace Ast::Cpp
 
     bool EnumClassLexer::AddConstant(const String& name, String value)
     {
-        if (!Verify(std::find_if(_constants.cbegin(), _constants.cend(), [&name](const Constant& a)
-            {
-                return a.name == name;
-            }) == _constants.cend(), "Impossible to add new enum class constant, because such name of the constant already exists"))
+        if (!Verify(std::find_if(_constants.cbegin(), _constants.cend(),
+                                 [&name](const Constant& a)
+                                 {
+                                     return a.name == name;
+                                 }) == _constants.cend(),
+                    "Impossible to add new enum class constant, because such name of the constant already exists"))
         {
             return false;
         }
@@ -210,7 +213,6 @@ namespace Ast::Cpp
             } while (begin > limits.first && (String::IsSpace(*begin) || *begin == ';'));
         }
 
-
         // Corresponding to AstCpp/Markers.h -> #define ENUM_CLASS
         if ((begin = Ast::Utils::SkipBracketsR(this, begin, '(', ')', limits.first)))
         {
@@ -255,8 +257,10 @@ namespace Ast::Cpp
             {
                 _marking = std::nullopt;
 
-                spdlog::error(( "Marking of the lexer '{}' of type '{}' is impossible. Becuase marking of this lexer available only in a file or namespace scope. It can't be marked inside '{}': '{}'"_f
-                    << _lexerName << _lexerType << _parentLexer->GetLexerType() << _parentLexer->GetLexerName()).toStdStringView());
+                spdlog::error(
+                    ("Marking of the lexer '{}' of type '{}' is impossible. Becuase marking of this lexer available only in a file or namespace scope. It can't be marked inside '{}': '{}'"_f
+                     << _lexerName << _lexerType << _parentLexer->GetLexerType() << _parentLexer->GetLexerName())
+                        .toStdStringView());
             }
         }
     }

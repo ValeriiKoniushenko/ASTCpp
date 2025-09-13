@@ -22,9 +22,9 @@
 
 #include "NamespaceLexer.h"
 
-#include "spdlog/spdlog.h"
 #include "Ast/Readers/ContentStream.h"
 #include "Ast/Utils/Scopes.h"
+#include "spdlog/spdlog.h"
 
 namespace Ast::Cpp
 {

@@ -32,7 +32,7 @@ namespace Ast::Cpp
         SetMaxLineCount(max);
     }
 
-    bool LineCountRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage) const
+    bool LineCountRule::IsCorrespondingTheRules(const BaseLexer* lexer, const char* additionalMessage) const
     {
         if (!Verify(lexer))
         {
@@ -45,7 +45,8 @@ namespace Ast::Cpp
             {
                 return true;
             }
-            spdlog::log(_logLevel, ("Invalid class name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
+            spdlog::log(_logLevel,
+                        ("Invalid class name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
         }
         else
         {
@@ -68,7 +69,7 @@ namespace Ast::Cpp
         }
     }
 
-    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer,const char* additionalMessage /* = nullptr*/) const
+    bool NameRule::IsCorrespondingTheRules(const BaseLexer* lexer, const char* additionalMessage /* = nullptr*/) const
     {
         if (const auto&& name = lexer->GetLexerName())
         {
@@ -78,7 +79,8 @@ namespace Ast::Cpp
             }
         }
 
-        spdlog::log(_logLevel, ( "Rule: invalid lexer name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
+        spdlog::log(_logLevel,
+                    ("Rule: invalid lexer name. Additional message: '{}'"_f << (additionalMessage ? additionalMessage : "none")).toStdStringView());
 
         return false;
     }
