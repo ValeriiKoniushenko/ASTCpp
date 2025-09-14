@@ -124,7 +124,7 @@ namespace Ast::Cpp
             }
         }
 
-        infoLog("All data was parser. Starting of file generation.");
+        infoLog("All data was parsed. Starting of file generation.");
         Core::Repeater repeater(0.2);
         repeater.startOrUpdate();
 

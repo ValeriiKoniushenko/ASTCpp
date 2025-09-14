@@ -21,6 +21,7 @@
 //  SOFTWARE.
 
 #include "AstCpp/Generators/EnumClassGenerator.h"
+#include "AstCpp/Lexers/ClassLexer.h"
 #include "AstCpp/Lexers/EnumClassLexer.h"
 #include "AstCpp/ProjectTree.h"
 
@@ -29,26 +30,20 @@ int main(int argc, char* argv[])
     using namespace Ast;
 
     auto project = Cpp::ProjectTree::Create();
-    project->setPathToProject("/home/valerii/workspace/draft");
+    project->setPathToProject("/home/valerii/workspace/AstExample");
 
     if (!project->canBeScanned())
     {
         return 1;
     }
 
-    // project->addIgnorePath("ASTCpp");
-    // project->addIgnorePath("*.idea");
-    // project->addIgnorePath("*.git");
-    // project->addIgnorePath("*dependencies*");
-    // project->addIgnorePath("*build*");
+    project->addIgnorePath("*.idea");
+    project->addIgnorePath("*.git");
+    project->addIgnorePath("*.vscode");
+    project->addIgnorePath("*dependencies*");
+    project->addIgnorePath("*build*");
+    project->addIgnorePath("*googletest*");
     project->addIgnorePath("generated");
-
-    std::vector<std::filesystem::path> touchedFiles;
-    project->onSuccessfulFileGenerate.subscribe(
-        [&touchedFiles](auto path)
-        {
-            touchedFiles.push_back(std::move(path));
-        });
 
     // === Possible settings: ===
     // project->setIgnoreSymlinks(true);
@@ -64,17 +59,6 @@ int main(int argc, char* argv[])
 
     project->setGeneratorFileComposer(composer);
     project->generate();
-
-    std::string filesStr;
-    for (auto& p : touchedFiles)
-    {
-        filesStr += (project->getProjectPath() / p).generic_string();
-        filesStr += " ";
-    }
-
-    auto shStr = " /opt/llvm/bin/clang-format --style=file:" + (project->getProjectPath() / ".clang-format").generic_string() +
-                 " --fallback-style=llvm -i -- " + filesStr;
-    system(shStr.c_str());
 
     return 0;
 }
