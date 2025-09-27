@@ -41,7 +41,7 @@ namespace Ast::Cpp
 
     void FileLexer::OnPutAdditionalInfoToXml(Xml& xml, XmlNode* output) const
     {
-        if (!Verify(output))
+        if (!ASSERT_VAL(output))
         {
             return;
         }

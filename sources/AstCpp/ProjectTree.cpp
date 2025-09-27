@@ -76,7 +76,7 @@ namespace Ast::Cpp
 #if AST_DEBUG == 1
                 const auto afterCommentFilterLen = String::GetLinesCountInText(content->Data().c_str());
                 const String __secondDump = content->Data();
-                Assert(beforeCommentFilterLen == afterCommentFilterLen);
+                ASSERT(beforeCommentFilterLen == afterCommentFilterLen);
 #endif
 
                 if (content->Data().isEmpty())

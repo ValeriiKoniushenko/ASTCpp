@@ -34,7 +34,7 @@ namespace Ast::Cpp
 
     bool LineCountRule::IsCorrespondingTheRules(const BaseLexer* lexer, const char* additionalMessage) const
     {
-        if (!Verify(lexer))
+        if (!ASSERT_VAL(lexer))
         {
             return false;
         }
@@ -63,7 +63,7 @@ namespace Ast::Cpp
 
     void NameRule::SetRegexNameRule(const String& regexNameRule)
     {
-        if (Verify(!regexNameRule.isEmpty()))
+        if (ASSERT_VAL(!regexNameRule.isEmpty()))
         {
             _regexNameRule = regexNameRule;
         }

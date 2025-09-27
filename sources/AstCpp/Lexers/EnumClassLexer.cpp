@@ -26,6 +26,7 @@
 #include "Ast/Readers/ContentStream.h"
 #include "Ast/Utils/Scopes.h"
 #include "Ast/Utils/String.h"
+#include "Core/String.h"
 #include "NamespaceLexer.h"
 #include "spdlog/spdlog.h"
 
@@ -77,12 +78,12 @@ namespace Ast::Cpp
 
     bool EnumClassLexer::AddConstant(const String& name, String value)
     {
-        if (!Verify(std::find_if(_constants.cbegin(), _constants.cend(),
-                                 [&name](const Constant& a)
-                                 {
-                                     return a.name == name;
-                                 }) == _constants.cend(),
-                    "Impossible to add new enum class constant, because such name of the constant already exists"))
+        if (ASSERT_VAL(std::find_if(_constants.cbegin(), _constants.cend(),
+                                    [&name](const Constant& a)
+                                    {
+                                        return a.name == name;
+                                    }) == _constants.cend(),
+                       "Impossible to add new enum class constant, because such name of the constant already exists") == _constants.cend())
         {
             return false;
         }
@@ -127,7 +128,7 @@ namespace Ast::Cpp
 
     bool EnumClassLexer::DoParse()
     {
-        if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
+        if (!ASSERT_VAL(_token.IsValid(), "Impossible to work with an invalid token"))
         {
             spdlog::error("EnumClassLexer: Impossible to work with an invalid token");
             return false;
@@ -143,7 +144,7 @@ namespace Ast::Cpp
         }
 
         auto match = string.regexFind("^\\w+");
-        if (Verify(!!match, "Impossible to define an enum class name"))
+        if (ASSERT_VAL(!!match, "Impossible to define an enum class name"))
         {
             _lexerName = match.convertBasedOn(string);
             _lexerName.shrink_to_fit();
@@ -205,7 +206,7 @@ namespace Ast::Cpp
 
         const char* begin = _token.beginData;
         // trying to find closed bracket
-        if (Verify(begin) && *begin != ')')
+        if (ASSERT_VAL(begin) && *begin != ')')
         {
             do
             {
@@ -267,7 +268,7 @@ namespace Ast::Cpp
 
     bool EnumClassLexer::RecognizeConstants()
     {
-        if (!Verify(_openScope.has_value() && _openScope->IsValid() && _closeScope.has_value() && _closeScope->IsValid()))
+        if (!ASSERT_VAL(_openScope.has_value() && _openScope->IsValid() && _closeScope.has_value() && _closeScope->IsValid()))
         {
             spdlog::error(("Impossible to get a enum class scope '{}'"_f << _lexerName.c_str()).toStdStringView());
             return false;
@@ -297,7 +298,7 @@ namespace Ast::Cpp
                 }
 
                 errorLog("The error occurred while parsing constants of the enum class: '{}' in file: {}"_f << _lexerName << file);
-                Assert();
+                ASSERT(false);
                 return false;
             }
 

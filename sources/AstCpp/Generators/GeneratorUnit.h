@@ -39,7 +39,7 @@ namespace Ast::Cpp
         [[nodiscard]] bool IsImplementation() const { return !IsDeclaration(); }
         static bool IsSelf(const Ast::GeneratorUnit::Ptr& unit)
         {
-            if (Verify(!!unit, "Was passed nullptr unit"))
+            if (ASSERT_VAL(!!unit, "Was passed nullptr unit"))
             {
                 return dynamic_cast<const FinalGeneratorT*>(unit.get());
             }

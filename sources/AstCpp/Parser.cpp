@@ -84,7 +84,7 @@ namespace Ast::Cpp
         IterateOverLexers(
             [](BaseLexer* lexer)
             {
-                if (Verify(lexer))
+                if (ASSERT_VAL(lexer))
                 {
                     if (lexer->GetLexerName() == "Unit")
                     {
@@ -153,7 +153,7 @@ namespace Ast::Cpp
         IterateOverLexers(
             [&](BaseLexer* lexer)
             {
-                if (!Verify(lexer) || *lexer == *prevLexer)
+                if (!ASSERT_VAL(lexer) || *lexer == *prevLexer)
                 {
                     return true;
                 }

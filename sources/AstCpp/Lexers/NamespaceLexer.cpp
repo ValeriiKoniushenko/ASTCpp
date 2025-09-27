@@ -76,7 +76,7 @@ namespace Ast::Cpp
 
     bool NamespaceLexer::DoParse()
     {
-        if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
+        if (!ASSERT_VAL(_token.IsValid(), "Impossible to work with an invalid token"))
         {
             spdlog::error("NamespaceLexer: Impossible to work with an invalid token");
             return false;
@@ -135,8 +135,8 @@ namespace Ast::Cpp
         _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data().c_str(), openedBracket) };
         _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data().c_str(), closedBracket) };
 
-        Assert(!!_openScope->string);
-        Assert(!!_closeScope->string);
+        ASSERT(!!_openScope->string);
+        ASSERT(!!_closeScope->string);
 
         return true;
     }

@@ -72,7 +72,7 @@ namespace Ast::Cpp
 
     bool ClassLexer::AddTemplate(TemplateUnit template_)
     {
-        if (!Verify(IsValid()))
+        if (!ASSERT_VAL(IsValid()))
         {
             return false;
         }
@@ -84,7 +84,7 @@ namespace Ast::Cpp
 
     bool ClassLexer::AddClassParents(ParentUnit parent)
     {
-        if (!Verify(IsValid()))
+        if (!ASSERT_VAL(IsValid()))
         {
             return false;
         }
@@ -96,7 +96,7 @@ namespace Ast::Cpp
 
     bool ClassLexer::AddField(Field field)
     {
-        if (!Verify(IsValid()))
+        if (!ASSERT_VAL(IsValid()))
         {
             return false;
         }
@@ -108,7 +108,7 @@ namespace Ast::Cpp
 
     bool ClassLexer::AddMethod(Method method)
     {
-        if (!Verify(IsValid()))
+        if (!ASSERT_VAL(IsValid()))
         {
             return false;
         }
@@ -212,7 +212,7 @@ namespace Ast::Cpp
 
     bool ClassLexer::DoParse()
     {
-        if (!Verify(_token.IsValid(), "Impossible to work with an invalid token"))
+        if (!ASSERT_VAL(_token.IsValid(), "Impossible to work with an invalid token"))
         {
             spdlog::error("ClassLexer: Impossible to work with an invalid token");
             return false;
@@ -235,7 +235,7 @@ namespace Ast::Cpp
         }
 
         auto match = string.regexFind("^\\w+");
-        if (Verify(!!match, "Impossible to define a class name"))
+        if (ASSERT_VAL(!!match, "Impossible to define a class name"))
         {
             _lexerName = match.convertBasedOn(string);
             _lexerName.shrink_to_fit();
@@ -312,7 +312,7 @@ namespace Ast::Cpp
         }
 
         const auto* openedBracket = _token.endData - 1; // -1 - to back to the '{' correspoinding to regex expr
-        if (!Verify(*openedBracket == '{', "Impossible to define an class scope."))
+        if (!ASSERT_VAL(*openedBracket == '{', "Impossible to define an class scope."))
         {
             spdlog::error(("Impossible to define an class scope '{}'"_f << _lexerName.c_str()).toStdStringView());
             return false;
@@ -323,8 +323,8 @@ namespace Ast::Cpp
         _openScope = { openedBracket, String::GetLinesCountInText(_reader->Data().c_str(), openedBracket) };
         _closeScope = { closedBracket, String::GetLinesCountInText(_reader->Data().c_str(), closedBracket) };
 
-        Assert(!!_closeScope->string);
-        Assert(!!_openScope->string);
+        ASSERT(!!_closeScope->string);
+        ASSERT(!!_openScope->string);
 
         closedBracket = Utils::FindClosedBracket(openedBracket, '}', '{');
 
@@ -343,7 +343,7 @@ namespace Ast::Cpp
         {
             begin = _token.beginData;
         }
-        if (!Verify(begin))
+        if (!ASSERT_VAL(begin))
         {
             return false;
         }
@@ -449,9 +449,9 @@ namespace Ast::Cpp
 
     void ClassLexer::RecognizeFields()
     {
-        Assert(!!_closeScope->string);
-        Assert(!!_openScope->string);
-        String body(_openScope->string, _closeScope->string ? _closeScope->string - _openScope->string : String::Settings::invalidSize);
+        ASSERT(!!_closeScope->string);
+        ASSERT(!!_openScope->string);
+        String body(_openScope->string, _closeScope->string ? _closeScope->string - _openScope->string : String::StringDataReadOnlyT::invalidSize);
         body.trim('{').trim('}');
 
         RemoveNestedScopes(body);
@@ -506,7 +506,7 @@ namespace Ast::Cpp
                 }
                 else
                 {
-                    Assert();
+                    ASSERT(false);
                     spdlog::error(("Impossible to define a class's field type. Class: '{}'"_f << _lexerName.c_str()).toStdStringView());
                     return true;
                 }
@@ -522,7 +522,7 @@ namespace Ast::Cpp
                 }
                 else
                 {
-                    Assert();
+                    ASSERT(false);
                     spdlog::error(("Impossible to define a class's field name. Class: '{}'"_f << _lexerName.c_str()).toStdStringView());
                     return true;
                 }

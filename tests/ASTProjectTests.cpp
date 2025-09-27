@@ -289,7 +289,7 @@ TEST(ASTProjectTest, CheckingForEnumClass)
                     if (lexer->IsMarked())
                     {
                         auto enumClass = lexer->CastTo<Ast::Cpp::EnumClassLexer>();
-                        if (Verify(!!enumClass))
+                        if (ASSERT_VAL(!!enumClass))
                         {
                             int i = 1;
                             foundAtLeastOne = true;

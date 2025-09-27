@@ -24,13 +24,12 @@
 
 #include "Ast/Lexers/BaseLexer.h"
 #include "Ast/Utils/Scopes.h"
-#include "Core/Assert.h"
 
 namespace
 {
     std::optional<std::pair<const Ast::String::CharT*, Ast::String>> FindTemplate(const Ast::BaseLexer* lexer)
     {
-        if (!Verify(lexer))
+        if (!ASSERT_VAL(lexer))
         {
             return {};
         }

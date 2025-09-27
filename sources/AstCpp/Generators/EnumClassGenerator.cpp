@@ -28,7 +28,7 @@ namespace Ast::Cpp
     /*String EnumClassGeneratorDecl::OnFinishGenerateNeededStartOfFile(const BaseLexer* lexer) const
     {
         const auto* realLexer = dynamic_cast<const EnumClassLexer*>(lexer);
-        if (!Verify(realLexer, "Was met not expected lexer"))
+        if (!ASSERT_VAL(realLexer, "Was met not expected lexer"))
         {
             return {};
         }
@@ -75,7 +75,7 @@ namespace Ast::Cpp
         auto out = GeneratorUnitImpl::OnGenerate(lexer);
 
         const auto* realLexer = dynamic_cast<const EnumClassLexer*>(lexer);
-        if (!Verify(realLexer, "Was met not expected lexer"))
+        if (!ASSERT_VAL(realLexer, "Was met not expected lexer"))
         {
             return {};
         }
